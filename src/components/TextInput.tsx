@@ -37,8 +37,9 @@ const Container = emotion('div')({
   flexDirection: 'row',
   alignItems: 'center',
   margin: '5px 0px',
+  boxSizing: 'border-box',
   '& input': {
-    width: '150px',
+    width: '100%',
     height: '25px',
     borderRadius: '2px',
     border: '1px solid gray',
@@ -49,8 +50,9 @@ const Container = emotion('div')({
   },
   '& label': {
     display: 'block',
-    width: '80px',
-    margin: '0px',
+    width: '150px',
+    textAlign: 'right',
+    marginRight: '10px',
     fontWeight: 400
   }
 });

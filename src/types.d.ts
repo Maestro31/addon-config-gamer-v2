@@ -15,43 +15,19 @@ interface ResellerCategory {
 interface ResellerInfo {
   name: string;
   url: string;
-  monnaie: string;
-  searchUrlTemplate?: string;
-  searchUrlByCategoryTemplate?: string;
+  currency: string;
+  tag?: string;
+}
+
+interface ParserConfig {
+  searchUrlTemplate?: (args: SearchArgs) => string;
+  searchUrlByCategoryTemplate?: (args: string[]) => string;
   categoryList?: ResellerCategory[];
   matchesUrl: {
     regex: RegExp;
     methodName: string;
   }[];
 }
-
-interface ParserConfig {
-  regex: RegExp;
-  methodName: string;
-}
-
-interface ParserOptions {
-  selector: string;
-  attribute?:
-    | 'innerText'
-    | 'innerHTML'
-    | 'src'
-    | 'href'
-    | 'title'
-    | 'value'
-    | 'checked'
-    | 'id';
-  innerAttribute?: string;
-  noChildInnerText?: boolean;
-  defaultValue?: any;
-}
-
-interface ParseResult {
-  title?: string;
-  data: any;
-}
-
-type ParseResponse = ParseResult[];
 
 interface SearchResponse {
   pageCount: number;

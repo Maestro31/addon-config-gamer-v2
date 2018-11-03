@@ -6,7 +6,11 @@ export default class InfomaxParser extends AbstractParser {
   reseller: ResellerInfo = {
     name: 'Infomax',
     url: 'https://www.infomaxparis.com',
-    monnaie: 'EUR',
+    currency: 'EUR',
+    tag: '#ae1'
+  };
+
+  config: ParserConfig = {
     matchesUrl: [
       {
         regex: /https:\/\/infomaxparis\.com\/commande/,
@@ -22,9 +26,11 @@ export default class InfomaxParser extends AbstractParser {
   searchComponent(keys: SearchArgs): Promise<SearchResponse> {
     throw new Error('Method not implemented.');
   }
+
   updateComponent(component: Component): Promise<Component> {
     return;
   }
+
   fromCart(): Config {
     throw new Error('Method not implemented.');
   }
@@ -40,10 +46,10 @@ export default class InfomaxParser extends AbstractParser {
 
     config.refund = refund.replace(/(\s|€)/g, '').replace(',', '.');
 
-    const elements = this.getListElement(document.body, {
-      selector: '.panel-gray .remarketing--content-product-selected',
-      defaultValue: []
-    });
+    const elements = this.getAllElements(
+      document.body,
+      '.panel-gray .remarketing--content-product-selected'
+    );
 
     Array.prototype.forEach.call(elements, parentNode => {
       let component = new Component();

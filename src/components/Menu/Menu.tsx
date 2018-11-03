@@ -1,13 +1,13 @@
 import * as React from 'react';
 import emotion from 'react-emotion';
 import { Keyframes, animated } from 'react-spring';
-import { faDownload } from '@fortawesome/free-solid-svg-icons';
+import { faDownload, faCog } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import delay from 'delay';
 import chrome from '../../services/Browser';
 
 const MenuBar = Keyframes.Spring({
-  open: { x: 110 },
+  open: { x: 150 },
   close: async call => {
     await delay(400);
     await call({ x: 50 });
@@ -16,6 +16,7 @@ const MenuBar = Keyframes.Spring({
 
 interface Props {
   onSaveConfigClick: () => void;
+  onSettingsClick: () => void;
 }
 
 interface State {
@@ -49,6 +50,9 @@ export default class Menu extends React.Component<Props, State> {
                 <MenuIcon src={chrome.runtime.getURL('/img/icon48.png')} />
                 <Button onClick={this.props.onSaveConfigClick}>
                   <FontAwesomeIcon icon={faDownload} />
+                </Button>
+                <Button onClick={this.props.onSettingsClick}>
+                  <FontAwesomeIcon icon={faCog} />
                 </Button>
               </ContentMenu>
             </MenuContainer>

@@ -8,9 +8,18 @@ export const getTags = (): Promise<any> => {
   return get('tags');
 };
 
+export const getComments = (): Promise<string[]> => {
+  return get('comments');
+};
+
 export const addTags = async (newtags: string[]) => {
   const tags = await getTags();
   setTags(Array.from(new Set([...tags, ...newtags])));
+};
+
+export const addComment = async (newComment: string) => {
+  const comments = await getComments();
+  setComments(Array.from(new Set([...comments, newComment])));
 };
 
 export const getConfigs = async (): Promise<any> => {
@@ -35,7 +44,7 @@ export const get = (key: string): Promise<any[]> => {
   return new Promise((resolve, reject) => {
     storage.get(key, items => {
       console.log(items[key]);
-      resolve(items[key]);
+      resolve(items[key] || []);
     });
   });
 };
@@ -45,6 +54,10 @@ export const setTags = (tags: string[]) => {
 };
 export const setConfigs = (configs: Config[]) => {
   set({ configs });
+};
+
+export const setComments = (comments: string[]) => {
+  set({ comments });
 };
 
 export const set = (item: {}) => {

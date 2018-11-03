@@ -7,11 +7,19 @@ export default class TopAchatParser extends AbstractParser {
   reseller: ResellerInfo = {
     name: 'Top Achat',
     url: 'https://www.topachat.com',
-    monnaie: 'EUR',
-    searchUrlTemplate:
-      'https://www.topachat.com/pages/produits_cat_est_{{cat-0}}_puis_rubrique_est_{{cat-1}}_puis_mc_est_{{text}}.html',
-    searchUrlByCategoryTemplate:
-      'https://www.topachat.com/pages/produits_cat_est_{{cat-0}}_puis_rubrique_est_{{cat-1}}',
+    currency: 'EUR',
+    tag: '#ae51'
+  };
+
+  config: ParserConfig = {
+    searchUrlTemplate: ({ text, categories }: SearchArgs): string =>
+      `https://www.topachat.com/pages/produits_cat_est_${categories[0]}${
+        categories[1] ? `_puis_rubrique_est_${categories[1]}` : ''
+      }${text ? `_puis_mc_est_${text}.html` : ''}`,
+    searchUrlByCategoryTemplate: (categories: string[]): string =>
+      `https://www.topachat.com/pages/produits_cat_est_${categories[0]}${
+        categories[1] ? `_puis_rubrique_est_${categories[1]}` : ''
+      }`,
     categoryList: [
       {
         label: 'Processeur',
@@ -291,10 +299,7 @@ export default class TopAchatParser extends AbstractParser {
   fromCart(): Config {
     let config = new Config();
 
-    const elements = this.getListElement(document.body, {
-      selector: '#recap tbody > tr',
-      defaultValue: []
-    });
+    const elements = this.getAllElements(document.body, '#recap tbody > tr');
 
     Array.prototype.forEach.call(elements, parentNode => {
       let component = new Component();
@@ -309,11 +314,12 @@ export default class TopAchatParser extends AbstractParser {
         noChildInnerText: true,
         defaultValue: ''
       });
-      component.url = this.getElementAttribute(parentNode, {
-        selector: '.unstyled',
-        attribute: 'href',
-        defaultValue: '#'
-      });
+      component.url =
+        this.getElementAttribute(parentNode, {
+          selector: '.unstyled',
+          attribute: 'href',
+          defaultValue: '#'
+        }) + this.reseller.tag;
       let price = this.getElementAttribute(parentNode, {
         selector: 'td:nth-child(3)',
         attribute: 'innerText',
@@ -337,16 +343,18 @@ export default class TopAchatParser extends AbstractParser {
       config.addComponent(component);
     });
 
+    if (config.price >= 1000) {
+      config.refund = (5 * config.price) / 100;
+    }
+
     return config;
   }
 
   fromConfigurateur = (): Config => {
     let config = new Config();
 
-    let elements = this.getListElement(document.body, {
-      selector: '.hasProduct',
-      defaultValue: []
-    });
+    let elements = this.getAllElements(document.body, '.hasProduct');
+
     Array.prototype.forEach.call(elements, parentNode => {
       let component = new Component();
       component.imageUrl = this.getElementAttribute(parentNode, {
@@ -361,11 +369,12 @@ export default class TopAchatParser extends AbstractParser {
         defaultValue: ''
       });
 
-      component.url = this.getElementAttribute(parentNode, {
-        selector: '.configomatic-product__actions > a',
-        attribute: 'href',
-        defaultValue: '#'
-      });
+      component.url =
+        this.getElementAttribute(parentNode, {
+          selector: '.configomatic-product__actions > a',
+          attribute: 'href',
+          defaultValue: '#'
+        }) + this.reseller.tag;
 
       component.price = parseFloat(
         this.getElementAttribute(parentNode, {
@@ -384,6 +393,10 @@ export default class TopAchatParser extends AbstractParser {
 
       config.addComponent(component);
     });
+
+    if (config.price >= 1000) {
+      config.refund = (5 * config.price) / 100;
+    }
 
     return config;
   };
@@ -416,10 +429,10 @@ export default class TopAchatParser extends AbstractParser {
   parseListComponents(doc: Document): Component[] {
     let components: Array<Component> = [];
 
-    const elements = this.getListElement(doc.body, {
-      selector: '.produits .grille-produit > section',
-      defaultValue: []
-    });
+    const elements = this.getAllElements(
+      doc.body,
+      '.produits .grille-produit > section'
+    );
 
     Array.prototype.forEach.call(elements, parentNode => {
       let component = new Component();
@@ -437,11 +450,12 @@ export default class TopAchatParser extends AbstractParser {
         defaultValue: ''
       });
 
-      let url = this.getElementAttribute(parentNode, {
-        selector: '.libelle > a',
-        attribute: 'href',
-        defaultValue: '#'
-      });
+      let url =
+        this.getElementAttribute(parentNode, {
+          selector: '.libelle > a',
+          attribute: 'href',
+          defaultValue: '#'
+        }) + this.reseller.tag;
 
       url = url.replace(/^https?:\/\/[a-zA-Z\.:0-9]+/g, '');
 
@@ -470,7 +484,7 @@ export default class TopAchatParser extends AbstractParser {
       return this.searchComponentWithFilter(keys);
     }
 
-    const url = this.getUrlFromTemplate(this.reseller.searchUrlTemplate, keys);
+    const url = this.config.searchUrlTemplate(keys);
 
     return axios
       .get(url)
@@ -512,10 +526,7 @@ export default class TopAchatParser extends AbstractParser {
   }
 
   getFilters(doc: Document): FilterData[] {
-    const filterNodes = this.getListElement(doc.body, {
-      selector: '#filtres .filter-box',
-      defaultValue: []
-    });
+    const filterNodes = this.getAllElements(doc.body, '#filtres .filter-box');
 
     let filters: FilterData[] = [];
 
@@ -547,10 +558,7 @@ export default class TopAchatParser extends AbstractParser {
 
       filter.options = [];
       if (filter.type === 'combo') {
-        const inputs = this.getListElement(filterNode, {
-          selector: 'input',
-          defaultValue: []
-        });
+        const inputs = this.getAllElements(filterNode, 'input');
 
         Array.prototype.forEach.call(inputs, inputNode => {
           filter.options.push({
@@ -587,10 +595,7 @@ export default class TopAchatParser extends AbstractParser {
   }
 
   getSearchWithFilterUrl(args: SearchArgs): string {
-    let url = this.getUrlFromTemplate(
-      this.reseller.searchUrlByCategoryTemplate,
-      args
-    );
+    let url = this.config.searchUrlByCategoryTemplate(args.categories);
 
     if (args.filterValues && args.filterValues.length !== 0) {
       let selectedOptions = {};
@@ -630,10 +635,7 @@ export default class TopAchatParser extends AbstractParser {
         const parser = new DOMParser();
         const doc = parser.parseFromString(data, 'text/html');
 
-        const pagesEl = this.getListElement(doc.body, {
-          selector: '.pagination > *',
-          defaultValue: []
-        });
+        const pagesEl = this.getAllElements(doc.body, '.pagination > *');
 
         let maxPage = 1;
         Array.prototype.forEach.call(pagesEl, pageNode => {

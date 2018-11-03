@@ -2,17 +2,24 @@ import axios from 'axios';
 import Config from '../../Models/Config';
 import Component from '../../Models/Component';
 import AbstractParser from './AbstractParser';
-import { cpus } from 'os';
 
 export default class MaterielNetParser extends AbstractParser {
   reseller: ResellerInfo = {
     name: 'Materiel.net',
     url: 'https://www.materiel.net',
-    monnaie: 'EUR',
-    searchUrlTemplate:
-      'https://www.materiel.net/search/product/{{text}}/ftxt-/{{index}}?department={{category}}',
-    searchUrlByCategoryTemplate:
-      'https://www.materiel.net/{{cat-0}}/{{cat-1}}/{{cat-2}}',
+    currency: 'EUR',
+    tag: '#a_aid=aff764'
+  };
+
+  config: ParserConfig = {
+    searchUrlTemplate: ({ text, index, categories }: SearchArgs): string =>
+      `https://www.materiel.net/search/product/${text}/ftxt-/${index}?department=${
+        categories[0]
+      }`,
+    searchUrlByCategoryTemplate: (categories: string[]): string =>
+      `https://www.materiel.net/${categories[0]}/${categories[1]}/${
+        categories[2] ? categories[2] : ''
+      }`,
     categoryList: [
       {
         label: 'Processeurs ',
@@ -1303,10 +1310,11 @@ export default class MaterielNetParser extends AbstractParser {
 
   fromCart = (): Config => {
     let config = new Config();
-    let elements = this.getListElement(document.body, {
-      selector: '.cart-list__body > .cart-table',
-      defaultValue: []
-    });
+    let elements = this.getAllElements(
+      document.body,
+      '.cart-list__body > .cart-table'
+    );
+
     Array.prototype.forEach.call(elements, parentNode => {
       let component = new Component();
       component.instock =
@@ -1332,11 +1340,13 @@ export default class MaterielNetParser extends AbstractParser {
         defaultValue: '',
         attribute: 'innerText'
       });
-      component.url = this.getElementAttribute(parentNode, {
-        selector: '.title > a',
-        defaultValue: '#',
-        attribute: 'href'
-      });
+      component.url =
+        this.getElementAttribute(parentNode, {
+          selector: '.title > a',
+          defaultValue: '#',
+          attribute: 'href'
+        }) + this.reseller.tag;
+
       component.imageUrl = this.getElementAttribute(parentNode, {
         selector: 'img',
         defaultValue: '#',
@@ -1350,17 +1360,18 @@ export default class MaterielNetParser extends AbstractParser {
       config.addComponent(component);
     });
 
-    config.monnaie = this.reseller.monnaie;
+    config.currency = this.reseller.currency;
     config.reseller = this.reseller;
     return config;
   };
 
   fromSavedCart = (): Config => {
     let config = new Config();
-    let elements = this.getListElement(document.body, {
-      selector: '.basket__body.show .order__body .order-table',
-      defaultValue: []
-    });
+    let elements = this.getAllElements(
+      document.body,
+      '.basket__body.show .order__body .order-table'
+    );
+
     Array.prototype.forEach.call(elements, parentNode => {
       let component = new Component();
       component.instock =
@@ -1368,6 +1379,7 @@ export default class MaterielNetParser extends AbstractParser {
           selector: '.order-cell--stock .o-availability__value',
           attribute: 'innerText'
         }) === 'EN STOCK';
+
       component.quantity = parseInt(
         this.getElementAttribute(parentNode, {
           selector: 'order-cell--quantity',
@@ -1375,22 +1387,27 @@ export default class MaterielNetParser extends AbstractParser {
           attribute: 'innerHTML'
         }).replace('x', '')
       );
+
       let price = this.getElementAttribute(parentNode, {
         selector: '.order-cell--price',
         defaultValue: '0',
         attribute: 'innerText'
       }).replace('€', '.');
       component.price = parseFloat(price) / component.quantity;
+
       component.name = this.getElementAttribute(parentNode, {
         selector: '.order-cell--designation a',
         defaultValue: '',
         attribute: 'innerText'
       });
-      component.url = this.getElementAttribute(parentNode, {
-        selector: '.order-cell--designation a',
-        defaultValue: '#',
-        attribute: 'href'
-      });
+
+      component.url =
+        this.getElementAttribute(parentNode, {
+          selector: '.order-cell--designation a',
+          defaultValue: '#',
+          attribute: 'href'
+        }) + this.reseller.tag;
+
       component.imageUrl = this.getElementAttribute(parentNode, {
         selector: '.order-cell--pic > img',
         defaultValue: '#',
@@ -1406,27 +1423,30 @@ export default class MaterielNetParser extends AbstractParser {
   fromConfigurateur = (): Config => {
     let config = new Config();
 
-    const elements = this.getListElement(document.body, {
-      selector: '.c-row__content',
-      defaultValue: []
-    });
+    const elements = this.getAllElements(document.body, '.c-row__content');
+
     Array.prototype.forEach.call(elements, parentNode => {
       let component = new Component();
+
       component.name = this.getElementAttribute(parentNode, {
         selector: '.c-meta__title',
         defaultValue: '',
         attribute: 'innerText'
       });
-      component.url = this.getElementAttribute(parentNode, {
-        selector: '.c-selected-product__meta > a',
-        defaultValue: '#',
-        attribute: 'href'
-      });
+
+      component.url =
+        this.getElementAttribute(parentNode, {
+          selector: '.c-selected-product__meta > a',
+          defaultValue: '#',
+          attribute: 'href'
+        }) + this.reseller.tag;
+
       component.imageUrl = this.getElementAttribute(parentNode, {
         selector: '.c-selected-product__thumb > img',
         defaultValue: '#',
         attribute: 'src'
       });
+
       component.error = this.getElementAttribute(parentNode, {
         selector: '.error',
         defaultValue: '',
@@ -1436,10 +1456,11 @@ export default class MaterielNetParser extends AbstractParser {
       config.addComponent(component);
     });
 
-    let recapElements = this.getListElement(document.body, {
-      selector: '.c-configuration__table tbody > tr',
-      defaultValue: []
-    });
+    let recapElements = this.getAllElements(
+      document.body,
+      '.c-configuration__table tbody > tr'
+    );
+
     Array.prototype.forEach.call(recapElements, parentNode => {
       const instock =
         this.getElementAttribute(parentNode, {
@@ -1533,10 +1554,10 @@ export default class MaterielNetParser extends AbstractParser {
       stocks = { ...stocks, [matches[1]]: matches[2] == '1' };
     }
 
-    const elements = this.getListElement(doc.body, {
-      selector: '.c-products-list .c-products-list__item',
-      defaultValue: []
-    });
+    const elements = this.getAllElements(
+      doc.body,
+      '.c-products-list .c-products-list__item'
+    );
 
     Array.prototype.forEach.call(elements, parentNode => {
       let component = new Component();
@@ -1559,7 +1580,7 @@ export default class MaterielNetParser extends AbstractParser {
         defaultValue: '#'
       });
 
-      component.url = `${this.reseller.url}${relativeUrl}`;
+      component.url = `${this.reseller.url}${relativeUrl}${this.reseller.tag}`;
 
       const componentId = parentNode.id || parentNode.getAttribute('data-id');
 
@@ -1593,10 +1614,10 @@ export default class MaterielNetParser extends AbstractParser {
 
   getFilters = (doc: Document): FilterData[] => {
     console.log('Récupération des filtres de la page en cours...');
-    const filterNodes = this.getListElement(doc.body, {
-      selector: '#filterProduct > div.c-collapse',
-      defaultValue: []
-    });
+    const filterNodes = this.getAllElements(
+      doc.body,
+      '#filterProduct > div.c-collapse'
+    );
 
     let filters: FilterData[] = [];
 
@@ -1630,10 +1651,7 @@ export default class MaterielNetParser extends AbstractParser {
           defaultValue: ''
         }).split('_')[1];
 
-        const inputs = this.getListElement(filterNode, {
-          selector: 'ul > li',
-          defaultValue: []
-        });
+        const inputs = this.getAllElements(filterNode, 'ul > li');
 
         Array.prototype.forEach.call(inputs, inputNode => {
           let option = {
@@ -1744,10 +1762,7 @@ export default class MaterielNetParser extends AbstractParser {
   };
 
   getSearchWithFilterUrl = (args: SearchArgs): string => {
-    let url = this.getUrlFromTemplate(
-      this.reseller.searchUrlByCategoryTemplate,
-      args
-    );
+    let url = this.config.searchUrlByCategoryTemplate(args.categories);
 
     if (args.filterValues && args.filterValues.length !== 0) {
       let selectedOptions = {};
@@ -1820,12 +1835,7 @@ export default class MaterielNetParser extends AbstractParser {
         };
       })
       .catch(error => {
-        return {
-          pageCount: 0,
-          currentPage: args.index,
-          items: [],
-          error: error.message
-        };
+        return this.sendNoComponentsFound(error.message);
       });
   };
 
@@ -1834,7 +1844,7 @@ export default class MaterielNetParser extends AbstractParser {
       return this.searchComponentWithFilter(keys);
     }
 
-    const url = this.getUrlFromTemplate(this.reseller.searchUrlTemplate, keys);
+    const url = this.config.searchUrlTemplate(keys);
 
     return axios
       .get(url)
@@ -1865,13 +1875,7 @@ export default class MaterielNetParser extends AbstractParser {
         };
       })
       .catch(error => {
-        return {
-          pageCount: 0,
-          currentPage: 0,
-          itemsCount: 0,
-          items: [],
-          error: error.message
-        };
+        return this.sendNoComponentsFound(error.message);
       });
   };
 }

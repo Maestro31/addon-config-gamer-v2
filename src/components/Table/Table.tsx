@@ -179,7 +179,7 @@ export default class Table extends React.Component<Props, State> {
 
 const Container = emotion('table')({
   width: '100%',
-  color: '#676767'
+  color: '#D7D7D7'
 });
 
 const Tr = emotion('tr')({

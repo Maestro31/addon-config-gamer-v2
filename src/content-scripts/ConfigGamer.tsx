@@ -8,12 +8,14 @@ import { postConfig } from '../services/PostConfig';
 interface State {
   config: Config;
   openConfigDlg: boolean;
+  message;
 }
 
 export default class ConfigGamer extends React.Component<{}, State> {
   state = {
     config: null,
-    openConfigDlg: false
+    openConfigDlg: false,
+    message: ''
   };
   componentDidMount() {
     chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
@@ -26,6 +28,7 @@ export default class ConfigGamer extends React.Component<{}, State> {
           config: Config.create(msg.config),
           openConfigDlg: true
         });
+        sendResponse(true);
       } else {
         alert('Aucune config copiée');
       }
@@ -34,7 +37,7 @@ export default class ConfigGamer extends React.Component<{}, State> {
 
   onConfirmModal = (): void => {
     this.onCloseModal();
-    postConfig(this.state.config);
+    postConfig(this.state.config, this.state.message);
   };
 
   onCloseModal = (): void => {
@@ -58,6 +61,7 @@ export default class ConfigGamer extends React.Component<{}, State> {
             onConfirmConfig={this.onConfirmModal}
             onClose={this.onCloseModal}
             onConfigChange={this.onConfigChange}
+            onMessageChange={message => this.setState({ message })}
           />
         )}
       </>

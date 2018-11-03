@@ -1,53 +1,46 @@
 import Config from '../../Models/Config';
 import Component from '../../Models/Component';
 
-export interface ParseResult {
-  multiple: boolean;
-  config?: Config;
-  configs?: Config[];
+interface GetAttributeOptions {
+  selector: string;
+  attribute?:
+    | 'innerText'
+    | 'innerHTML'
+    | 'src'
+    | 'href'
+    | 'title'
+    | 'value'
+    | 'checked'
+    | 'id';
+  innerAttribute?: string;
+  noChildInnerText?: boolean;
+  defaultValue?: any;
 }
 
 export default abstract class AbstractParser {
   abstract reseller: ResellerInfo;
+  abstract config: ParserConfig;
 
   abstract updateComponent(component: Component): Promise<any>;
   abstract searchComponent(keys: SearchArgs): Promise<SearchResponse>;
 
-  getUrlFromTemplate(templateUrl: string, keys: SearchArgs): string {
-    let url = templateUrl;
-    Object.keys(keys).forEach(k => {
-      if (k === 'categories') {
-        keys[k].forEach((cat, i) => {
-          url = url.replace(`{{cat-${i}}}`, cat);
-        });
-      } else url = url.replace(`{{${k}}}`, keys[k]);
-    });
-
-    url = url.replace(/({{([\w|\d-_]+)}})/g, '');
-    console.log(url);
-    return url;
+  getAllElements(parentNode: Element, selector: string): NodeListOf<Element> {
+    return parentNode.querySelectorAll(selector);
   }
 
-  getListElement(
-    parentNode: Element,
-    options: ParserOptions
-  ): NodeListOf<Element> {
-    return (
-      parentNode.querySelectorAll(options.selector) || options.defaultValue
-    );
-  }
+  getElementAttribute(parentNode: Element, options: GetAttributeOptions): any {
+    const targetNode = <HTMLElement>parentNode.querySelector(options.selector);
 
-  getElementAttribute(parentNode: Element, options: ParserOptions): any {
-    const el = <HTMLElement>parentNode.querySelector(options.selector);
-
-    if (!el) return options.defaultValue;
+    if (!targetNode) return options.defaultValue;
 
     if (options.innerAttribute) {
-      return el.getAttribute(options.innerAttribute) || options.defaultValue;
+      return (
+        targetNode.getAttribute(options.innerAttribute) || options.defaultValue
+      );
     }
 
     if (options.attribute === 'innerText' && options.noChildInnerText) {
-      let child = <CharacterData>el.firstChild;
+      let child = <CharacterData>targetNode.firstChild;
       let texts = [];
       while (child) {
         if (child.nodeType === 3) {
@@ -58,10 +51,10 @@ export default abstract class AbstractParser {
       return texts.join('') || options.defaultValue;
     }
 
-    return el[options.attribute] || options.defaultValue;
+    return targetNode[options.attribute] || options.defaultValue;
   }
 
-  updateConfig = (config: Config, callback: Function): void => {
+  updateConfig = async (config: Config): Promise<Config> => {
     const configBefore = config.clone();
 
     let promises = [];
@@ -69,21 +62,23 @@ export default abstract class AbstractParser {
       promises.push(this.updateComponent(component));
     }
 
-    Promise.all(promises).then(values => {
+    return Promise.all(promises).then(values => {
       config.components = values;
 
+      // Comparaison non utilisée pour le moment
+      // Fonctionnalité encore à créer
       const comparison = configBefore.compareConfig(config);
       console.log(comparison);
 
       config.modificationDate = new Date();
-      callback(config, comparison);
+      return config;
     });
   };
 
   sendNoComponentsFound = (message: string): SearchResponse => {
     return {
       pageCount: 0,
-      currentPage: 0,
+      currentPage: 1,
       itemsCount: 0,
       items: [],
       error: message

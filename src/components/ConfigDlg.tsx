@@ -6,7 +6,7 @@ import {
 } from '../components/SharedComponents';
 import TextInput from './TextInput';
 import TagInput from './TagInput';
-import { getTags } from '../services/Storage';
+import { getTags, getComments } from '../services/Storage';
 import Config from '../Models/Config';
 import Component from '../Models/Component';
 import emotion from 'react-emotion';
@@ -21,6 +21,7 @@ interface Props {
   submitButtonTitle?: string;
   title: string;
   onClose(): void;
+  onMessageChange?: (text: string) => void;
   onConfirmConfig(config: Config): void;
   onCopyConfig?(): void;
   onConfigChange?(config: Config): void;
@@ -31,12 +32,14 @@ interface Props {
 interface State {
   config: Config;
   configCopied: boolean;
+  message: string;
 }
 
 export default class ConfigDlg extends React.Component<Props, State> {
-  state = {
+  state: State = {
     config: this.props.config,
-    configCopied: false
+    configCopied: false,
+    message: ''
   };
 
   onSubjectIdConfigChange = (id: string): void => {
@@ -52,6 +55,16 @@ export default class ConfigDlg extends React.Component<Props, State> {
   onConfigTagsChange = (tags: string[]): void => {
     this.state.config.tags = tags;
     this.setState({ configCopied: false });
+  };
+
+  onConfigUrlChange = (url: string) => {
+    this.state.config.url = url;
+    this.setState({ configCopied: false });
+  };
+
+  onMessageChange = e => {
+    this.setState({ message: e.target.value });
+    this.props.onMessageChange && this.props.onMessageChange(e.target.value);
   };
 
   onDeleteComponent = (id: string): void => {
@@ -88,45 +101,56 @@ export default class ConfigDlg extends React.Component<Props, State> {
     return (
       <Modal
         title={title}
+        height={950}
+        width={900}
         submitButtonTitle={submitButtonTitle || 'Confirmer'}
         onConfirm={this.onConfirmConfig}
         {...this.props}>
-        {this.props.mode === 'editable' && (
-          <GroupCard title="Informations">
-            <VerticalLayout>
-              <Input
-                label="Id du sujet:"
-                value={config.subjectId}
-                onChange={this.onSubjectIdConfigChange}
+        <GroupCard title="Informations">
+          <VerticalLayout>
+            {this.props.mode === 'editable' ? (
+              <>
+                <Input
+                  label="Id du sujet:"
+                  value={config.subjectId}
+                  onChange={this.onSubjectIdConfigChange}
+                />
+                <Input
+                  label="Membre:"
+                  value={config.owner}
+                  onChange={this.onOwnerConfigChange}
+                />
+                <TagInput
+                  getTags={getTags}
+                  value={config.tags}
+                  onChange={this.onConfigTagsChange}
+                />
+              </>
+            ) : (
+              <LinkInput
+                label="Lien vers la config:"
+                value={config.url}
+                onChange={this.onConfigUrlChange}
               />
-              <Input
-                label="Membre:"
-                value={config.owner}
-                onChange={this.onOwnerConfigChange}
-              />
-              <TagInput
-                getTags={getTags}
-                value={config.tags}
-                onChange={this.onConfigTagsChange}
-              />
-            </VerticalLayout>
-          </GroupCard>
-        )}
+            )}
+          </VerticalLayout>
+        </GroupCard>
         <GroupCard title="Les composants">
           <EditableComponentsList
             components={config.components}
+            activeComment={this.props.mode === 'post'}
             onDeleteComponent={this.onDeleteComponent}
             onComponentChange={this.onComponentChange}
           />
         </GroupCard>
         <RowReverseLayout>
-          <TitleH3>
+          <PriceText>
             Prix total:{' '}
             {`${new Intl.NumberFormat('fr-FR', {
               style: 'currency',
-              currency: config.monnaie
+              currency: config.currency
             }).format(config.price)}`}
-          </TitleH3>
+          </PriceText>
         </RowReverseLayout>
         {config.refund !== 0 && (
           <RowReverseLayout>
@@ -134,10 +158,19 @@ export default class ConfigDlg extends React.Component<Props, State> {
               Remise:{' '}
               {`${new Intl.NumberFormat('fr-FR', {
                 style: 'currency',
-                currency: config.monnaie
+                currency: config.currency
               }).format(config.refund)}`}
             </TitleH4>
           </RowReverseLayout>
+        )}
+        {this.props.mode === 'post' && (
+          <>
+            <Label>Message:</Label>
+            <TextArea
+              value={this.state.message}
+              onChange={this.onMessageChange}
+            />
+          </>
         )}
       </Modal>
     );
@@ -146,19 +179,29 @@ export default class ConfigDlg extends React.Component<Props, State> {
 
 const Input = emotion(TextInput)({});
 
-const TitleH2 = emotion('h2')({
-  fontSize: '23px',
-  fontWeight: 500,
-  color: '#e61f1f',
-  marginBottom: '15px'
-});
-
-const TitleH3 = emotion('h3')({
+const PriceText = emotion('h3')({
   fontSize: '21px',
-  fontWeight: 500
+  fontWeight: 500,
+  color: '#D7D7D7'
 });
 
 const TitleH4 = emotion('h4')({
   fontSize: '18px',
-  fontWeight: 400
+  fontWeight: 400,
+  marginTop: 0,
+  marginBottom: '5px'
+});
+
+const TextArea = emotion('textarea')({
+  width: '100%',
+  boxSizing: 'border-box',
+  height: '150px'
+});
+
+const Label = emotion('label')({
+  fontSize: '15px'
+});
+
+const LinkInput = emotion(Input)({
+  width: '100%'
 });

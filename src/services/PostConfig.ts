@@ -1,5 +1,4 @@
 import Config from '../Models/Config';
-import { format } from 'util';
 
 interface Tag {
   name: string;
@@ -49,7 +48,7 @@ const createTable = (table: {
   return surroundByTag(tableContent, 'table');
 };
 
-export const postConfig = (config: Config): void => {
+export const postConfig = (config: Config, message: string): void => {
   let table = createTable({
     headers: [
       surroundByTags('Dispo', ['b', 'center']),
@@ -73,18 +72,36 @@ export const postConfig = (config: Config): void => {
       surroundByTag(
         new Intl.NumberFormat('fr-FR', {
           style: 'currency',
-          currency: config.monnaie
+          currency: config.currency
         }).format(c.price * c.quantity),
         'right'
       )
     ])
   });
 
+  const configPrice = surroundByTags(
+    `Prix total: ${new Intl.NumberFormat('fr-FR', {
+      style: 'currency',
+      currency: config.reseller.currency
+    }).format(config.price)}`,
+    ['b', 'right']
+  );
+
+  const configRefund = surroundByTag(
+    `Remise: ${new Intl.NumberFormat('fr-FR', {
+      style: 'currency',
+      currency: config.reseller.currency
+    }).format(config.refund)}`,
+    'right'
+  );
+
+  let text = `${message}\n\n\nLien vers la config: ${config.url +
+    config.reseller
+      .tag}\n\n\n${table}\n\n\n${configPrice}\n${configRefund}\n\n`;
+
   const messageElement = <HTMLTextAreaElement>(
     document.forms['postform']['message']
   );
-
-  let text = `${table}`;
 
   messageElement.value = text;
 };

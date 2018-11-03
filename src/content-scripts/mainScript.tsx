@@ -4,12 +4,13 @@ import * as DOM from 'react-dom';
 import Menu from '../components/Menu';
 import Parser from '../services/Parsers/Parser';
 import ConfigDlg from '../components/ConfigDlg';
-import { saveConfigMessage } from '../services/Message';
+import { saveConfigMessage, sendMessage } from '../services/Messages';
 import Config from '../Models/Config';
-import { copyConfigMessage } from '../services/Message';
+import { copyConfigMessage } from '../services/Messages';
 import { Button } from '../components/SharedComponents';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
+import chrome from '../services/Browser';
 
 interface State {
   openConfigDlg: boolean;
@@ -24,21 +25,34 @@ export default class Main extends React.Component<{}, State> {
     configCopied: false
   };
 
-  onSaveConfigClick = (): void => {
+  componentWillMount = () => {
+    chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+      if (msg && msg.command === 'copy_config') {
+        const config = Parser.parseConfig();
+        sendResponse(config);
+      }
+    });
+  };
+
+  onSaveConfigClick = () => {
     const config = Parser.parseConfig();
     this.setState({ config, openConfigDlg: true, configCopied: false });
   };
 
-  onCloseModal = (): void => {
+  onSettingsClick = () => {
+    sendMessage('open_options');
+  };
+
+  onCloseModal = () => {
     this.setState({ openConfigDlg: false, config: null, configCopied: false });
   };
 
-  onConfirmModal = (config: Config): void => {
+  onConfirmModal = (config: Config) => {
     this.onCloseModal();
     saveConfigMessage(config);
   };
 
-  onCopyConfig = (): void => {
+  onCopyConfig = () => {
     this.setState({ configCopied: true });
     copyConfigMessage(this.state.config);
   };
@@ -46,7 +60,10 @@ export default class Main extends React.Component<{}, State> {
   render() {
     return (
       <>
-        <Menu onSaveConfigClick={this.onSaveConfigClick} />
+        <Menu
+          onSaveConfigClick={this.onSaveConfigClick}
+          onSettingsClick={this.onSettingsClick}
+        />
         {this.state.config && (
           <ConfigDlg
             mode="editable"

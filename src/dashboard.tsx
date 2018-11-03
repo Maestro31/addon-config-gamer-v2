@@ -4,7 +4,7 @@ import ConfigTable from './components/ConfigTable';
 import ConfigDlg from './components/ConfigDlg';
 import SearchDlg from './components/SearchComponent/SearchDlg';
 import { getConfigs, setConfigs } from './services/Storage';
-import { copyConfigMessage } from './services/Message';
+import { copyConfigMessage } from './services/Messages';
 import Parser from './services/Parsers/Parser';
 import Config from './Models/Config';
 import ButtonIcon from './components/ButtonIcon';
@@ -46,14 +46,14 @@ export default class Dashboard extends React.Component<{}, State> {
     this.setState({ config, openConfigDlg: true });
   };
 
-  onPressUpdateItem = config => {
-    Parser.updateConfig(config, (updatedConfig, comparison) => {
-      const configs = this.state.configs.map(
-        config => (config.id === updatedConfig.id ? updatedConfig : config)
-      );
-      this.setState({ configs });
-      setConfigs(configs);
-    });
+  onPressUpdateItem = async config => {
+    const updatedConfig = await Parser.updateConfig(config);
+    const configs = this.state.configs.map(
+      config => (config.id === updatedConfig.id ? updatedConfig : config)
+    );
+
+    this.setState({ configs });
+    setConfigs(configs);
   };
 
   onConfirmEditConfig = () => {

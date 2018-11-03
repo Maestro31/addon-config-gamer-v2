@@ -5,11 +5,14 @@ import AbstractParser from './AbstractParser';
 
 export default class LdlcParserV2 extends AbstractParser {
   reseller: ResellerInfo;
+  config: ParserConfig;
 
-  constructor(resellerInfo: ResellerInfo) {
+  constructor(resellerInfo: ResellerInfo, config: ParserConfig) {
     super();
     this.reseller = resellerInfo;
-    this.reseller.categoryList = [
+    this.config = config;
+    this.reseller.tag = '#aff764';
+    this.config.categoryList = [
       {
         label: 'Tous les rayons',
         value: 'all'
@@ -48,10 +51,10 @@ export default class LdlcParserV2 extends AbstractParser {
   fromCart(): Config {
     let config = new Config();
 
-    const elements = this.getListElement(document.body, {
-      selector: '.cart-product-list .item',
-      defaultValue: []
-    });
+    const elements = this.getAllElements(
+      document.body,
+      '.cart-product-list .item'
+    );
 
     Array.prototype.forEach.call(elements, parentNode => {
       let component = new Component();
@@ -68,11 +71,12 @@ export default class LdlcParserV2 extends AbstractParser {
         defaultValue: ''
       });
 
-      component.url = this.getElementAttribute(parentNode, {
-        selector: '.title > a',
-        attribute: 'href',
-        defaultValue: ''
-      });
+      component.url =
+        this.getElementAttribute(parentNode, {
+          selector: '.title > a',
+          attribute: 'href',
+          defaultValue: ''
+        }) + this.reseller.tag;
 
       component.instock =
         this.getElementAttribute(parentNode, {
@@ -93,7 +97,7 @@ export default class LdlcParserV2 extends AbstractParser {
         defaultValue: ''
       });
 
-      if (this.reseller.monnaie === 'CHF')
+      if (this.reseller.currency === 'CHF')
         component.price = parseFloat(priceText.replace(/(CHF|\s|')/g, ''));
       else
         component.price = parseFloat(
@@ -109,10 +113,8 @@ export default class LdlcParserV2 extends AbstractParser {
   fromConfigurateur = (): Config => {
     let config = new Config();
 
-    const recapElements = this.getListElement(document.body, {
-      selector: '.sbloc li',
-      defaultValue: []
-    });
+    const recapElements = this.getAllElements(document.body, '.sbloc li');
+
     Array.prototype.forEach.call(recapElements, parentNode => {
       let component = new Component();
 
@@ -147,7 +149,7 @@ export default class LdlcParserV2 extends AbstractParser {
       });
 
       let price;
-      if (this.reseller.monnaie === 'CHF')
+      if (this.reseller.currency === 'CHF')
         price = parseFloat(priceText.replace(/(CHF|\s|')/g, ''));
       else price = parseFloat(priceText.replace('€', '.').replace(/\s/g, ''));
 
@@ -156,10 +158,8 @@ export default class LdlcParserV2 extends AbstractParser {
       config.addComponent(component);
     });
 
-    const elements = this.getListElement(document.body, {
-      selector: '.elements .wrap-item',
-      defaultValue: []
-    });
+    const elements = this.getAllElements(document.body, '.elements .wrap-item');
+
     Array.prototype.forEach.call(elements, parentNode => {
       const imageUrl = this.getElementAttribute(parentNode, {
         selector: '.pic img',
@@ -171,11 +171,12 @@ export default class LdlcParserV2 extends AbstractParser {
         attribute: 'innerHTML',
         defaultValue: ''
       });
-      const url = this.getElementAttribute(parentNode, {
-        selector: '.product > a',
-        attribute: 'href',
-        defaultValue: '#'
-      });
+      const url =
+        this.getElementAttribute(parentNode, {
+          selector: '.product > a',
+          attribute: 'href',
+          defaultValue: '#'
+        }) + this.reseller.tag;
 
       config.components = config.components.map(item => {
         if (name === item.name) {
@@ -200,7 +201,7 @@ export default class LdlcParserV2 extends AbstractParser {
         defaultValue: '0'
       });
 
-      if (this.reseller.monnaie === 'CHF')
+      if (this.reseller.currency === 'CHF')
         component.price = parseFloat(priceText.replace(/(CHF|'|\s)/g, ''));
       else
         component.price = parseFloat(
@@ -218,8 +219,8 @@ export default class LdlcParserV2 extends AbstractParser {
     });
   };
 
-  async searchComponent(keys: SearchArgs): Promise<SearchResponse> {
-    const url = this.getUrlFromTemplate(this.reseller.searchUrlTemplate, keys);
+  searchComponent = async (keys: SearchArgs): Promise<SearchResponse> => {
+    const url = this.config.searchUrlTemplate(keys);
     console.log(url);
 
     return axios
@@ -243,10 +244,10 @@ export default class LdlcParserV2 extends AbstractParser {
 
         let components: Array<Component> = [];
 
-        const elements = this.getListElement(doc.body, {
-          selector: '.listing-product > ul:first-child > li',
-          defaultValue: []
-        });
+        const elements = this.getAllElements(
+          doc.body,
+          '.listing-product > ul:first-child > li'
+        );
 
         Array.prototype.forEach.call(elements, parentNode => {
           let component = new Component();
@@ -269,7 +270,9 @@ export default class LdlcParserV2 extends AbstractParser {
             defaultValue: '#'
           });
 
-          component.url = `https://www.ldlc.com${relativeUrl}`;
+          component.url = `https://www.ldlc.com${relativeUrl}${
+            this.reseller.tag
+          }`;
 
           component.instock =
             this.getElementAttribute(parentNode, {
@@ -284,7 +287,7 @@ export default class LdlcParserV2 extends AbstractParser {
             defaultValue: '0'
           });
 
-          if (this.reseller.monnaie === 'CHF')
+          if (this.reseller.currency === 'CHF')
             component.price = parseFloat(priceText.replace(/(CHF|\s|')/g, ''));
           else
             component.price = parseFloat(
@@ -303,14 +306,7 @@ export default class LdlcParserV2 extends AbstractParser {
       })
       .catch(error => {
         console.error(error);
-
-        return {
-          pageCount: 0,
-          currentPage: 0,
-          itemsCount: 0,
-          items: [],
-          error: ''
-        };
+        return this.sendNoComponentsFound(error.message);
       });
-  }
+  };
 }

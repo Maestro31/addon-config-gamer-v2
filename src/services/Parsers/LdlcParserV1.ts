@@ -7,9 +7,13 @@ export default class LdlcParserV1 extends AbstractParser {
   reseller: ResellerInfo = {
     name: 'LDLC France',
     url: 'https://www.ldlc.com',
-    monnaie: 'EUR',
-    searchUrlTemplate:
-      'https://www.ldlc.com/navigation-p{{index}}e48t5o1a1/{{text}}/',
+    currency: 'EUR',
+    tag: '#aff764'
+  };
+
+  config: ParserConfig = {
+    searchUrlTemplate: ({ index, text }: SearchArgs): string =>
+      `https://www.ldlc.com/navigation-p${index}e48t5o1a1/${text}/`,
     matchesUrl: [
       {
         regex: /https:\/\/www\.ldlc\.com\/Sales\/BasketPage\.aspx/,
@@ -25,13 +29,14 @@ export default class LdlcParserV1 extends AbstractParser {
   searchComponent(keys: SearchArgs): Promise<SearchResponse> {
     throw new Error('Method not implemented.');
   }
+
   fromCart(): Config {
     let config = new Config();
 
-    const elements = this.getListElement(document.body, {
-      selector: '.SecureTableGen .LigneProduit',
-      defaultValue: []
-    });
+    const elements = this.getAllElements(
+      document.body,
+      '.SecureTableGen .LigneProduit'
+    );
 
     Array.prototype.forEach.call(elements, parentNode => {
       let component = new Component();
@@ -49,11 +54,12 @@ export default class LdlcParserV1 extends AbstractParser {
         defaultValue: ''
       });
 
-      component.url = this.getElementAttribute(parentNode, {
-        selector: '.dgnLongue > a',
-        attribute: 'href',
-        defaultValue: '#'
-      });
+      component.url =
+        this.getElementAttribute(parentNode, {
+          selector: '.dgnLongue > a',
+          attribute: 'href',
+          defaultValue: '#'
+        }) + this.reseller.tag;
 
       const instock = this.getElementAttribute(parentNode, {
         selector: '.dispo',
@@ -78,7 +84,7 @@ export default class LdlcParserV1 extends AbstractParser {
         defaultValue: '0'
       });
 
-      if (this.reseller.monnaie === 'CHF')
+      if (this.reseller.currency === 'CHF')
         component.price = parseFloat(priceText.replace(/(CHF|\s|')/g, ''));
       else
         component.price = parseFloat(
@@ -94,10 +100,8 @@ export default class LdlcParserV1 extends AbstractParser {
   fromConfigurateur = (): Config => {
     let config = new Config();
 
-    const recapElements = this.getListElement(document.body, {
-      selector: '.summary li',
-      defaultValue: []
-    });
+    const recapElements = this.getAllElements(document.body, '.summary li');
+
     Array.prototype.forEach.call(recapElements, parentNode => {
       let component = new Component();
 
@@ -129,7 +133,7 @@ export default class LdlcParserV1 extends AbstractParser {
       });
 
       let price;
-      if (this.reseller.monnaie === 'CHF')
+      if (this.reseller.currency === 'CHF')
         price = parseFloat(priceText.replace(/(CHF|\s|')/g, ''));
       else price = parseFloat(priceText.replace('€', '.').replace(/\s/g, ''));
 
@@ -138,10 +142,7 @@ export default class LdlcParserV1 extends AbstractParser {
       config.addComponent(component);
     });
 
-    const elements = this.getListElement(document.body, {
-      selector: '.product',
-      defaultValue: []
-    });
+    const elements = this.getAllElements(document.body, '.product');
     Array.prototype.forEach.call(elements, parentNode => {
       const imageUrl = this.getElementAttribute(parentNode, {
         selector: 'div:first-child .itemImage',
@@ -153,11 +154,12 @@ export default class LdlcParserV1 extends AbstractParser {
         attribute: 'title',
         defaultValue: ''
       });
-      const url = this.getElementAttribute(parentNode, {
-        selector: 'div:nth-child(2) .itemUrl',
-        attribute: 'href',
-        defaultValue: '#'
-      });
+      const url =
+        this.getElementAttribute(parentNode, {
+          selector: 'div:nth-child(2) .itemUrl',
+          attribute: 'href',
+          defaultValue: '#'
+        }) + this.reseller.tag;
 
       config.components = config.components.map(item => {
         if (name === item.name) {
@@ -182,7 +184,7 @@ export default class LdlcParserV1 extends AbstractParser {
         defaultValue: '0'
       });
 
-      if (this.reseller.monnaie === 'CHF')
+      if (this.reseller.currency === 'CHF')
         component.price = parseFloat(priceText.replace(/(CHF|'|\s)/g, ''));
       else
         component.price = parseFloat(

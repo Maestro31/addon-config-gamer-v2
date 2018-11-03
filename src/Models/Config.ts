@@ -16,25 +16,28 @@ export default class Config {
   owner: string = '';
   subjectId: string = '';
   components: Component[] = [];
-  monnaie: string = 'EUR';
+  currency: string = 'EUR';
   modificationDate: Date;
   refund: number = 0;
   reseller: ResellerInfo;
   tags: string[] = [];
+  url: string;
 
   static create(config: Config) {
     console.groupCollapsed('Copie de la config:');
     console.log(config);
     let c = new Config();
+    c.url = config.url;
     c._id = config._id;
     c._creationDate = config._creationDate;
     c.owner = config.owner;
     c.subjectId = config.subjectId;
-    c.monnaie = config.monnaie;
+    c.currency = config.currency;
     c.modificationDate = config.modificationDate;
     c.reseller = config.reseller;
     c.tags = config.tags;
     c.components = config.components.map(c => Component.create(c));
+    c.refund = config.refund;
     console.log(c);
     console.groupEnd();
     return c;

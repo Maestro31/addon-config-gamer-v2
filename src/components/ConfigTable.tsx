@@ -114,7 +114,7 @@ export default class ConfigTable extends React.Component<Props> {
           <RightCell>
             {new Intl.NumberFormat('fr-FR', {
               style: 'currency',
-              currency: original.monnaie
+              currency: original.currency
             }).format(value)}
           </RightCell>
         )

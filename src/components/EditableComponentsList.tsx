@@ -8,20 +8,46 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import ButtonIcon from './ButtonIcon';
 import TextInput from './TextInput';
 import * as NumericInput from 'react-numeric-input';
+import { getComments, addComment } from '../services/Storage';
+import CommentInput from './CommentInput';
 
 interface Props {
   components: Component[];
   onComponentChange?(component: Component): void;
   onDeleteComponent?(id: string): void;
+  activeComment?: boolean;
 }
 
-export default class EditableComponentsList extends React.Component<Props> {
+interface State {
+  comments: string[];
+}
+
+export default class EditableComponentsList extends React.Component<
+  Props,
+  State
+> {
+  state: State = {
+    comments: []
+  };
+  componentDidMount = async () => {
+    this.props.activeComment &&
+      getComments().then(comments => {
+        this.setState({ comments });
+      });
+  };
+
   onDeleteItem = (id: string): void => {
     this.props.onDeleteComponent && this.props.onDeleteComponent(id);
   };
 
   onComponentChange = (component: Component): void => {
     this.props.onComponentChange && this.props.onComponentChange(component);
+  };
+
+  onCreateComment = (value: string) => {
+    this.state.comments.push(value);
+    this.setState({ comments: this.state.comments });
+    addComment(value);
   };
 
   render() {
@@ -33,7 +59,7 @@ export default class EditableComponentsList extends React.Component<Props> {
         alignHeader: 'center',
         width: 80,
         cell: ({ original }: CellData): JSX.Element => (
-          <img src={original.imageUrl} alt={original.name} width="40px" />
+          <img src={original.imageUrl} alt={original.name} width="80px" />
         )
       },
       {
@@ -42,18 +68,22 @@ export default class EditableComponentsList extends React.Component<Props> {
         alignHeader: 'left',
         cell: ({ original }: CellData): JSX.Element => (
           <VerticalLayout>
-            <Link
+            <NameLink
               href={original.url}
               rel="noreferrer noopenner"
               target="_blanck">
               {original.name}
-            </Link>
-            <TextInput
-              onChange={(value: string) => {
-                original.comment = value;
-                this.onComponentChange(original);
-              }}
-            />
+            </NameLink>
+            {this.props.activeComment && (
+              <CommentInput
+                onChange={(value: string) => {
+                  original.comment = value;
+                  this.onComponentChange(original);
+                }}
+                onCreateOption={this.onCreateComment}
+                comments={this.state.comments}
+              />
+            )}
           </VerticalLayout>
         )
       },
@@ -119,4 +149,8 @@ const CloseIcon = emotion(FontAwesomeIcon)({
 
 const NumberInput = emotion(NumericInput)({
   width: '60px'
+});
+
+const NameLink = emotion(Link)({
+  marginBottom: '10px'
 });

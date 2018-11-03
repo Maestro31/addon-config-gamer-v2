@@ -2,21 +2,21 @@ import * as React from 'react';
 import Creatable from 'react-select/lib/Creatable';
 import emotion from 'react-emotion';
 
-interface Tag {
+interface Comment {
   label: string;
   value: string;
 }
 
 interface Props {
-  value?: string[];
-  getTags?(): Promise<string[]>;
-  onChange?(value: string[]): void;
+  comments: string[];
+  value?: Comment;
+  onChange?: (value: string) => void;
+  onCreateOption?: (value: string) => void;
   styles?: any;
 }
 
 interface State {
-  tags: Tag[];
-  value: Tag[];
+  value: Comment;
 }
 
 const customStyles = {
@@ -24,48 +24,41 @@ const customStyles = {
     ...base,
     height: '25px',
     lineHeight: '25px'
-  }),
-  container: base => ({
-    ...base,
-    marginBottom: '15px'
   })
 };
 
 export default class TagInput extends React.Component<Props, State> {
-  state = {
-    tags: [],
-    value: []
+  state: State = {
+    value: undefined
   };
 
-  private createOption = (label: string): Tag => ({
+  private createOption = (label: string): Comment => ({
     label,
     value: label.toLowerCase().replace(/\W/g, '')
   });
 
-  componentDidMount = () => {
-    this.props.getTags().then(tags => {
-      this.setState({ tags: tags.map(tag => this.createOption(tag)) });
-    });
-
-    this.props.value &&
-      this.setState({
-        value: this.props.value.map(option => this.createOption(option))
-      });
-  };
-
   onChange = value => {
     this.setState({ value });
-    this.props.onChange(value.map(v => v.label));
+    this.props.onChange(value.label);
+  };
+
+  onCreateOption = value => {
+    this.setState({ value: this.createOption(value) });
+    this.props.onCreateOption && this.props.onCreateOption(value);
   };
 
   render() {
+    const comments = this.props.comments.map(c => this.createOption(c));
+
     return (
       <Select
-        placeholder="Tags..."
-        options={this.state.tags}
+        placeholder="Commentaire..."
+        options={comments}
         isClearable={true}
-        isMulti={true}
+        isMulti={false}
+        isSearchable={true}
         onChange={this.onChange}
+        onCreateOption={this.onCreateOption}
         value={this.state.value}
         styles={customStyles}
       />
@@ -74,10 +67,10 @@ export default class TagInput extends React.Component<Props, State> {
 }
 
 const Select = emotion(Creatable)({
-  marginTop: '10px',
   color: '#444',
   '& #react-select-2-input': {
     height: '25px',
-    lineHeight: '25px'
+    lineHeight: '25px',
+    width: '100%'
   }
 });

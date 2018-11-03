@@ -66,7 +66,7 @@ export default class SearchDlg extends React.Component<Props, State> {
     }));
 
     const categories = Parser.getParserByName(this.resellerOptions[0].label)
-      .reseller.categoryList;
+      .config.categoryList;
 
     this.state = {
       ...initialState,
@@ -146,7 +146,7 @@ export default class SearchDlg extends React.Component<Props, State> {
 
   onResellerChange = (option: SelectOption): void => {
     const parser = Parser.getParserByName(option.label);
-    const categories = parser.reseller.categoryList || [];
+    const categories = parser.config.categoryList || [];
 
     const selectedCategory =
       categories.length > 0
