@@ -22,11 +22,13 @@ export default class Config {
   reseller: ResellerInfo;
   tags: string[] = [];
   url: string;
+  priceInfo: string;
 
   static create(config: Config) {
     console.groupCollapsed('Copie de la config:');
     console.log(config);
     let c = new Config();
+    c.priceInfo = config.priceInfo;
     c.url = config.url;
     c._id = config._id;
     c._creationDate = config._creationDate;

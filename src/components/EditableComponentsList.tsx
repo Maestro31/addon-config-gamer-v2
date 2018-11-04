@@ -44,10 +44,12 @@ export default class EditableComponentsList extends React.Component<
     this.props.onComponentChange && this.props.onComponentChange(component);
   };
 
-  onCreateComment = (value: string) => {
+  onCreateComment = (component: Component, value: string) => {
     this.state.comments.push(value);
     this.setState({ comments: this.state.comments });
     addComment(value);
+    component.comment = value;
+    this.onComponentChange(component);
   };
 
   render() {
@@ -80,7 +82,7 @@ export default class EditableComponentsList extends React.Component<
                   original.comment = value;
                   this.onComponentChange(original);
                 }}
-                onCreateOption={this.onCreateComment}
+                onCreateOption={value => this.onCreateComment(original, value)}
                 comments={this.state.comments}
               />
             )}

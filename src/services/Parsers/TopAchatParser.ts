@@ -4,6 +4,9 @@ import Component from '../../Models/Component';
 import AbstractParser from './AbstractParser';
 
 export default class TopAchatParser extends AbstractParser {
+  priceInfo =
+    '*Config éligible à 5% de réductions sur demande en MP sur FB ou Twitter à Top Achat';
+
   reseller: ResellerInfo = {
     name: 'Top Achat',
     url: 'https://www.topachat.com',
@@ -345,6 +348,7 @@ export default class TopAchatParser extends AbstractParser {
 
     if (config.price >= 1000) {
       config.refund = (5 * config.price) / 100;
+      config.priceInfo = this.priceInfo;
     }
 
     return config;
@@ -396,6 +400,7 @@ export default class TopAchatParser extends AbstractParser {
 
     if (config.price >= 1000) {
       config.refund = (5 * config.price) / 100;
+      config.priceInfo = this.priceInfo;
     }
 
     return config;

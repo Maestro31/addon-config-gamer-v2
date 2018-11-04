@@ -48,7 +48,11 @@ const createTable = (table: {
   return surroundByTag(tableContent, 'table');
 };
 
-export const postConfig = (config: Config, message: string): void => {
+export const postConfig = (
+  config: Config,
+  messageIntro: string,
+  message: string
+): void => {
   let table = createTable({
     headers: [
       surroundByTags('Dispo', ['b', 'center']),
@@ -79,7 +83,9 @@ export const postConfig = (config: Config, message: string): void => {
     ])
   });
 
-  const configPrice = surroundByTags(
+  let responseText = '';
+
+  let configPrice = surroundByTags(
     `Prix total: ${new Intl.NumberFormat('fr-FR', {
       style: 'currency',
       currency: config.reseller.currency
@@ -87,21 +93,32 @@ export const postConfig = (config: Config, message: string): void => {
     ['b', 'right']
   );
 
-  const configRefund = surroundByTag(
-    `Remise: ${new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency: config.reseller.currency
-    }).format(config.refund)}`,
-    'right'
-  );
+  if (config.refund > 0) {
+    const configRefund = surroundByTag(
+      `Remise: ${new Intl.NumberFormat('fr-FR', {
+        style: 'currency',
+        currency: config.reseller.currency
+      }).format(config.refund)}`,
+      'right'
+    );
+    configPrice += `${configRefund}\n\n`;
+  }
 
-  let text = `${message}\n\n\nLien vers la config: ${config.url +
-    config.reseller
-      .tag}\n\n\n${table}\n\n\n${configPrice}\n${configRefund}\n\n`;
+  if (config.priceInfo) {
+    configPrice += surroundByTags(config.priceInfo, ['i', 'right']);
+  }
+
+  const configLink = config.url
+    ? `Lien vers la config: ${config.url + config.reseller.tag}`
+    : '';
+
+  responseText = `${messageIntro}\n\n\n${configLink}\n\n\n${table}\n\n\n${configPrice}\n\n`;
+
+  responseText += message ? `${message}\n\n` : '';
 
   const messageElement = <HTMLTextAreaElement>(
     document.forms['postform']['message']
   );
 
-  messageElement.value = text;
+  messageElement.value = responseText;
 };

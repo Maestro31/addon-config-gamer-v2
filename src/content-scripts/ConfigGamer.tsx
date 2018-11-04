@@ -8,14 +8,16 @@ import { postConfig } from '../services/PostConfig';
 interface State {
   config: Config;
   openConfigDlg: boolean;
-  message;
+  message: string;
+  messageIntro: string;
 }
 
 export default class ConfigGamer extends React.Component<{}, State> {
   state = {
     config: null,
     openConfigDlg: false,
-    message: ''
+    message: '',
+    messageIntro: ''
   };
   componentDidMount() {
     chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
@@ -37,7 +39,7 @@ export default class ConfigGamer extends React.Component<{}, State> {
 
   onConfirmModal = (): void => {
     this.onCloseModal();
-    postConfig(this.state.config, this.state.message);
+    postConfig(this.state.config, this.state.messageIntro, this.state.message);
   };
 
   onCloseModal = (): void => {
@@ -62,6 +64,9 @@ export default class ConfigGamer extends React.Component<{}, State> {
             onClose={this.onCloseModal}
             onConfigChange={this.onConfigChange}
             onMessageChange={message => this.setState({ message })}
+            onMessageIntroChange={messageIntro =>
+              this.setState({ messageIntro })
+            }
           />
         )}
       </>

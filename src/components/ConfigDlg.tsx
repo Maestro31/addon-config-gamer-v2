@@ -22,6 +22,7 @@ interface Props {
   title: string;
   onClose(): void;
   onMessageChange?: (text: string) => void;
+  onMessageIntroChange?: (text: string) => void;
   onConfirmConfig(config: Config): void;
   onCopyConfig?(): void;
   onConfigChange?(config: Config): void;
@@ -33,13 +34,15 @@ interface State {
   config: Config;
   configCopied: boolean;
   message: string;
+  messageIntro: string;
 }
 
 export default class ConfigDlg extends React.Component<Props, State> {
   state: State = {
     config: this.props.config,
     configCopied: false,
-    message: ''
+    message: '',
+    messageIntro: ''
   };
 
   onSubjectIdConfigChange = (id: string): void => {
@@ -65,6 +68,12 @@ export default class ConfigDlg extends React.Component<Props, State> {
   onMessageChange = e => {
     this.setState({ message: e.target.value });
     this.props.onMessageChange && this.props.onMessageChange(e.target.value);
+  };
+
+  onMessageIntroChange = e => {
+    this.setState({ messageIntro: e.target.value });
+    this.props.onMessageIntroChange &&
+      this.props.onMessageIntroChange(e.target.value);
   };
 
   onDeleteComponent = (id: string): void => {
@@ -106,6 +115,15 @@ export default class ConfigDlg extends React.Component<Props, State> {
         submitButtonTitle={submitButtonTitle || 'Confirmer'}
         onConfirm={this.onConfirmConfig}
         {...this.props}>
+        {this.props.mode === 'post' && (
+          <>
+            <Label>Message:</Label>
+            <TextArea
+              value={this.state.messageIntro}
+              onChange={this.onMessageIntroChange}
+            />
+          </>
+        )}
         <GroupCard title="Informations">
           <VerticalLayout>
             {this.props.mode === 'editable' ? (

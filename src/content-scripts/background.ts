@@ -15,11 +15,11 @@ chrome.browserAction.onClicked.addListener(() => {
 });
 
 // Réinitialise les données
-if (true) {
-  //setConfigs([]);
-  //setComments([]);
-  setTags(['Streaming', 'Montage vidéo', '1080p', '4K', 'Gaming']);
-}
+// if (true) {
+//   setConfigs(null);
+//   setComments(null);
+//   setTags(null);
+// }
 
 let copiedConfig: Config = undefined;
 

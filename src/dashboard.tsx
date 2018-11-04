@@ -104,7 +104,7 @@ export default class Dashboard extends React.Component<{}, State> {
           onPressEditItem={this.onPressEditItem}
           onPressDeleteItem={this.onPressDeleteItem}
         />
-        <ButtonIcon onClick={this.onOpenSearchDlg}>Test de bouton</ButtonIcon>
+        {/* <ButtonIcon onClick={this.onOpenSearchDlg}>Test de bouton</ButtonIcon> */}
         {this.state.config && (
           <ConfigDlg
             mode="editable"
@@ -118,11 +118,11 @@ export default class Dashboard extends React.Component<{}, State> {
             onCopyConfig={this.onCopyConfig}
           />
         )}
-        <SearchDlg
+        {/* <SearchDlg
           open={this.state.openSearchDlg}
           onClose={this.onCloseSearchDlg}
           onConfirm={this.onConfirmSearchDlg}
-        />
+        /> */}
       </div>
     );
   }
