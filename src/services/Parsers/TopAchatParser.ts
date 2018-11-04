@@ -406,7 +406,7 @@ export default class TopAchatParser extends AbstractParser {
     return config;
   };
 
-  updateComponent = (component: Component): Promise<any> => {
+  updateComponent = async (component: Component): Promise<any> => {
     return axios.get(component.url).then(({ data }) => {
       const parser = new DOMParser();
       const doc = parser.parseFromString(data, 'text/html');
@@ -431,7 +431,7 @@ export default class TopAchatParser extends AbstractParser {
     });
   };
 
-  parseListComponents(doc: Document): Component[] {
+  parseListComponents = (doc: Document): Component[] => {
     let components: Array<Component> = [];
 
     const elements = this.getAllElements(
@@ -482,7 +482,7 @@ export default class TopAchatParser extends AbstractParser {
     });
 
     return components;
-  }
+  };
 
   async searchComponent(keys: SearchArgs): Promise<SearchResponse> {
     if (keys.text === undefined || keys.text === '') {
