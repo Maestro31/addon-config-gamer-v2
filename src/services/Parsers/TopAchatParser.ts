@@ -1,6 +1,6 @@
 import axios from 'axios';
-import Config from '../../Models/Config';
-import Component from '../../Models/Component';
+import SetupPC from '../../Models/SetupPC';
+import ComponentPC from '../../Models/ComponentPC';
 import AbstractParser from './AbstractParser';
 
 export default class TopAchatParser extends AbstractParser {
@@ -299,13 +299,13 @@ export default class TopAchatParser extends AbstractParser {
     ]
   };
 
-  fromCart(): Config {
-    let config = new Config();
+  fromCart(): SetupPC {
+    let config = SetupPC.create();
 
     const elements = this.getAllElements(document.body, '#recap tbody > tr');
 
     Array.prototype.forEach.call(elements, parentNode => {
-      let component = new Component();
+      let component = ComponentPC.create();
       component.imageUrl = this.getElementAttribute(parentNode, {
         selector: 'img',
         attribute: 'src',
@@ -336,31 +336,33 @@ export default class TopAchatParser extends AbstractParser {
         defaultValue: 1
       });
 
-      component.instock =
+      component.available =
         this.getElementAttribute(parentNode, {
           selector: '.en-stock',
           attribute: 'innerText',
           defaultValue: ''
         }) !== '';
 
-      config.addComponent(component);
+      config.components.push(component);
     });
 
-    if (config.price >= 1000) {
-      config.refund = (5 * config.price) / 100;
+    const price = SetupPC.getPriceWithoutRefund(config);
+
+    if (price >= 1000) {
+      config.refundPercent = 5;
       config.priceInfo = this.priceInfo;
     }
 
     return config;
   }
 
-  fromConfigurateur = (): Config => {
-    let config = new Config();
+  fromConfigurateur = (): SetupPC => {
+    let config = SetupPC.create();
 
     let elements = this.getAllElements(document.body, '.hasProduct');
 
     Array.prototype.forEach.call(elements, parentNode => {
-      let component = new Component();
+      let component = ComponentPC.create();
       component.imageUrl = this.getElementAttribute(parentNode, {
         selector: '.configomatic-product__image > img',
         attribute: 'src',
@@ -388,25 +390,27 @@ export default class TopAchatParser extends AbstractParser {
         }).replace(/\s/g, '')
       );
 
-      component.instock =
+      component.available =
         this.getElementAttribute(parentNode, {
           selector: '.cfgo-availability',
           attribute: 'innerText',
           defaultValue: ''
         }) === 'En stock';
 
-      config.addComponent(component);
+      config.components.push(component);
     });
 
-    if (config.price >= 1000) {
-      config.refund = (5 * config.price) / 100;
+    const price = SetupPC.getPriceWithoutRefund(config);
+
+    if (price >= 1000) {
+      config.refundPercent = 5;
       config.priceInfo = this.priceInfo;
     }
 
     return config;
   };
 
-  updateComponent = async (component: Component): Promise<any> => {
+  updateComponent = async (component: ComponentPC): Promise<ComponentPC> => {
     return axios.get(component.url).then(({ data }) => {
       const parser = new DOMParser();
       const doc = parser.parseFromString(data, 'text/html');
@@ -420,7 +424,7 @@ export default class TopAchatParser extends AbstractParser {
         .replace(' ', '');
 
       component.price = parseFloat(price);
-      component.instock =
+      component.available =
         this.getElementAttribute(doc.body, {
           selector: '#panier.en-stock',
           attribute: 'innerText',
@@ -431,8 +435,8 @@ export default class TopAchatParser extends AbstractParser {
     });
   };
 
-  parseListComponents = (doc: Document): Component[] => {
-    let components: Array<Component> = [];
+  parseListComponents = (doc: Document): ComponentPC[] => {
+    let components: Array<ComponentPC> = [];
 
     const elements = this.getAllElements(
       doc.body,
@@ -440,7 +444,7 @@ export default class TopAchatParser extends AbstractParser {
     );
 
     Array.prototype.forEach.call(elements, parentNode => {
-      let component = new Component();
+      let component = ComponentPC.create();
 
       const id = parentNode.id;
 
@@ -467,7 +471,7 @@ export default class TopAchatParser extends AbstractParser {
       component.url = `${this.reseller.url}${url}`;
 
       const classList = parentNode.classList;
-      component.instock =
+      component.available =
         classList.contains('en-stock') || classList.contains('en-stock-limite');
 
       const price = this.getElementAttribute(parentNode, {

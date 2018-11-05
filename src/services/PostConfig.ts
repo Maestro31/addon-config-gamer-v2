@@ -1,4 +1,4 @@
-import Config from '../Models/Config';
+import SetupPC from '../Models/SetupPC';
 
 interface Tag {
   name: string;
@@ -49,7 +49,7 @@ const createTable = (table: {
 };
 
 export const postConfig = (
-  config: Config,
+  config: SetupPC,
   messageIntro: string,
   message: string
 ): void => {
@@ -64,14 +64,14 @@ export const postConfig = (
     rows: config.components.map(c => [
       surroundByTags('O', [
         'b',
-        { name: 'color', value: c.instock ? '#44bb00' : '#880000' },
+        { name: 'color', value: c.available ? '#44bb00' : '#880000' },
         'center'
       ]),
       surroundByTag(c.name, {
         name: 'url',
         value: c.url
       }),
-      c.comment,
+      c.comment || '',
       surroundByTag(c.quantity.toString(), 'center'),
       surroundByTag(
         new Intl.NumberFormat('fr-FR', {
@@ -89,16 +89,17 @@ export const postConfig = (
     `Prix total: ${new Intl.NumberFormat('fr-FR', {
       style: 'currency',
       currency: config.reseller.currency
-    }).format(config.price)}`,
+    }).format(SetupPC.getPriceWithRefund(config))}`,
     ['b', 'right']
   );
 
-  if (config.refund > 0) {
+  const totalRefund = SetupPC.getTotalRefund(config);
+  if (totalRefund > 0) {
     const configRefund = surroundByTag(
-      `Remise: ${new Intl.NumberFormat('fr-FR', {
+      `Remise totale: ${new Intl.NumberFormat('fr-FR', {
         style: 'currency',
         currency: config.reseller.currency
-      }).format(config.refund)}`,
+      }).format(totalRefund)}`,
       'right'
     );
     configPrice += `${configRefund}\n\n`;

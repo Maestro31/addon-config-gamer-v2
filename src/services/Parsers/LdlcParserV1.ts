@@ -1,6 +1,6 @@
 import axios from 'axios';
-import Component from '../../Models/Component';
-import Config from '../../Models/Config';
+import ComponentPC from '../../Models/ComponentPC';
+import SetupPC from '../../Models/SetupPC';
 import AbstractParser from './AbstractParser';
 
 export default class LdlcParserV1 extends AbstractParser {
@@ -30,8 +30,8 @@ export default class LdlcParserV1 extends AbstractParser {
     throw new Error('Method not implemented.');
   }
 
-  fromCart(): Config {
-    let config = new Config();
+  fromCart(): SetupPC {
+    let config = SetupPC.create();
 
     const elements = this.getAllElements(
       document.body,
@@ -39,7 +39,7 @@ export default class LdlcParserV1 extends AbstractParser {
     );
 
     Array.prototype.forEach.call(elements, parentNode => {
-      let component = new Component();
+      let component = ComponentPC.create();
 
       component.imageUrl = this.getElementAttribute(parentNode, {
         selector: '.vignette > img',
@@ -61,14 +61,15 @@ export default class LdlcParserV1 extends AbstractParser {
           defaultValue: '#'
         }) + this.reseller.tag;
 
-      const instock = this.getElementAttribute(parentNode, {
+      const availability = this.getElementAttribute(parentNode, {
         selector: '.dispo',
         attribute: 'title',
         defaultValue: ''
       });
 
-      component.instock =
-        instock === 'Disponible en envoi immédiat' || instock === 'Disponible';
+      component.available =
+        availability === 'Disponible en envoi immédiat' ||
+        availability === 'Disponible';
 
       component.quantity = parseInt(
         this.getElementAttribute(parentNode, {
@@ -91,21 +92,21 @@ export default class LdlcParserV1 extends AbstractParser {
           priceText.replace(/(€|\s)/g, '').replace(',', '.')
         );
 
-      config.addComponent(component);
+      config.components.push(component);
     });
 
     return config;
   }
 
-  fromConfigurateur = (): Config => {
-    let config = new Config();
+  fromConfigurateur = (): SetupPC => {
+    let config = SetupPC.create();
 
     const recapElements = this.getAllElements(document.body, '.summary li');
 
     Array.prototype.forEach.call(recapElements, parentNode => {
-      let component = new Component();
+      let component = ComponentPC.create();
 
-      component.instock =
+      component.available =
         this.getElementAttribute(parentNode, {
           selector: '.dispo',
           attribute: 'title',
@@ -139,7 +140,7 @@ export default class LdlcParserV1 extends AbstractParser {
 
       component.price = price / quantity;
       component.quantity = quantity;
-      config.addComponent(component);
+      config.components.push(component);
     });
 
     const elements = this.getAllElements(document.body, '.product');
@@ -173,7 +174,7 @@ export default class LdlcParserV1 extends AbstractParser {
     return config;
   };
 
-  updateComponent = (component: Component): Promise<Component> => {
+  updateComponent = (component: ComponentPC): Promise<ComponentPC> => {
     return axios.get(component.url).then(({ data }) => {
       const parser = new DOMParser();
       const doc = parser.parseFromString(data, 'text/html');
@@ -191,14 +192,15 @@ export default class LdlcParserV1 extends AbstractParser {
           priceText.replace('€', '.').replace(/(\s)/g, '')
         );
 
-      const instock = this.getElementAttribute(doc.body, {
+      const availability = this.getElementAttribute(doc.body, {
         selector: '.miniDispo .dispo',
         attribute: 'innerText',
         defaultValue: false
       });
 
-      component.instock =
-        instock === 'Disponible en envoi immédiat' || instock === 'Disponible';
+      component.available =
+        availability === 'Disponible en envoi immédiat' ||
+        availability === 'Disponible';
 
       return component;
     });

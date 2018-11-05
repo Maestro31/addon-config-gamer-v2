@@ -1,11 +1,11 @@
 import chrome from './Browser';
-import Config from '../Models/Config';
+import SetupPC from '../Models/SetupPC';
 
 interface Message {
   [key: string]: any;
 }
 
-export const saveConfigMessage = (config: Config) => {
+export const saveConfigMessage = (config: SetupPC) => {
   sendMessage('save_config', { config });
 };
 
@@ -13,7 +13,7 @@ export const sendMessage = (command: string, message?: Message) => {
   chrome.runtime.sendMessage({ command, ...message });
 };
 
-export const copyConfigMessage = (config: Config) => {
+export const copyConfigMessage = (config: SetupPC) => {
   sendMessage('copy_config', { config });
 };
 

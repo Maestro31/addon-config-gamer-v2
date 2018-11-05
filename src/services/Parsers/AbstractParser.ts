@@ -1,5 +1,5 @@
-import Config from '../../Models/Config';
-import Component from '../../Models/Component';
+import SetupPC from '../../Models/SetupPC';
+import ComponentPC from '../../Models/ComponentPC';
 
 interface GetAttributeOptions {
   selector: string;
@@ -21,7 +21,7 @@ export default abstract class AbstractParser {
   abstract reseller: ResellerInfo;
   abstract config: ParserConfig;
 
-  abstract updateComponent(component: Component): Promise<any>;
+  abstract updateComponent(component: ComponentPC): Promise<any>;
   abstract searchComponent(keys: SearchArgs): Promise<SearchResponse>;
 
   getAllElements(parentNode: Element, selector: string): NodeListOf<Element> {
@@ -54,8 +54,8 @@ export default abstract class AbstractParser {
     return targetNode[options.attribute] || options.defaultValue;
   }
 
-  updateConfig = async (config: Config): Promise<Config> => {
-    const configBefore = config.clone();
+  updateConfig = async (config: SetupPC): Promise<SetupPC> => {
+    const configBefore = config;
 
     let promises = [];
     for (let component of config.components) {
@@ -67,8 +67,8 @@ export default abstract class AbstractParser {
 
       // Comparaison non utilisée pour le moment
       // Fonctionnalité encore à créer
-      const comparison = configBefore.compareConfig(config);
-      console.log(comparison);
+      // const comparison = configBefore.compareConfig(config);
+      // console.log(comparison);
 
       config.modificationDate = new Date();
       return config;

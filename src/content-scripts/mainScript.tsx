@@ -5,7 +5,7 @@ import Menu from '../components/Menu';
 import Parser from '../services/Parsers/Parser';
 import ConfigDlg from '../components/ConfigDlg';
 import { saveConfigMessage, sendMessage } from '../services/Messages';
-import Config from '../Models/Config';
+import SetupPC from '../Models/SetupPC';
 import { copyConfigMessage } from '../services/Messages';
 import { Button } from '../components/SharedComponents';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -14,7 +14,7 @@ import chrome from '../services/Browser';
 
 interface State {
   openConfigDlg: boolean;
-  config: Config;
+  config: SetupPC;
   configCopied: boolean;
 }
 
@@ -29,6 +29,7 @@ export default class Main extends React.Component<{}, State> {
     chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       if (msg && msg.command === 'copy_config') {
         const config = Parser.parseConfig();
+        console.log(config);
         sendResponse(config);
       }
     });
@@ -47,7 +48,7 @@ export default class Main extends React.Component<{}, State> {
     this.setState({ openConfigDlg: false, config: null, configCopied: false });
   };
 
-  onConfirmModal = (config: Config) => {
+  onConfirmModal = (config: SetupPC) => {
     this.onCloseModal();
     saveConfigMessage(config);
   };
@@ -55,6 +56,10 @@ export default class Main extends React.Component<{}, State> {
   onCopyConfig = () => {
     this.setState({ configCopied: true });
     copyConfigMessage(this.state.config);
+  };
+
+  onConfigChange = (config: SetupPC) => {
+    this.setState({ config });
   };
 
   render() {
@@ -70,6 +75,7 @@ export default class Main extends React.Component<{}, State> {
             title="Nouvelle config"
             submitButtonTitle="Sauvegarder"
             config={this.state.config}
+            onConfigChange={this.onConfigChange}
             open={this.state.openConfigDlg}
             onConfirmConfig={this.onConfirmModal}
             onClose={this.onCloseModal}

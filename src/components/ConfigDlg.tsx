@@ -2,36 +2,37 @@ import * as React from 'react';
 import Modal from './Modal';
 import {
   VerticalLayout,
-  RowReverseLayout
+  RowReverseLayout,
+  HorizontalLayout
 } from '../components/SharedComponents';
 import TextInput from './TextInput';
 import TagInput from './TagInput';
-import { getTags, getComments } from '../services/Storage';
-import Config from '../Models/Config';
-import Component from '../Models/Component';
+import { getTags } from '../services/Storage';
+import SetupPC from '../Models/SetupPC';
+import ComponentPC from '../Models/ComponentPC';
 import emotion from 'react-emotion';
-
+import * as NumericInput from 'react-numeric-input';
 import EditableComponentsList from './EditableComponentsList';
 import GroupCard from './Configurateur/GroupCard';
 
 interface Props {
   mode: 'editable' | 'post';
   open: boolean;
-  config: Config;
+  config: SetupPC;
   submitButtonTitle?: string;
   title: string;
   onClose(): void;
   onMessageChange?: (text: string) => void;
   onMessageIntroChange?: (text: string) => void;
-  onConfirmConfig(config: Config): void;
+  onConfirmConfig(config: SetupPC): void;
   onCopyConfig?(): void;
-  onConfigChange?(config: Config): void;
+  onConfigChange?(config: SetupPC): void;
   onDeleteItem?(name: string): void;
   renderFooter?(): JSX.Element;
 }
 
 interface State {
-  config: Config;
+  config: SetupPC;
   configCopied: boolean;
   message: string;
   messageIntro: string;
@@ -45,44 +46,55 @@ export default class ConfigDlg extends React.Component<Props, State> {
     messageIntro: ''
   };
 
-  onSubjectIdConfigChange = (id: string): void => {
-    this.state.config.subjectId = id;
-    this.setState({ configCopied: false });
+  onSubjectIdConfigChange = (subjectId: string): void => {
+    this.setState({
+      config: { ...this.state.config, subjectId },
+      configCopied: false
+    });
   };
 
   onOwnerConfigChange = (owner: string): void => {
-    this.state.config.owner = owner;
-    this.setState({ configCopied: false });
+    this.setState({
+      config: { ...this.state.config, owner },
+      configCopied: false
+    });
   };
 
   onConfigTagsChange = (tags: string[]): void => {
-    this.state.config.tags = tags;
-    this.setState({ configCopied: false });
+    this.setState({
+      config: { ...this.state.config, tags },
+      configCopied: false
+    });
   };
 
   onConfigUrlChange = (url: string) => {
-    this.state.config.url = url;
-    this.setState({ configCopied: false });
+    this.setState({
+      config: { ...this.state.config, url },
+      configCopied: false
+    });
   };
 
   onMessageChange = e => {
-    this.setState({ message: e.target.value });
-    this.props.onMessageChange && this.props.onMessageChange(e.target.value);
+    const message = e.target.value;
+    this.setState({ message });
+    this.props.onMessageChange && this.props.onMessageChange(message);
   };
 
   onMessageIntroChange = e => {
-    this.setState({ messageIntro: e.target.value });
+    const messageIntro = e.target.value;
+    this.setState({ messageIntro });
     this.props.onMessageIntroChange &&
-      this.props.onMessageIntroChange(e.target.value);
+      this.props.onMessageIntroChange(messageIntro);
   };
 
   onDeleteComponent = (id: string): void => {
-    let config = this.state.config;
-    config.components = config.components.filter(
+    const components = this.state.config.components.filter(
       component => component.id !== id
     );
-
-    this.setState({ config, configCopied: false });
+    this.setState({
+      config: { ...this.state.config, components },
+      configCopied: false
+    });
   };
 
   onConfirmConfig = (): void => {
@@ -90,16 +102,22 @@ export default class ConfigDlg extends React.Component<Props, State> {
     this.setState({ configCopied: false });
   };
 
-  onComponentChange = (editedComponent: Component): void => {
-    let config = this.state.config;
-    config.components = config.components.map(component => {
+  onComponentChange = (editedComponent: ComponentPC): void => {
+    const components = this.state.config.components.map(component => {
       if (component.name === name) {
         return editedComponent;
       }
       return component;
     });
 
-    this.setState({ config, configCopied: false });
+    this.setState({
+      config: { ...this.state.config, components },
+      configCopied: false
+    });
+  };
+
+  onConfigChange = (config: SetupPC) => {
+    this.props.onConfigChange && this.props.onConfigChange(config);
   };
 
   render() {
@@ -111,7 +129,7 @@ export default class ConfigDlg extends React.Component<Props, State> {
       <Modal
         title={title}
         height={950}
-        width={900}
+        width={1200}
         submitButtonTitle={submitButtonTitle || 'Confirmer'}
         onConfirm={this.onConfirmConfig}
         {...this.props}>
@@ -145,11 +163,13 @@ export default class ConfigDlg extends React.Component<Props, State> {
                 />
               </>
             ) : (
-              <LinkInput
-                label="Lien vers la config:"
-                value={config.url}
-                onChange={this.onConfigUrlChange}
-              />
+              <HorizontalLayout>
+                <Label>Lien vers la config:</Label>
+                <LinkInput
+                  value={config.url}
+                  onChange={this.onConfigUrlChange}
+                />
+              </HorizontalLayout>
             )}
           </VerticalLayout>
         </GroupCard>
@@ -162,22 +182,59 @@ export default class ConfigDlg extends React.Component<Props, State> {
           />
         </GroupCard>
         <RowReverseLayout>
+          <NumberInput
+            value={config.refund}
+            onChange={value => {
+              config.refund = value;
+              this.onConfigChange(config);
+            }}
+            step={1}
+            min={0}
+            size={2}
+            style={{
+              input: {
+                height: '30px',
+                margin: '0px'
+              }
+            }}
+          />
+          <Label>&nbsp;%</Label>
+          <NumberInput
+            value={config.refundPercent}
+            onChange={value => {
+              config.refundPercent = value;
+              this.onConfigChange(config);
+            }}
+            step={1}
+            min={0}
+            max={100}
+            size={2}
+            style={{
+              input: {
+                height: '30px',
+                margin: '0px'
+              }
+            }}
+          />
+          <Label>Remise globale:</Label>
+        </RowReverseLayout>
+        <RowReverseLayout>
           <PriceText>
             Prix total:{' '}
             {`${new Intl.NumberFormat('fr-FR', {
               style: 'currency',
               currency: config.currency
-            }).format(config.price)}`}
+            }).format(SetupPC.getPriceWithRefund(config))}`}
           </PriceText>
         </RowReverseLayout>
-        {config.refund !== 0 && (
+        {(config.refund !== 0 || config.refundPercent !== 0) && (
           <RowReverseLayout>
             <TitleH4>
               Remise:{' '}
               {`${new Intl.NumberFormat('fr-FR', {
                 style: 'currency',
                 currency: config.currency
-              }).format(config.refund)}`}
+              }).format(SetupPC.getTotalRefund(config))}`}
             </TitleH4>
           </RowReverseLayout>
         )}
@@ -213,13 +270,25 @@ const TitleH4 = emotion('h4')({
 const TextArea = emotion('textarea')({
   width: '100%',
   boxSizing: 'border-box',
-  height: '150px'
+  height: '150px',
+  background: '#333',
+  color: '#FFF',
+  marginTop: '5px',
+  '&:focus': {
+    background: '#333',
+    color: '#FFF'
+  }
 });
 
 const Label = emotion('label')({
-  fontSize: '15px'
+  fontSize: '15px',
+  margin: '0px 10px 0px 0px'
 });
 
 const LinkInput = emotion(Input)({
   width: '100%'
+});
+
+const NumberInput = emotion(NumericInput)({
+  width: '60px'
 });

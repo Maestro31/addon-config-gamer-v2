@@ -1,10 +1,10 @@
 import * as React from 'react';
 import Table, { CellData, Column } from './Table/Table';
-import Component from '../Models/Component';
+import ComponentPC from '../Models/ComponentPC';
 import { DispoView } from './SharedComponents';
 
 interface Props {
-  components: Component[];
+  components: ComponentPC[];
 }
 
 export default class ComponentsListView extends React.Component<Props> {
@@ -45,7 +45,7 @@ export default class ComponentsListView extends React.Component<Props> {
       },
       {
         header: 'Dispo',
-        accessor: 'instock',
+        accessor: 'availability',
         alignHeader: 'center',
         alignContent: 'center',
         cell: ({ value }) => <DispoView isDispo={value} />

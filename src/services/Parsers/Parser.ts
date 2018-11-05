@@ -3,7 +3,7 @@ import TopAchatParser from './TopAchatParser';
 import LdlcParserV1 from './LdlcParserV1';
 import LdlcParserV2 from './LdlcParserV2';
 import InfomaxParser from './InfomaxParser';
-import Config, { ComparisonResult } from '../../Models/Config';
+import SetupPC from '../../Models/SetupPC';
 
 type ResellerParser =
   | MaterielNetParser
@@ -23,8 +23,8 @@ export default class Parser {
     }
   }
 
-  static parseConfig = (): Config => {
-    let config = new Config();
+  static parseConfig = (): SetupPC => {
+    let config: SetupPC;
     const url = window.location.href;
     for (let parser of Parser.parsers) {
       for (let matchUrl of parser.config.matchesUrl) {
@@ -40,7 +40,7 @@ export default class Parser {
     }
   };
 
-  static updateConfig = (config): Promise<Config> => {
+  static updateConfig = (config): Promise<SetupPC> => {
     for (let parser of Parser.parsers) {
       if (
         config.reseller.name === parser.reseller.name &&

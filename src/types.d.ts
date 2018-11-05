@@ -1,3 +1,33 @@
+// interface ComponentPC {
+//   readonly id: string;
+//   error?: string;
+//   imageUrl?: string;
+//   name?: string;
+//   price?: number;
+//   refund?: number;
+//   refundPercent?: number;
+//   quantity?: number;
+//   url?: string;
+//   availability?: boolean;
+//   comment?: string;
+// }
+
+// interface SetupPC {
+//   readonly id: string;
+//   readonly creationDate: Date;
+//   owner?: string;
+//   subjectId?: string;
+//   components?: ComponentPC[];
+//   currency?: string;
+//   modificationDate?: Date;
+//   refund?: number;
+//   refundPercent?: number;
+//   reseller?: ResellerInfo;
+//   tags?: string[];
+//   url?: string;
+//   priceInfo?: string;
+// }
+
 interface SearchArgs {
   index: number;
   categories: string[];

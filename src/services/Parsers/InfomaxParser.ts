@@ -1,6 +1,8 @@
-import Component from '../../Models/Component';
-import Config from '../../Models/Config';
+import SetupPC from '../../Models/SetupPC';
+import ComponentPC from '../../Models/ComponentPC';
+import Config from '../../Models/SetupPC';
 import AbstractParser from './AbstractParser';
+import uuid = require('uuid');
 
 export default class InfomaxParser extends AbstractParser {
   reseller: ResellerInfo = {
@@ -27,16 +29,16 @@ export default class InfomaxParser extends AbstractParser {
     throw new Error('Method not implemented.');
   }
 
-  updateComponent(component: Component): Promise<Component> {
+  updateComponent(component: ComponentPC): Promise<ComponentPC> {
     return;
   }
 
-  fromCart(): Config {
+  fromCart(): SetupPC {
     throw new Error('Method not implemented.');
   }
 
-  fromConfigurateur = (): Config => {
-    let config = new Config();
+  fromConfigurateur = (): SetupPC => {
+    let config: SetupPC = Config.create();
 
     const refund = this.getElementAttribute(document.body, {
       selector: '.custom-product-savings > strong',
@@ -52,7 +54,7 @@ export default class InfomaxParser extends AbstractParser {
     );
 
     Array.prototype.forEach.call(elements, parentNode => {
-      let component = new Component();
+      let component = ComponentPC.create();
       component.name = this.getElementAttribute(parentNode, {
         selector: '.remarketing--content-product-title',
         attribute: 'innerHTML',
@@ -79,9 +81,9 @@ export default class InfomaxParser extends AbstractParser {
         price.replace(/(\s|€)/g, '').replace(',', '.')
       );
 
-      component.instock = true;
+      component.available = true;
 
-      config.addComponent(component);
+      config.components.push(component);
     });
     console.log(config);
     return config;

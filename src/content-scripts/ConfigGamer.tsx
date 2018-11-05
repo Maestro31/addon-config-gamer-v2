@@ -1,12 +1,12 @@
 import * as React from 'react';
 import * as DOM from 'react-dom';
 import chrome from '../services/Browser';
-import Config from '../Models/Config';
+import SetupPC from '../Models/SetupPC';
 import ConfigDlg from '../components/ConfigDlg';
 import { postConfig } from '../services/PostConfig';
 
 interface State {
-  config: Config;
+  config: SetupPC;
   openConfigDlg: boolean;
   message: string;
   messageIntro: string;
@@ -27,7 +27,7 @@ export default class ConfigGamer extends React.Component<{}, State> {
         msg.config !== undefined
       ) {
         this.setState({
-          config: Config.create(msg.config),
+          config: msg.config,
           openConfigDlg: true
         });
         sendResponse(true);
@@ -46,7 +46,7 @@ export default class ConfigGamer extends React.Component<{}, State> {
     this.setState({ openConfigDlg: false, config: null });
   };
 
-  onConfigChange = (config: Config): void => {
+  onConfigChange = (config: SetupPC): void => {
     this.setState({ config });
   };
 

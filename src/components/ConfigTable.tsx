@@ -8,13 +8,13 @@ import * as ReactTooltip from 'react-tooltip';
 import * as uuid from 'uuid/v4';
 
 import 'react-table/react-table.css';
-import Config from '../Models/Config';
+import SetupPC from '../Models/SetupPC';
 import ComponentsListView from './ComponentsListView';
 
 interface Props {
-  configs: Config[];
-  onPressUpdateItem(config: Config): void;
-  onPressEditItem(config: Config): void;
+  configs: SetupPC[];
+  onPressUpdateItem(config: SetupPC): void;
+  onPressEditItem(config: SetupPC): void;
   onPressDeleteItem(id: string): void;
 }
 
@@ -106,22 +106,21 @@ export default class ConfigTable extends React.Component<Props> {
       },
       {
         Header: 'Prix',
-        accessor: 'price',
+        id: 'price',
+        accessor: o =>
+          new Intl.NumberFormat('fr-FR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          }).format(SetupPC.getPriceWithRefund(o)),
         resizable: false,
         width: 120,
         Filter: () => null,
-        Cell: ({ value, original }) => (
-          <RightCell>
-            {new Intl.NumberFormat('fr-FR', {
-              style: 'currency',
-              currency: original.currency
-            }).format(value)}
-          </RightCell>
-        )
+        Cell: ({ value }) => <RightCell>{value}</RightCell>
       },
       {
         Header: 'Date de création',
-        accessor: 'creationDate',
+        id: 'creationDate',
+        accessor: o => SetupPC.getCreationDate(o),
         resizable: false,
         width: 180,
         Cell: ({ value }) => <CenterCell>{value}</CenterCell>
@@ -145,7 +144,8 @@ export default class ConfigTable extends React.Component<Props> {
       },
       {
         Header: 'Dispo.',
-        accessor: 'instock',
+        id: 'available',
+        accessor: o => SetupPC.isAvailable(o),
         resizable: false,
         width: 100,
         Cell: ({ value }) => (

@@ -1,6 +1,5 @@
 import chrome from './Browser';
-import Config from '../Models/Config';
-import Component from '../Models/Component';
+import SetupPC from '../Models/SetupPC';
 
 const storage = chrome.storage.local;
 
@@ -23,18 +22,10 @@ export const addComment = async (newComment: string) => {
 };
 
 export const getConfigs = async (): Promise<any> => {
-  const data = await get('configs');
-  const configs = data.map(config => {
-    let c = Config.create(config);
-    console.log(c);
-    c.components = c.components.map(component => Component.create(component));
-    return c;
-  });
-  console.log(configs);
-  return configs;
+  return await get('configs');
 };
 
-export const addConfig = async (config: Config) => {
+export const addConfig = async (config: SetupPC) => {
   const configs = await getConfigs();
   configs.push(config);
   setConfigs(configs);
@@ -52,7 +43,7 @@ export const get = (key: string): Promise<any[]> => {
 export const setTags = (tags: string[]) => {
   set({ tags });
 };
-export const setConfigs = (configs: Config[]) => {
+export const setConfigs = (configs: SetupPC[]) => {
   set({ configs });
 };
 

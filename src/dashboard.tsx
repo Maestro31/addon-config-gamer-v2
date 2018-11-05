@@ -6,15 +6,15 @@ import SearchDlg from './components/SearchComponent/SearchDlg';
 import { getConfigs, setConfigs } from './services/Storage';
 import { copyConfigMessage } from './services/Messages';
 import Parser from './services/Parsers/Parser';
-import Config from './Models/Config';
+import SetupPC from './Models/SetupPC';
 import ButtonIcon from './components/ButtonIcon';
 
 interface State {
   openModal: boolean;
-  configs: Config[];
+  configs: SetupPC[];
   openConfigDlg: boolean;
   openSearchDlg: boolean;
-  config: Config;
+  config: SetupPC;
 }
 
 export default class Dashboard extends React.Component<{}, State> {
@@ -74,7 +74,7 @@ export default class Dashboard extends React.Component<{}, State> {
     this.setState({ openConfigDlg: false });
   };
 
-  onConfigChange = (config: Config): void => {
+  onConfigChange = (config: SetupPC): void => {
     this.setState({ config });
   };
 

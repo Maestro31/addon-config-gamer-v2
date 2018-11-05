@@ -1,6 +1,6 @@
 import * as React from 'react';
 import emotion from 'react-emotion';
-import Component from '../Models/Component';
+import ComponentPC from '../Models/ComponentPC';
 import Table, { Column, CellData } from './Table/Table';
 import { DispoView, VerticalLayout, Link } from './SharedComponents';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -12,8 +12,8 @@ import { getComments, addComment } from '../services/Storage';
 import CommentInput from './CommentInput';
 
 interface Props {
-  components: Component[];
-  onComponentChange?(component: Component): void;
+  components: ComponentPC[];
+  onComponentChange?(component: ComponentPC): void;
   onDeleteComponent?(id: string): void;
   activeComment?: boolean;
 }
@@ -40,13 +40,12 @@ export default class EditableComponentsList extends React.Component<
     this.props.onDeleteComponent && this.props.onDeleteComponent(id);
   };
 
-  onComponentChange = (component: Component): void => {
+  onComponentChange = (component: ComponentPC): void => {
     this.props.onComponentChange && this.props.onComponentChange(component);
   };
 
-  onCreateComment = (component: Component, value: string) => {
-    this.state.comments.push(value);
-    this.setState({ comments: this.state.comments });
+  onCreateComment = (component: ComponentPC, value: string) => {
+    this.setState({ comments: [...this.state.comments, value] });
     addComment(value);
     component.comment = value;
     this.onComponentChange(component);
@@ -93,6 +92,7 @@ export default class EditableComponentsList extends React.Component<
         header: 'Quantité',
         accessor: 'quantity',
         alignContent: 'center',
+        width: 80,
         cell: ({ original }: CellData): JSX.Element => (
           <NumberInput
             value={original.quantity}
@@ -113,26 +113,80 @@ export default class EditableComponentsList extends React.Component<
         )
       },
       {
+        header: 'Remise (%)',
+        accessor: 'refundPercent',
+        alignHeader: 'center',
+        alignContent: 'center',
+        width: 80,
+        cell: ({ original }) => (
+          <NumberInput
+            value={original.refundPercent}
+            onChange={value => {
+              original.refundPercent = value;
+              this.onComponentChange(original);
+            }}
+            step={1}
+            min={0}
+            max={100}
+            size={2}
+            style={{
+              input: {
+                height: '30px',
+                margin: '0px'
+              }
+            }}
+          />
+        )
+      },
+      {
+        header: 'Remise',
+        accessor: 'refund',
+        alignHeader: 'center',
+        alignContent: 'center',
+        width: 80,
+        cell: ({ original }) => (
+          <NumberInput
+            value={original.refund}
+            onChange={value => {
+              original.refund = value;
+              this.onComponentChange(original);
+            }}
+            step={1}
+            min={0}
+            size={2}
+            style={{
+              input: {
+                height: '30px',
+                margin: '0px'
+              }
+            }}
+          />
+        )
+      },
+      {
         header: 'Prix',
         id: 'price',
+        width: 90,
         accessor: o =>
           new Intl.NumberFormat('fr-FR', {
-            minimumFractionDigits: 2
-          }).format(o.price * o.quantity),
-        alignContent: 'right',
-        width: 100
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          }).format(ComponentPC.getTotalPrice(o)),
+        alignContent: 'right'
       },
       {
         header: 'Dispo',
-        accessor: 'instock',
+        accessor: 'available',
         alignHeader: 'center',
         alignContent: 'center',
+        width: 80,
         cell: ({ value }) => <DispoView isDispo={value} />
       },
       {
         accessor: 'id',
         alignHeader: 'center',
         alignContent: 'center',
+        width: 50,
         cell: ({ original }) => (
           <ButtonIcon onClick={e => this.onDeleteItem(original.id)}>
             <CloseIcon icon={faTimes} />

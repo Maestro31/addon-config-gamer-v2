@@ -1,15 +1,15 @@
 import * as React from 'react';
-import Component from '../../Models/Component';
+import ComponentPC from '../../Models/ComponentPC';
 import Table, { Column, CellData, FilterInfo } from '../Table/Table';
 import { DispoView, Link } from '../SharedComponents';
 
 interface Props {
-  components: Component[];
-  selectionChange(selectedItems: Component[]);
+  components: ComponentPC[];
+  selectionChange(selectedItems: ComponentPC[]);
 }
 
 interface State {
-  selectedComponents: Component[];
+  selectedComponents: ComponentPC[];
 }
 
 export default class SearchComponentsList extends React.Component<
@@ -25,7 +25,7 @@ export default class SearchComponentsList extends React.Component<
       this.setState({ selectedComponents: [] });
   };
 
-  onSelectItemChange = (component: Component, isSelected: boolean): void => {
+  onSelectItemChange = (component: ComponentPC, isSelected: boolean): void => {
     console.log({ component, isSelected });
     let selectedComponents = this.state.selectedComponents;
 
@@ -57,7 +57,7 @@ export default class SearchComponentsList extends React.Component<
         header: 'Nom',
         accessor: 'name',
         alignHeader: 'left',
-        filterMethod: (filter: FilterInfo, row: Component): boolean => {
+        filterMethod: (filter: FilterInfo, row: ComponentPC): boolean => {
           return row[filter.id]
             .toUpperCase()
             .includes(filter.value.toUpperCase());

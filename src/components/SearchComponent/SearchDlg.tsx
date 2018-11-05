@@ -2,7 +2,7 @@ import * as React from 'react';
 import emotion from 'react-emotion';
 import Modal from '../Modal';
 import Parser from '../../services/Parsers/Parser';
-import Component from '../../Models/Component';
+import ComponentPC from '../../Models/ComponentPC';
 import SearchComponentsList from './SearchComponentsList';
 import Pagination from '../Pagination';
 import TextInput from '../TextInput';
@@ -27,7 +27,7 @@ interface SelectOption {
 }
 
 interface State {
-  items: Array<Component>;
+  items: Array<ComponentPC>;
   categories: ResellerCategory[];
   currentPage: number;
   pageCount: number;
@@ -121,7 +121,7 @@ export default class SearchDlg extends React.Component<Props, State> {
     });
   };
 
-  onSelectionChange = (components: Component[]): void => {
+  onSelectionChange = (components: ComponentPC[]): void => {
     console.log(components);
   };
 

@@ -1,6 +1,6 @@
 import axios from 'axios';
-import Config from '../../Models/Config';
-import Component from '../../Models/Component';
+import SetupPC from '../../Models/SetupPC';
+import ComponentPC from '../../Models/ComponentPC';
 import AbstractParser from './AbstractParser';
 
 export default class MaterielNetParser extends AbstractParser {
@@ -1308,16 +1308,19 @@ export default class MaterielNetParser extends AbstractParser {
     ]
   };
 
-  fromCart = (): Config => {
-    let config = new Config();
+  fromCart = (): SetupPC => {
+    console.log('test');
+    let config = SetupPC.create();
     let elements = this.getAllElements(
       document.body,
       '.cart-list__body > .cart-table'
     );
 
+    console.log(elements);
+
     Array.prototype.forEach.call(elements, parentNode => {
-      let component = new Component();
-      component.instock =
+      let component = ComponentPC.create();
+      component.available =
         this.getElementAttribute(parentNode, {
           selector: '.o-availability__value',
           attribute: 'innerText'
@@ -1357,24 +1360,26 @@ export default class MaterielNetParser extends AbstractParser {
         defaultValue: '',
         attribute: 'innerText'
       });
-      config.addComponent(component);
+      config.components.push(component);
     });
 
     config.currency = this.reseller.currency;
     config.reseller = this.reseller;
+
+    console.log(config);
     return config;
   };
 
-  fromSavedCart = (): Config => {
-    let config = new Config();
+  fromSavedCart = (): SetupPC => {
+    let config = SetupPC.create();
     let elements = this.getAllElements(
       document.body,
       '.basket__body.show .order__body .order-table'
     );
 
     Array.prototype.forEach.call(elements, parentNode => {
-      let component = new Component();
-      component.instock =
+      let component = ComponentPC.create();
+      component.available =
         this.getElementAttribute(parentNode, {
           selector: '.order-cell--stock .o-availability__value',
           attribute: 'innerText'
@@ -1414,19 +1419,19 @@ export default class MaterielNetParser extends AbstractParser {
         attribute: 'src'
       });
 
-      config.addComponent(component);
+      config.components.push(component);
     });
 
     return config;
   };
 
-  fromConfigurateur = (): Config => {
-    let config = new Config();
+  fromConfigurateur = (): SetupPC => {
+    let config = SetupPC.create();
 
     const elements = this.getAllElements(document.body, '.c-row__content');
 
     Array.prototype.forEach.call(elements, parentNode => {
-      let component = new Component();
+      let component = ComponentPC.create();
 
       component.name = this.getElementAttribute(parentNode, {
         selector: '.c-meta__title',
@@ -1453,7 +1458,7 @@ export default class MaterielNetParser extends AbstractParser {
         attribute: 'innerText'
       });
       console.log(component);
-      config.addComponent(component);
+      config.components.push(component);
     });
 
     let recapElements = this.getAllElements(
@@ -1462,7 +1467,7 @@ export default class MaterielNetParser extends AbstractParser {
     );
 
     Array.prototype.forEach.call(recapElements, parentNode => {
-      const instock =
+      const availability =
         this.getElementAttribute(parentNode, {
           selector: 'td:first-child title',
           attribute: 'innerHTML',
@@ -1493,7 +1498,7 @@ export default class MaterielNetParser extends AbstractParser {
 
       config.components = config.components.map(item => {
         if (name === item.name) {
-          item.instock = instock;
+          item.available = availability;
           item.quantity = quantity;
           item.price = price;
         }
@@ -1504,7 +1509,7 @@ export default class MaterielNetParser extends AbstractParser {
     return config;
   };
 
-  updateComponent = (component: Component): Promise<Component> => {
+  updateComponent = (component: ComponentPC): Promise<ComponentPC> => {
     return axios.get(component.url).then(({ data }) => {
       const parser = new DOMParser();
       const doc = parser.parseFromString(data, 'text/html');
@@ -1518,7 +1523,7 @@ export default class MaterielNetParser extends AbstractParser {
         .replace(/\s/g, '');
 
       component.price = parseFloat(price);
-      component.instock =
+      component.available =
         this.getElementAttribute(doc.body, {
           selector: '.o-availability__value',
           attribute: 'innerText',
@@ -1529,9 +1534,9 @@ export default class MaterielNetParser extends AbstractParser {
     });
   };
 
-  parseListComponents(doc: Document): Component[] {
+  parseListComponents(doc: Document): ComponentPC[] {
     console.log('Analyse des composants en cours...');
-    let components: Array<Component> = [];
+    let components: Array<ComponentPC> = [];
 
     const html = doc.head.innerHTML;
 
@@ -1560,7 +1565,7 @@ export default class MaterielNetParser extends AbstractParser {
     );
 
     Array.prototype.forEach.call(elements, parentNode => {
-      let component = new Component();
+      let component = ComponentPC.create();
 
       component.imageUrl = this.getElementAttribute(parentNode, {
         selector: '.c-product__thumb > img',
@@ -1585,14 +1590,14 @@ export default class MaterielNetParser extends AbstractParser {
       const componentId = parentNode.id || parentNode.getAttribute('data-id');
 
       if (stocks === undefined) {
-        component.instock =
+        component.available =
           this.getElementAttribute(parentNode, {
             selector: '.o-availability__value',
             attribute: 'innerText',
             defaultValue: ''
           }) === 'En stock';
       } else if (Object.keys(stocks).includes(componentId))
-        component.instock = stocks[componentId];
+        component.available = stocks[componentId];
 
       if (prices === undefined) {
         const price = this.getElementAttribute(parentNode, {

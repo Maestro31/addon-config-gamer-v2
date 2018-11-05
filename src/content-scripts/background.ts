@@ -6,7 +6,7 @@ import {
   setTags,
   setComments
 } from '../services/Storage';
-import Config from '../Models/Config';
+import SetupPC from '../Models/SetupPC';
 import Messenger from '../services/Messages';
 
 //Action du clique sur l'icone de l'extension
@@ -15,13 +15,13 @@ chrome.browserAction.onClicked.addListener(() => {
 });
 
 // Réinitialise les données
-// if (true) {
-//   setConfigs(null);
-//   setComments(null);
-//   setTags(null);
-// }
+if (true) {
+  setConfigs(null);
+  setComments(null);
+  setTags(null);
+}
 
-let copiedConfig: Config = undefined;
+let copiedConfig: SetupPC;
 
 Messenger.register('open_dashboard', () => {
   chrome.tabs.create({ url: chrome.runtime.getURL('dashboard.html') });
@@ -41,19 +41,6 @@ Messenger.register('open_options', () => {
 });
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  // if (msg.command === 'open_dashboard') {
-  //   chrome.tabs.create({ url: chrome.runtime.getURL('dashboard.html') });
-  // }
-
-  // if (msg.command === 'save_config' && msg.config) {
-  //   addConfig(msg.config);
-  //   addTags(msg.config.tags);
-  // }
-
-  // if (msg.command === 'copy_config' && msg.config) {
-  //   copiedConfig = msg.config;
-  // }
-
   Messenger.executeCommand(msg.command, msg);
 });
 

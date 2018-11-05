@@ -34,9 +34,11 @@ export default class TextInput extends React.Component<Props, State> {
 
 const Container = emotion('div')({
   display: 'flex',
+  flex: 1,
   flexDirection: 'row',
   alignItems: 'center',
-  margin: '5px 0px',
+  justifyContent: 'center',
+  margin: 0,
   boxSizing: 'border-box',
   '& input': {
     width: '100%',
@@ -52,7 +54,7 @@ const Container = emotion('div')({
     display: 'block',
     width: '150px',
     textAlign: 'right',
-    marginRight: '10px',
+    margin: '0px 10px 0px 0px',
     fontWeight: 400
   }
 });
