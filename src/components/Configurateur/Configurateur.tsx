@@ -10,17 +10,17 @@ export default class Configurateur extends React.Component {
     return (
       <Container>
         <ConfigoContainer>
-          <GroupCard title="Les composants" gridArea="compos">
+          <GroupCard title="Les composants">
             <ConfigoCombo title="Le Processeur" icon={cpuIcon} />
             <ConfigoCombo title="La carte mère" icon={cmIcon} />
           </GroupCard>
-          <GroupCard title="L'OS & le montage" gridArea="system">
+          <GroupCard title="L'OS & le montage">
             <ConfigoCombo title="La carte mère" icon={cmIcon} />
           </GroupCard>
-          <GroupCard title="Les périphériques" gridArea="periphs">
+          <GroupCard title="Les périphériques">
             <ConfigoCombo title="Le Processeur" icon={cpuIcon} />
           </GroupCard>
-          <GroupCard title="La connectique et le modding" gridArea="modding">
+          <GroupCard title="La connectique et le modding">
             <ConfigoCombo title="Le Processeur" icon={cpuIcon} />
           </GroupCard>
         </ConfigoContainer>

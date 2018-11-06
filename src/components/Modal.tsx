@@ -47,7 +47,7 @@ export default class Modal extends React.Component<Props> {
         <Window
           minWidth={300}
           minHeight={300}
-          cancel=".cancel"
+          cancel=".cancel-drag-content-window"
           default={{
             x: (window.innerWidth - (width || 800)) / 2,
             y: (window.innerHeight - (height || 800)) / 2,
@@ -60,7 +60,7 @@ export default class Modal extends React.Component<Props> {
               <CloseIcon icon={faTimes} />
             </ButtonIcon>
           </Header>
-          <Content className="cancel">{children}</Content>
+          <Content className="cancel-drag-content-window">{children}</Content>
           <ButtonContainer>
             <HorizontalLayout>
               {renderFooter && renderFooter()}

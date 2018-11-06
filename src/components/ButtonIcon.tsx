@@ -18,6 +18,10 @@ const Container = emotion('div')(
     cursor: 'pointer',
     '&:hover': {
       opacity: 0.9
+    },
+    '& *': {
+      margin: '0 auto',
+      textAlign: 'center'
     }
   },
   ({ height, width }: any) => ({

@@ -3,7 +3,6 @@ import emotion from 'react-emotion';
 
 interface Props {
   title: string;
-  gridArea?: string;
 }
 
 export default class GroupCard extends React.Component<Props> {
@@ -17,19 +16,14 @@ export default class GroupCard extends React.Component<Props> {
   }
 }
 
-const Container = emotion('div')(
-  {
-    backgroundColor: '#2a2a2a',
-    fontFamily: 'Calibri',
-    color: '#A7A7A7',
-    padding: '15px',
-    boxShadow: 'rgba(0,0,0,0.1) 1px 2px 5px',
-    marginBottom: '10px'
-  },
-  ({ gridArea }: any) => ({
-    gridArea
-  })
-);
+const Container = emotion('div')({
+  backgroundColor: '#2a2a2a',
+  fontFamily: 'Calibri',
+  color: '#A7A7A7',
+  padding: '15px',
+  boxShadow: 'rgba(0,0,0,0.1) 1px 2px 5px',
+  marginBottom: '10px'
+});
 
 const Title = emotion('h3')({
   padding: '0 10px',

@@ -5,7 +5,7 @@ interface Tag {
   value?: string;
 }
 
-const surroundByTag = (text: string, tag: string | Tag): string => {
+export const surroundByTag = (text: string, tag: string | Tag): string => {
   if (typeof tag === 'string') return `[${tag}]${text}[/${tag}]`;
 
   if (typeof tag === 'object') {
@@ -14,7 +14,7 @@ const surroundByTag = (text: string, tag: string | Tag): string => {
   }
 };
 
-const surroundByTags = (
+export const surroundByTags = (
   text: string,
   [tag, ...tags]: Array<Tag | string>
 ): string => {
@@ -22,7 +22,7 @@ const surroundByTags = (
   else return surroundByTags(surroundByTag(text, tag), tags);
 };
 
-const createTable = (table: {
+export const createTable = (table: {
   headers: Array<string>;
   rows: Array<Array<string>>;
 }): string => {
@@ -69,7 +69,7 @@ export const postConfig = (
       ]),
       surroundByTag(c.name, {
         name: 'url',
-        value: c.url
+        value: c.url || config.reseller.url + config.reseller.tag
       }),
       c.comment || '',
       surroundByTag(c.quantity.toString(), 'center'),

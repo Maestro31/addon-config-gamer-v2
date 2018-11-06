@@ -9,7 +9,7 @@ export default class InfomaxParser extends AbstractParser {
     name: 'Infomax',
     url: 'https://www.infomaxparis.com',
     currency: 'EUR',
-    tag: '#ae1'
+    tag: '/#ae1'
   };
 
   config: ParserConfig = {

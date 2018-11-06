@@ -14,6 +14,9 @@ import emotion from 'react-emotion';
 import * as NumericInput from 'react-numeric-input';
 import EditableComponentsList from './EditableComponentsList';
 import GroupCard from './Configurateur/GroupCard';
+import ButtonIcon from './ButtonIcon';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
 interface Props {
   mode: 'editable' | 'post';
@@ -120,6 +123,10 @@ export default class ConfigDlg extends React.Component<Props, State> {
     this.props.onConfigChange && this.props.onConfigChange(config);
   };
 
+  onAddComponentClick = () => {
+    console.log('test');
+  };
+
   render() {
     if (!this.props.open) return null;
 
@@ -180,6 +187,12 @@ export default class ConfigDlg extends React.Component<Props, State> {
             onDeleteComponent={this.onDeleteComponent}
             onComponentChange={this.onComponentChange}
           />
+          <AddButton
+            onClick={this.onAddComponentClick}
+            width="50px"
+            height="50px">
+            <FontAwesomeIcon icon={faPlus} />
+          </AddButton>
         </GroupCard>
         <RowReverseLayout>
           <NumberInput
@@ -282,7 +295,8 @@ const TextArea = emotion('textarea')({
 
 const Label = emotion('label')({
   fontSize: '15px',
-  margin: '0px 10px 0px 0px'
+  margin: '0px 10px 0px 0px',
+  color: '#676767!important'
 });
 
 const LinkInput = emotion(Input)({
@@ -292,3 +306,5 @@ const LinkInput = emotion(Input)({
 const NumberInput = emotion(NumericInput)({
   width: '60px'
 });
+
+const AddButton = emotion(ButtonIcon)({});
