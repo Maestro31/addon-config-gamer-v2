@@ -50,31 +50,43 @@ export default class ConfigDlg extends React.Component<Props, State> {
   };
 
   onSubjectIdConfigChange = (subjectId: string): void => {
+    let config = this.state.config;
+    config.subjectId = subjectId;
     this.setState({
       config: { ...this.state.config, subjectId },
       configCopied: false
     });
+    this.onConfigChange(config);
   };
 
   onOwnerConfigChange = (owner: string): void => {
+    let config = this.state.config;
+    config.owner = owner;
     this.setState({
       config: { ...this.state.config, owner },
       configCopied: false
     });
+    this.onConfigChange(config);
   };
 
   onConfigTagsChange = (tags: string[]): void => {
+    let config = this.state.config;
+    config.tags = tags;
     this.setState({
-      config: { ...this.state.config, tags },
+      config,
       configCopied: false
     });
+    this.onConfigChange(config);
   };
 
   onConfigUrlChange = (url: string) => {
+    let config = this.state.config;
+    config.url = url;
     this.setState({
-      config: { ...this.state.config, url },
+      config,
       configCopied: false
     });
+    this.onConfigChange(config);
   };
 
   onMessageChange = e => {

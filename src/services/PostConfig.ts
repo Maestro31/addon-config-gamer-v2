@@ -2,24 +2,29 @@ import SetupPC from '../Models/SetupPC';
 
 interface Tag {
   name: string;
-  value?: string;
+  value: string;
 }
 
-export const surroundByTag = (text: string, tag: string | Tag): string => {
+export const surroundWithTag = (text: string, tag: string | Tag): string => {
+  if (!text || text === '') return '';
+
   if (typeof tag === 'string') return `[${tag}]${text}[/${tag}]`;
 
   if (typeof tag === 'object') {
     const { name, value } = tag;
+
+    if (!value || value === '') return text;
+
     return `[${name}${value ? '=' + value : ''}]${text}[/${name}]`;
   }
 };
 
-export const surroundByTags = (
+export const surroundWithTags = (
   text: string,
   [tag, ...tags]: Array<Tag | string>
 ): string => {
   if (!tag) return text;
-  else return surroundByTags(surroundByTag(text, tag), tags);
+  else return surroundWithTags(surroundWithTag(text, tag), tags);
 };
 
 export const createTable = (table: {
@@ -28,9 +33,9 @@ export const createTable = (table: {
 }): string => {
   let tableContent: string = '';
 
-  tableContent += surroundByTag(
+  tableContent += surroundWithTag(
     table.headers.reduce(
-      (acc, header) => (acc += surroundByTag(header, 'td')),
+      (acc, header) => (acc += surroundWithTag(header, 'td')),
       ''
     ),
     'tr'
@@ -38,14 +43,14 @@ export const createTable = (table: {
 
   tableContent += table.rows.reduce(
     (acc, row) =>
-      (acc += surroundByTag(
-        row.reduce((acc, col) => (acc += surroundByTag(col, 'td')), ''),
+      (acc += surroundWithTag(
+        row.reduce((acc, col) => (acc += surroundWithTag(col, 'td')), ''),
         'tr'
       )),
     ''
   );
 
-  return surroundByTag(tableContent, 'table');
+  return surroundWithTag(tableContent, 'table');
 };
 
 export const postConfig = (
@@ -55,25 +60,25 @@ export const postConfig = (
 ): void => {
   let table = createTable({
     headers: [
-      surroundByTags('Dispo', ['b', 'center']),
-      surroundByTag('Désignation', 'b'),
-      surroundByTag('Commentaire', 'b'),
-      surroundByTags('Quantité', ['b', 'center']),
-      surroundByTags('Prix', ['b', 'right'])
+      surroundWithTags('Dispo', ['b', 'center']),
+      surroundWithTag('Désignation', 'b'),
+      surroundWithTag('Commentaire', 'b'),
+      surroundWithTags('Quantité', ['b', 'center']),
+      surroundWithTags('Prix', ['b', 'right'])
     ],
     rows: config.components.map(c => [
-      surroundByTags('O', [
+      surroundWithTags('O', [
         'b',
         { name: 'color', value: c.available ? '#44bb00' : '#880000' },
         'center'
       ]),
-      surroundByTag(c.name, {
+      surroundWithTag(c.name, {
         name: 'url',
         value: c.url || config.reseller.url + config.reseller.tag
       }),
       c.comment || '',
-      surroundByTag(c.quantity.toString(), 'center'),
-      surroundByTag(
+      surroundWithTag(c.quantity.toString(), 'center'),
+      surroundWithTag(
         new Intl.NumberFormat('fr-FR', {
           style: 'currency',
           currency: config.currency
@@ -85,7 +90,7 @@ export const postConfig = (
 
   let responseText = '';
 
-  let configPrice = surroundByTags(
+  let configPrice = surroundWithTags(
     `Prix total: ${new Intl.NumberFormat('fr-FR', {
       style: 'currency',
       currency: config.reseller.currency
@@ -95,7 +100,7 @@ export const postConfig = (
 
   const totalRefund = SetupPC.getTotalRefund(config);
   if (totalRefund > 0) {
-    const configRefund = surroundByTag(
+    const configRefund = surroundWithTag(
       `Remise totale: ${new Intl.NumberFormat('fr-FR', {
         style: 'currency',
         currency: config.reseller.currency
@@ -106,7 +111,7 @@ export const postConfig = (
   }
 
   if (config.priceInfo) {
-    configPrice += surroundByTags(config.priceInfo, ['i', 'right']);
+    configPrice += surroundWithTags(config.priceInfo, ['i', 'right']);
   }
 
   const configLink = config.url
@@ -120,6 +125,8 @@ export const postConfig = (
   const messageElement = <HTMLTextAreaElement>(
     document.forms['postform']['message']
   );
+
+  console.log(config);
 
   messageElement.value = responseText;
 };
