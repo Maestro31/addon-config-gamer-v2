@@ -4,6 +4,7 @@ import LdlcParserV1 from './LdlcParserV1';
 import LdlcParserV2 from './LdlcParserV2';
 import InfomaxParser from './InfomaxParser';
 import SetupPC from '../../Models/SetupPC';
+import ComponentPC from '../../Models/ComponentPC';
 
 type ResellerParser =
   | MaterielNetParser
@@ -23,6 +24,18 @@ export default class Parser {
     }
   }
 
+  static getMethodByMatchingUrl(url: string): (url?: any) => any {
+    for (let parser of Parser.parsers) {
+      for (let matchUrl of parser.config.matchesUrl) {
+        if (url.match(matchUrl.regex)) {
+          return parser[matchUrl.methodName];
+        }
+      }
+    }
+
+    return null;
+  }
+
   static parseConfig = (): SetupPC => {
     let config: SetupPC;
     const url = window.location.href;
@@ -37,6 +50,13 @@ export default class Parser {
           return config;
         }
       }
+    }
+  };
+
+  static parseComponentPC = (url: string): ComponentPC => {
+    const method = Parser.getMethodByMatchingUrl(url);
+    if (method) {
+      return method(url);
     }
   };
 
@@ -86,6 +106,10 @@ Parser.parsers = [
         {
           regex: /https:\/\/www\.ldlc\.com\/fr-ch\/configurateur-pc/,
           methodName: 'fromConfigurateur'
+        },
+        {
+          regex: /https:\/\/www\.ldlc\.com\/fr-ch\/fiche\/[A-Z0-9]+\.html/,
+          methodName: 'fromProduct'
         }
       ]
     }
@@ -109,6 +133,10 @@ Parser.parsers = [
         {
           regex: /https:\/\/www\.ldlc\.com\/es-es\/(configurateur-pc|configurador-pc)/,
           methodName: 'fromConfigurateur'
+        },
+        {
+          regex: /https:\/\/www\.ldlc\.com\/es-es\/fiche\/[A-Z0-9]+\.html/,
+          methodName: 'fromProduct'
         }
       ]
     }
@@ -132,6 +160,10 @@ Parser.parsers = [
         {
           regex: /https:\/\/www\.ldlc\.com\/fr-lu\/configurateur-pc/,
           methodName: 'fromConfigurateur'
+        },
+        {
+          regex: /https:\/\/www\.ldlc\.com\/fr-lu\/fiche\/[A-Z0-9]+\.html/,
+          methodName: 'fromProduct'
         }
       ]
     }
@@ -155,6 +187,10 @@ Parser.parsers = [
         {
           regex: /https:\/\/www\.ldlc\.com\/fr-be\/configurateur-pc/,
           methodName: 'fromConfigurateur'
+        },
+        {
+          regex: /https:\/\/www\.ldlc\.com\/fr-be\/fiche\/[A-Z0-9]+\.html/,
+          methodName: 'fromProduct'
         }
       ]
     }

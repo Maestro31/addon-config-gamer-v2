@@ -190,6 +190,58 @@ export default class LdlcParserV2 extends AbstractParser {
     return config;
   };
 
+  fromProduct = async (url: string): Promise<ComponentPC> => {
+    return axios
+      .get(url)
+      .then(({ data }) => {
+        let component = ComponentPC.create();
+
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(data, 'text/html');
+
+        const priceText = this.getElementAttribute(doc.body, {
+          selector: '.price > .price',
+          attribute: 'innerText',
+          defaultValue: '0'
+        });
+
+        if (this.reseller.currency === 'CHF')
+          component.price = parseFloat(priceText.replace(/(CHF|'|\s)/g, ''));
+        else
+          component.price = parseFloat(
+            priceText.replace('€', '.').replace(/(\s)/g, '')
+          );
+
+        component.available =
+          this.getElementAttribute(doc.body, {
+            selector: '.stock',
+            attribute: 'innerText',
+            defaultValue: false
+          }) == 'En stock';
+
+        component.imageUrl =
+          this.getElementAttribute(doc.body, {
+            selector: '.photodefault > img',
+            attribute: 'src',
+            defaultValue: '#'
+          }) + this.reseller.tag;
+
+        component.name = this.getElementAttribute(doc.body, {
+          selector: '.title-1',
+          attribute: 'innerText',
+          defaultValue: ''
+        });
+
+        component.url = url + this.reseller.tag;
+
+        return component;
+      })
+      .catch(error => {
+        console.error(error.message);
+        return null;
+      });
+  };
+
   updateComponent = async (component: ComponentPC): Promise<ComponentPC> => {
     return axios.get(component.url).then(({ data }) => {
       const parser = new DOMParser();

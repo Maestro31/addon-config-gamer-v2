@@ -295,6 +295,10 @@ export default class TopAchatParser extends AbstractParser {
       {
         regex: /https:\/\/www\.topachat\.com\/pages\/configomatic\.php/,
         methodName: 'fromConfigurateur'
+      },
+      {
+        regex: /https:\/\/www\.topachat\.com\/pages\/detail2_cat_est_.+_puis_.+_puis_ref_est_in[0-9]+\.html/,
+        methodName: 'fromProduct'
       }
     ]
   };
@@ -408,6 +412,54 @@ export default class TopAchatParser extends AbstractParser {
     }
 
     return config;
+  };
+
+  fromProduct = async (url: string): Promise<ComponentPC> => {
+    return axios
+      .get(url)
+      .then(({ data }) => {
+        let component = ComponentPC.create();
+
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(data, 'text/html');
+
+        const price = this.getElementAttribute(doc.body, {
+          selector: '.priceFinal',
+          attribute: 'innerText',
+          defaultValue: '0'
+        })
+          .replace('€', '.')
+          .replace(/(\s|\*)/, '');
+
+        component.price = parseFloat(price);
+        component.available =
+          this.getElementAttribute(doc.body, {
+            selector: '#panier.en-stock',
+            attribute: 'innerText',
+            defaultValue: false
+          }) !== '';
+
+        component.imageUrl =
+          this.getElementAttribute(doc.body, {
+            selector: '.images > figure  img',
+            attribute: 'src',
+            defaultValue: '#'
+          }) + this.reseller.tag;
+
+        component.name = this.getElementAttribute(doc.body, {
+          selector: '.libelle > h1',
+          attribute: 'innerText',
+          defaultValue: ''
+        });
+
+        component.url = url + this.reseller.tag;
+
+        return component;
+      })
+      .catch(error => {
+        console.error(error.message);
+        return null;
+      });
   };
 
   updateComponent = async (component: ComponentPC): Promise<ComponentPC> => {

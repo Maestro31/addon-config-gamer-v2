@@ -15,11 +15,11 @@ chrome.browserAction.onClicked.addListener(() => {
 });
 
 // Réinitialise les données
-if (true) {
-  setConfigs(null);
-  setComments(null);
-  setTags(null);
-}
+// if (true) {
+//   setConfigs(null);
+//   setComments(null);
+//   setTags(null);
+// }
 
 let copiedConfig: SetupPC;
 

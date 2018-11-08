@@ -8,25 +8,28 @@ interface Props {
   title?: string;
 }
 
-const ButtonIcon = ({ onClick, height, width, ...rest }: Props) => (
+const ButtonIcon = ({ onClick, height, title, width, ...rest }: Props) => (
   <Container height={height} width={width} onClick={onClick} {...rest} />
 );
 
 const Container = emotion('div')(
   {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginRight: '10px',
     cursor: 'pointer',
-    '&:hover': {
-      opacity: 0.9
-    },
+    textAlign: 'center',
+    boxSizing: 'border-box',
     '& *': {
-      margin: '0 auto',
-      textAlign: 'center'
+      margin: '0 auto'
     }
   },
   ({ height, width }: any) => ({
-    height: height ? height : '',
-    width: width ? width : ''
+    height: height ? height : 'auto',
+    width: width ? width : 'auto',
+    lineHeight: height ? height : ''
   })
 );
 

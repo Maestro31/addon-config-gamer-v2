@@ -22,6 +22,10 @@ export default class LdlcParserV1 extends AbstractParser {
       {
         regex: /https:\/\/www\.ldlc\.com\/configurateur-pc/,
         methodName: 'fromConfigurateur'
+      },
+      {
+        regex: /https:\/\/www\.ldlc\.com\/fiche\/[A-Z0-9]+\.html/,
+        methodName: 'fromProduct'
       }
     ]
   };
@@ -172,6 +176,61 @@ export default class LdlcParserV1 extends AbstractParser {
     });
 
     return config;
+  };
+
+  fromProduct = async (url: string): Promise<ComponentPC> => {
+    return axios
+      .get(url)
+      .then(({ data }) => {
+        let component = ComponentPC.create();
+
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(data, 'text/html');
+
+        const priceText = this.getElementAttribute(doc.body, {
+          selector: '.miniPrice',
+          attribute: 'innerText',
+          defaultValue: '0'
+        });
+
+        if (this.reseller.currency === 'CHF')
+          component.price = parseFloat(priceText.replace(/(CHF|'|\s)/g, ''));
+        else
+          component.price = parseFloat(
+            priceText.replace('€', '.').replace(/(\s)/g, '')
+          );
+
+        const availability = this.getElementAttribute(doc.body, {
+          selector: '.miniDispo .dispo',
+          attribute: 'innerText',
+          defaultValue: false
+        });
+
+        component.available =
+          availability === 'Disponible en envoi immédiat' ||
+          availability === 'Disponible';
+
+        component.imageUrl =
+          this.getElementAttribute(doc.body, {
+            selector: '#productphoto img',
+            attribute: 'src',
+            defaultValue: '#'
+          }) + this.reseller.tag;
+
+        component.name = this.getElementAttribute(doc.body, {
+          selector: '.designation_courte',
+          attribute: 'innerText',
+          defaultValue: ''
+        });
+
+        component.url = url + this.reseller.tag;
+
+        return component;
+      })
+      .catch(error => {
+        console.error(error.message);
+        return null;
+      });
   };
 
   updateComponent = (component: ComponentPC): Promise<ComponentPC> => {

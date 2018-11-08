@@ -1,3 +1,4 @@
+import * as React from 'react';
 import emotion from 'react-emotion';
 
 export const VerticalLayout = emotion('div')({
@@ -20,15 +21,41 @@ export const RowReverseLayout = emotion('div')({
 });
 
 export const Button = emotion('div')({
+  //height: '20px',
+  minWidth: '80px',
+  width: 'auto',
   borderRadius: '0.2em',
   padding: '5px',
   color: 'white',
   marginRight: '10px',
+  textAlign: 'center',
+  lineHeight: '20px',
+  fontSize: '1em',
   cursor: 'pointer',
   '&:hover': {
     opacity: 0.9
   }
 });
+
+const PrimaryButton = emotion(Button)({
+  backgroundColor: '#1c7eb5'
+});
+
+const AlertButton = emotion(Button)({
+  backgroundColor: '#e61f1f'
+});
+
+export const CancelButton = ({ title, onClick, ...props }) => (
+  <AlertButton onClick={onClick} {...props}>
+    {title}
+  </AlertButton>
+);
+
+export const SubmitButton = ({ title, onClick, ...props }) => (
+  <PrimaryButton onClick={onClick} {...props}>
+    {title}
+  </PrimaryButton>
+);
 
 export const DispoView = emotion('div')(
   {

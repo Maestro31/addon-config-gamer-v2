@@ -98,9 +98,10 @@ export default class ConfigTable extends React.Component<Props> {
         },
         Cell: ({ value }) => (
           <span>
-            {value.map(
-              (item, i) => (i != value.length - 1 ? item + ', ' : item)
-            )}
+            {value &&
+              value.map(
+                (item, i) => (i != value.length - 1 ? item + ', ' : item)
+              )}
           </span>
         )
       },

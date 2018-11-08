@@ -3,7 +3,9 @@ import Modal from './Modal';
 import {
   VerticalLayout,
   RowReverseLayout,
-  HorizontalLayout
+  HorizontalLayout,
+  SubmitButton,
+  CancelButton
 } from '../components/SharedComponents';
 import TextInput from './TextInput';
 import TagInput from './TagInput';
@@ -17,6 +19,7 @@ import GroupCard from './Configurateur/GroupCard';
 import ButtonIcon from './ButtonIcon';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import Parser from '../services/Parsers/Parser';
 
 interface Props {
   mode: 'editable' | 'post';
@@ -39,6 +42,8 @@ interface State {
   configCopied: boolean;
   message: string;
   messageIntro: string;
+  addComponentClicked: boolean;
+  componentLink: string;
 }
 
 export default class ConfigDlg extends React.Component<Props, State> {
@@ -46,7 +51,9 @@ export default class ConfigDlg extends React.Component<Props, State> {
     config: this.props.config,
     configCopied: false,
     message: '',
-    messageIntro: ''
+    messageIntro: '',
+    addComponentClicked: false,
+    componentLink: ''
   };
 
   onSubjectIdConfigChange = (subjectId: string): void => {
@@ -135,8 +142,20 @@ export default class ConfigDlg extends React.Component<Props, State> {
     this.props.onConfigChange && this.props.onConfigChange(config);
   };
 
-  onAddComponentClick = () => {
-    console.log('test');
+  onAddComponentClick = async () => {
+    const component = await Parser.parseComponentPC(this.state.componentLink);
+    console.log(component);
+    if (component) {
+      let config = this.state.config;
+      config.components.push(component);
+      this.setState({
+        config,
+        addComponentClicked: false,
+        componentLink: ''
+      });
+
+      this.onConfigChange(config);
+    }
   };
 
   render() {
@@ -199,12 +218,35 @@ export default class ConfigDlg extends React.Component<Props, State> {
             onDeleteComponent={this.onDeleteComponent}
             onComponentChange={this.onComponentChange}
           />
-          <AddButton
-            onClick={this.onAddComponentClick}
-            width="50px"
-            height="50px">
-            <FontAwesomeIcon icon={faPlus} />
-          </AddButton>
+          {this.state.addComponentClicked ? (
+            <AddComponentLayout>
+              <LinkComponentInput
+                placeholder="Inserer le lien ici..."
+                onChange={componentLink => this.setState({ componentLink })}
+              />
+              <SubmitButton
+                style={{ marginLeft: '10px' }}
+                onClick={this.onAddComponentClick}
+                title="Ajouter"
+              />
+              <CancelButton
+                style={{ marginRight: 0 }}
+                onClick={() =>
+                  this.setState({
+                    addComponentClicked: false,
+                    componentLink: ''
+                  })
+                }
+                title="Annuler"
+              />
+            </AddComponentLayout>
+          ) : (
+            <AddButton
+              onClick={() => this.setState({ addComponentClicked: true })}
+              height="50px">
+              <FontAwesomeIcon icon={faPlus} />
+            </AddButton>
+          )}
         </GroupCard>
         <RowReverseLayout>
           <NumberInput
@@ -319,4 +361,20 @@ const NumberInput = emotion(NumericInput)({
   width: '60px'
 });
 
-const AddButton = emotion(ButtonIcon)({});
+const AddButton = emotion(ButtonIcon)({
+  fontSize: '2em',
+  border: '1px solid gray',
+  width: '100%',
+  margin: '10px auto'
+});
+
+const LinkComponentInput = emotion(Input)({
+  '& input': {
+    marginBottom: 0
+  }
+});
+
+const AddComponentLayout = emotion(HorizontalLayout)({
+  margin: '10px auto',
+  height: '50px'
+});

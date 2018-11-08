@@ -4,7 +4,13 @@ import ButtonIcon from './ButtonIcon';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { Rnd } from 'react-rnd';
-import { HorizontalLayout, RowReverseLayout, Button } from './SharedComponents';
+import {
+  HorizontalLayout,
+  RowReverseLayout,
+  Button,
+  SubmitButton,
+  CancelButton
+} from './SharedComponents';
 
 interface Props {
   height?: number;
@@ -66,12 +72,14 @@ export default class Modal extends React.Component<Props> {
               {renderFooter && renderFooter()}
             </HorizontalLayout>
             <RowReverseLayout>
-              <SubmitButton onClick={this.onConfirm}>
-                {submitButtonTitle || 'Confirmer'}
-              </SubmitButton>
-              <CancelButton onClick={this.onClose}>
-                {cancelButtonTitle || 'Annuler'}
-              </CancelButton>
+              <SubmitButton
+                onClick={this.onConfirm}
+                title={submitButtonTitle || 'Confirmer'}
+              />
+              <CancelButton
+                onClick={this.onClose}
+                title={cancelButtonTitle || 'Annuler'}
+              />
             </RowReverseLayout>
           </ButtonContainer>
         </Window>
@@ -80,13 +88,13 @@ export default class Modal extends React.Component<Props> {
   }
 }
 
-const SubmitButton = emotion(Button)({
-  backgroundColor: '#1c7eb5'
-});
+// const SubmitButton = emotion(Button)({
+//   backgroundColor: '#1c7eb5'
+// });
 
-const CancelButton = emotion(Button)({
-  backgroundColor: '#e61f1f'
-});
+// const CancelButton = emotion(Button)({
+//   backgroundColor: '#e61f1f'
+// });
 
 const Title = emotion('span')({
   paddingLeft: '10px'

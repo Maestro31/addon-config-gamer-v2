@@ -1304,6 +1304,10 @@ export default class MaterielNetParser extends AbstractParser {
       {
         regex: /https:\/\/secure\.materiel\.net\/Account\/SavedCartsSection/,
         methodName: 'fromSavedCart'
+      },
+      {
+        regex: /https:\/\/www\.materiel\.net\/produit\/[0-9]+\.html/,
+        methodName: 'fromProduct'
       }
     ]
   };
@@ -1507,6 +1511,54 @@ export default class MaterielNetParser extends AbstractParser {
     });
 
     return config;
+  };
+
+  fromProduct = async (url: string): Promise<ComponentPC> => {
+    return axios
+      .get(url)
+      .then(({ data }) => {
+        let component = ComponentPC.create();
+
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(data, 'text/html');
+
+        const price = this.getElementAttribute(doc.body, {
+          selector: '.o-product__price',
+          attribute: 'innerText',
+          defaultValue: '0'
+        })
+          .replace('€', '.')
+          .replace(/\s/g, '');
+
+        component.price = parseFloat(price);
+        component.available =
+          this.getElementAttribute(doc.body, {
+            selector: '.o-availability__value',
+            attribute: 'innerText',
+            defaultValue: false
+          }) === 'En stock';
+
+        component.imageUrl =
+          this.getElementAttribute(doc.body, {
+            selector: '.c-product__thumb > img',
+            innerAttribute: 'data-src-large',
+            defaultValue: '#'
+          }) + this.reseller.tag;
+
+        component.name = this.getElementAttribute(doc.body, {
+          selector: '.c-product__header h1',
+          attribute: 'innerText',
+          defaultValue: ''
+        });
+
+        component.url = url + this.reseller.tag;
+
+        return component;
+      })
+      .catch(error => {
+        console.error(error.message);
+        return null;
+      });
   };
 
   updateComponent = (component: ComponentPC): Promise<ComponentPC> => {

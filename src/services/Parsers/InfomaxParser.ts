@@ -2,14 +2,16 @@ import SetupPC from '../../Models/SetupPC';
 import ComponentPC from '../../Models/ComponentPC';
 import Config from '../../Models/SetupPC';
 import AbstractParser from './AbstractParser';
-import uuid = require('uuid');
 
 export default class InfomaxParser extends AbstractParser {
+  fromProduct(url: string): Promise<ComponentPC> {
+    throw new Error('Method not implemented.');
+  }
   reseller: ResellerInfo = {
     name: 'Infomax',
-    url: 'https://www.infomaxparis.com',
+    url: 'https://www.infomaxparis.com/',
     currency: 'EUR',
-    tag: '/#ae1'
+    tag: '#ae1'
   };
 
   config: ParserConfig = {

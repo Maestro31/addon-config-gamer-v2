@@ -5,6 +5,7 @@ interface Props {
   value?: string;
   onChange?(value: string): void;
   label?: string;
+  placeholder?: string;
 }
 
 interface State {
@@ -22,11 +23,16 @@ export default class TextInput extends React.Component<Props, State> {
   };
 
   render = (): JSX.Element => {
-    const { label } = this.props;
+    const { label, placeholder } = this.props;
     return (
       <Container>
         {label && <label>{label}</label>}
-        <input type="text" onChange={this.onChange} value={this.state.value} />
+        <input
+          type="text"
+          onChange={this.onChange}
+          value={this.state.value}
+          placeholder={placeholder}
+        />
       </Container>
     );
   };
