@@ -21,7 +21,6 @@ export const RowReverseLayout = emotion('div')({
 });
 
 export const Button = emotion('div')({
-  //height: '20px',
   minWidth: '80px',
   width: 'auto',
   borderRadius: '0.2em',

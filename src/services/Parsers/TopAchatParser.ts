@@ -14,7 +14,7 @@ export default class TopAchatParser extends AbstractParser {
     tag: '#ae51'
   };
 
-  config: ParserConfig = {
+  config: ParserParams = {
     searchUrlTemplate: ({ text, categories }: SearchArgs): string =>
       `https://www.topachat.com/pages/produits_cat_est_${categories[0]}${
         categories[1] ? `_puis_rubrique_est_${categories[1]}` : ''
@@ -286,25 +286,12 @@ export default class TopAchatParser extends AbstractParser {
           }
         ]
       }
-    ],
-    matchesUrl: [
-      {
-        regex: /https:\/\/www\.topachat\.com\/pages\/mon_panier\.php/,
-        methodName: 'fromCart'
-      },
-      {
-        regex: /https:\/\/www\.topachat\.com\/pages\/configomatic\.php/,
-        methodName: 'fromConfigurateur'
-      },
-      {
-        regex: /https:\/\/www\.topachat\.com\/pages\/detail2_cat_est_.+_puis_.+_puis_ref_est_in[0-9]+\.html/,
-        methodName: 'fromProduct'
-      }
     ]
   };
 
   fromCart(): SetupPC {
     let config = SetupPC.create();
+    config.reseller = this.reseller;
 
     const elements = this.getAllElements(document.body, '#recap tbody > tr');
 
@@ -318,7 +305,7 @@ export default class TopAchatParser extends AbstractParser {
       component.name = this.getElementAttribute(parentNode, {
         selector: '.unstyled',
         attribute: 'innerText',
-        noChildInnerText: true,
+        onlyRootText: true,
         defaultValue: ''
       });
       component.url =
@@ -362,6 +349,7 @@ export default class TopAchatParser extends AbstractParser {
 
   fromConfigurateur = (): SetupPC => {
     let config = SetupPC.create();
+    config.reseller = this.reseller;
 
     let elements = this.getAllElements(document.body, '.hasProduct');
 
@@ -462,7 +450,7 @@ export default class TopAchatParser extends AbstractParser {
       });
   };
 
-  updateComponent = async (component: ComponentPC): Promise<ComponentPC> => {
+  updateComponentPC = async (component: ComponentPC): Promise<ComponentPC> => {
     return axios.get(component.url).then(({ data }) => {
       const parser = new DOMParser();
       const doc = parser.parseFromString(data, 'text/html');
@@ -540,7 +528,7 @@ export default class TopAchatParser extends AbstractParser {
     return components;
   };
 
-  async searchComponent(keys: SearchArgs): Promise<SearchResponse> {
+  async searchComponentPC(keys: SearchArgs): Promise<SearchResponse> {
     if (keys.text === undefined || keys.text === '') {
       return this.searchComponentWithFilter(keys);
     }

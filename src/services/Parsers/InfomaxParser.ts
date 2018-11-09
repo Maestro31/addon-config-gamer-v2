@@ -4,9 +4,12 @@ import Config from '../../Models/SetupPC';
 import AbstractParser from './AbstractParser';
 
 export default class InfomaxParser extends AbstractParser {
+  config: ParserParams;
+  
   fromProduct(url: string): Promise<ComponentPC> {
     throw new Error('Method not implemented.');
   }
+
   reseller: ResellerInfo = {
     name: 'Infomax',
     url: 'https://www.infomaxparis.com/',
@@ -14,24 +17,11 @@ export default class InfomaxParser extends AbstractParser {
     tag: '#ae1'
   };
 
-  config: ParserConfig = {
-    matchesUrl: [
-      {
-        regex: /https:\/\/infomaxparis\.com\/commande/,
-        methodName: 'fromCart'
-      },
-      {
-        regex: /https:\/\/infomaxparis\.com\/achat-pc-gamer-configuration-fixes/,
-        methodName: 'fromConfigurateur'
-      }
-    ]
-  };
-
-  searchComponent(keys: SearchArgs): Promise<SearchResponse> {
+  searchComponentPC(keys: SearchArgs): Promise<SearchResponse> {
     throw new Error('Method not implemented.');
   }
 
-  updateComponent(component: ComponentPC): Promise<ComponentPC> {
+  updateComponentPC(component: ComponentPC): Promise<ComponentPC> {
     return;
   }
 
@@ -41,6 +31,7 @@ export default class InfomaxParser extends AbstractParser {
 
   fromConfigurateur = (): SetupPC => {
     let config: SetupPC = Config.create();
+    config.reseller = this.reseller;
 
     const refund = this.getElementAttribute(document.body, {
       selector: '.custom-product-savings > strong',

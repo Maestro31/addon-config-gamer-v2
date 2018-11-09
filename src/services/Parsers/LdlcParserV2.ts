@@ -5,9 +5,9 @@ import AbstractParser from './AbstractParser';
 
 export default class LdlcParserV2 extends AbstractParser {
   reseller: ResellerInfo;
-  config: ParserConfig;
+  config: ParserParams;
 
-  constructor(resellerInfo: ResellerInfo, config: ParserConfig) {
+  constructor(resellerInfo: ResellerInfo, config: ParserParams) {
     super();
     this.reseller = resellerInfo;
     this.config = config;
@@ -50,6 +50,7 @@ export default class LdlcParserV2 extends AbstractParser {
 
   fromCart(): SetupPC {
     let config = SetupPC.create();
+    config.reseller = this.reseller;
 
     const elements = this.getAllElements(
       document.body,
@@ -112,7 +113,8 @@ export default class LdlcParserV2 extends AbstractParser {
 
   fromConfigurateur = (): SetupPC => {
     let config = SetupPC.create();
-
+    config.reseller = this.reseller;
+    
     const recapElements = this.getAllElements(document.body, '.sbloc li');
 
     Array.prototype.forEach.call(recapElements, parentNode => {
@@ -242,7 +244,7 @@ export default class LdlcParserV2 extends AbstractParser {
       });
   };
 
-  updateComponent = async (component: ComponentPC): Promise<ComponentPC> => {
+  updateComponentPC = async (component: ComponentPC): Promise<ComponentPC> => {
     return axios.get(component.url).then(({ data }) => {
       const parser = new DOMParser();
       const doc = parser.parseFromString(data, 'text/html');
@@ -271,7 +273,7 @@ export default class LdlcParserV2 extends AbstractParser {
     });
   };
 
-  searchComponent = async (keys: SearchArgs): Promise<SearchResponse> => {
+  searchComponentPC = async (keys: SearchArgs): Promise<SearchResponse> => {
     const url = this.config.searchUrlTemplate(keys);
     console.log(url);
 

@@ -5,7 +5,7 @@ import ConfigDlg from './components/ConfigDlg';
 import SearchDlg from './components/SearchComponent/SearchDlg';
 import { getConfigs, setConfigs } from './services/Storage';
 import { copyConfigMessage } from './services/Messages';
-import Parser from './services/Parsers/Parser';
+import ParserService from './services/Parsers/Parser';
 import SetupPC from './Models/SetupPC';
 import ButtonIcon from './components/ButtonIcon';
 
@@ -47,7 +47,7 @@ export default class Dashboard extends React.Component<{}, State> {
   };
 
   onPressUpdateItem = async config => {
-    const updatedConfig = await Parser.updateConfig(config);
+    const updatedConfig = await ParserService.updateSetupPC(config);
     const configs = this.state.configs.map(
       config => (config.id === updatedConfig.id ? updatedConfig : config)
     );

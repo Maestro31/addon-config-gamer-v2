@@ -11,31 +11,18 @@ export default class LdlcParserV1 extends AbstractParser {
     tag: '#aff764'
   };
 
-  config: ParserConfig = {
+  config: ParserParams = {
     searchUrlTemplate: ({ index, text }: SearchArgs): string =>
-      `https://www.ldlc.com/navigation-p${index}e48t5o1a1/${text}/`,
-    matchesUrl: [
-      {
-        regex: /https:\/\/www\.ldlc\.com\/Sales\/BasketPage\.aspx/,
-        methodName: 'fromCart'
-      },
-      {
-        regex: /https:\/\/www\.ldlc\.com\/configurateur-pc/,
-        methodName: 'fromConfigurateur'
-      },
-      {
-        regex: /https:\/\/www\.ldlc\.com\/fiche\/[A-Z0-9]+\.html/,
-        methodName: 'fromProduct'
-      }
-    ]
+      `https://www.ldlc.com/navigation-p${index}e48t5o1a1/${text}/`
   };
 
-  searchComponent(keys: SearchArgs): Promise<SearchResponse> {
+  searchComponentPC(keys: SearchArgs): Promise<SearchResponse> {
     throw new Error('Method not implemented.');
   }
 
   fromCart(): SetupPC {
     let config = SetupPC.create();
+    config.reseller = this.reseller;
 
     const elements = this.getAllElements(
       document.body,
@@ -54,7 +41,7 @@ export default class LdlcParserV1 extends AbstractParser {
       component.name = this.getElementAttribute(parentNode, {
         selector: '.dgnLongue > a',
         attribute: 'innerText',
-        noChildInnerText: true,
+        onlyRootText: true,
         defaultValue: ''
       });
 
@@ -104,6 +91,7 @@ export default class LdlcParserV1 extends AbstractParser {
 
   fromConfigurateur = (): SetupPC => {
     let config = SetupPC.create();
+    config.reseller = this.reseller;
 
     const recapElements = this.getAllElements(document.body, '.summary li');
 
@@ -233,7 +221,7 @@ export default class LdlcParserV1 extends AbstractParser {
       });
   };
 
-  updateComponent = (component: ComponentPC): Promise<ComponentPC> => {
+  updateComponentPC = (component: ComponentPC): Promise<ComponentPC> => {
     return axios.get(component.url).then(({ data }) => {
       const parser = new DOMParser();
       const doc = parser.parseFromString(data, 'text/html');

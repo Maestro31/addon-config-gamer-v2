@@ -7,7 +7,7 @@ interface SetupPC {
   owner?: string;
   subjectId?: string;
   components?: ComponentPC[];
-  currency?: string;
+  //currency?: string;
   modificationDate?: Date;
   refund?: number;
   refundPercent?: number;

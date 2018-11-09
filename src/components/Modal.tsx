@@ -7,7 +7,6 @@ import { Rnd } from 'react-rnd';
 import {
   HorizontalLayout,
   RowReverseLayout,
-  Button,
   SubmitButton,
   CancelButton
 } from './SharedComponents';
@@ -87,14 +86,6 @@ export default class Modal extends React.Component<Props> {
     );
   }
 }
-
-// const SubmitButton = emotion(Button)({
-//   backgroundColor: '#1c7eb5'
-// });
-
-// const CancelButton = emotion(Button)({
-//   backgroundColor: '#e61f1f'
-// });
 
 const Title = emotion('span')({
   paddingLeft: '10px'

@@ -13,16 +13,16 @@ interface GetAttributeOptions {
     | 'checked'
     | 'id';
   innerAttribute?: string;
-  noChildInnerText?: boolean;
+  onlyRootText?: boolean;
   defaultValue?: any;
 }
 
 export default abstract class AbstractParser {
   abstract reseller: ResellerInfo;
-  abstract config: ParserConfig;
+  abstract config: ParserParams;
 
-  abstract updateComponent(component: ComponentPC): Promise<any>;
-  abstract searchComponent(keys: SearchArgs): Promise<SearchResponse>;
+  abstract updateComponentPC(component: ComponentPC): Promise<any>;
+  abstract searchComponentPC(keys: SearchArgs): Promise<SearchResponse>;
   abstract fromProduct(url: string): Promise<ComponentPC>;
 
   getAllElements(parentNode: Element, selector: string): NodeListOf<Element> {
@@ -40,7 +40,7 @@ export default abstract class AbstractParser {
       );
     }
 
-    if (options.attribute === 'innerText' && options.noChildInnerText) {
+    if (options.attribute === 'innerText' && options.onlyRootText) {
       let child = <CharacterData>targetNode.firstChild;
       let texts = [];
       while (child) {
@@ -55,22 +55,15 @@ export default abstract class AbstractParser {
     return targetNode[options.attribute] || options.defaultValue;
   }
 
-  updateConfig = async (config: SetupPC): Promise<SetupPC> => {
-    const configBefore = config;
+  updateSetupPC = async (config: SetupPC): Promise<SetupPC> => {
 
     let promises = [];
     for (let component of config.components) {
-      promises.push(this.updateComponent(component));
+      promises.push(this.updateComponentPC(component));
     }
 
     return Promise.all(promises).then(values => {
       config.components = values;
-
-      // Comparaison non utilisée pour le moment
-      // Fonctionnalité encore à créer
-      // const comparison = configBefore.compareConfig(config);
-      // console.log(comparison);
-
       config.modificationDate = new Date();
       return config;
     });

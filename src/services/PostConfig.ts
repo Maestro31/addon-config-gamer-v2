@@ -81,7 +81,7 @@ export const postConfig = (
       surroundWithTag(
         new Intl.NumberFormat('fr-FR', {
           style: 'currency',
-          currency: config.currency
+          currency: config.reseller.currency
         }).format(c.price * c.quantity),
         'right'
       )

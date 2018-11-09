@@ -6,7 +6,7 @@ import {
   HorizontalLayout,
   SubmitButton,
   CancelButton
-} from '../components/SharedComponents';
+} from './SharedComponents';
 import TextInput from './TextInput';
 import TagInput from './TagInput';
 import { getTags } from '../services/Storage';
@@ -19,7 +19,7 @@ import GroupCard from './Configurateur/GroupCard';
 import ButtonIcon from './ButtonIcon';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
-import Parser from '../services/Parsers/Parser';
+import ParserService from '../services/Parsers/Parser';
 
 interface Props {
   mode: 'editable' | 'post';
@@ -143,7 +143,9 @@ export default class ConfigDlg extends React.Component<Props, State> {
   };
 
   onAddComponentClick = async () => {
-    const component = await Parser.parseComponentPC(this.state.componentLink);
+    const component = await ParserService.parseComponentPC(
+      this.state.componentLink
+    );
     console.log(component);
     if (component) {
       let config = this.state.config;
@@ -290,7 +292,7 @@ export default class ConfigDlg extends React.Component<Props, State> {
             Prix total:{' '}
             {`${new Intl.NumberFormat('fr-FR', {
               style: 'currency',
-              currency: config.currency
+              currency: config.reseller.currency
             }).format(SetupPC.getPriceWithRefund(config))}`}
           </PriceText>
         </RowReverseLayout>
@@ -300,7 +302,7 @@ export default class ConfigDlg extends React.Component<Props, State> {
               Remise:{' '}
               {`${new Intl.NumberFormat('fr-FR', {
                 style: 'currency',
-                currency: config.currency
+                currency: config.reseller.currency
               }).format(SetupPC.getTotalRefund(config))}`}
             </TitleH4>
           </RowReverseLayout>

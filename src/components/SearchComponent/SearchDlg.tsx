@@ -1,7 +1,7 @@
 import * as React from 'react';
 import emotion from 'react-emotion';
 import Modal from '../Modal';
-import Parser from '../../services/Parsers/Parser';
+import ParserService from '../../services/Parsers/Parser';
 import ComponentPC from '../../Models/ComponentPC';
 import SearchComponentsList from './SearchComponentsList';
 import Pagination from '../Pagination';
@@ -60,12 +60,12 @@ export default class SearchDlg extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.resellerOptions = Parser.parsers.map(p => ({
+    this.resellerOptions = ParserService.parsers.map(p => ({
       label: p.reseller.name,
       value: p.reseller.name.toLowerCase().replace(/\W/g, '')
     }));
 
-    const categories = Parser.getParserByName(this.resellerOptions[0].label)
+    const categories = ParserService.getParserByName(this.resellerOptions[0].label)
       .config.categoryList;
 
     this.state = {
@@ -83,7 +83,7 @@ export default class SearchDlg extends React.Component<Props, State> {
 
   search = (name: string, keys: SearchArgs) => {
     this.setState({ items: [], isLoading: true, error: null });
-    Parser.searchComponent(name, keys)
+    ParserService.searchComponentPC(name, keys)
       .then((response: SearchResponse) => {
         console.group('Résultat de la recherche');
         console.log(response);
@@ -145,7 +145,7 @@ export default class SearchDlg extends React.Component<Props, State> {
   };
 
   onResellerChange = (option: SelectOption): void => {
-    const parser = Parser.getParserByName(option.label);
+    const parser = ParserService.getParserByName(option.label);
     const categories = parser.config.categoryList || [];
 
     const selectedCategory =

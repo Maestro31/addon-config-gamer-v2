@@ -11,7 +11,7 @@ export default class MaterielNetParser extends AbstractParser {
     tag: '#a_aid=aff764'
   };
 
-  config: ParserConfig = {
+  config: ParserParams = {
     searchUrlTemplate: ({ text, index, categories }: SearchArgs): string =>
       `https://www.materiel.net/search/product/${text}/ftxt-/${index}?department=${
         categories[0]
@@ -1291,30 +1291,15 @@ export default class MaterielNetParser extends AbstractParser {
           }
         ]
       }
-    ],
-    matchesUrl: [
-      {
-        regex: /https:\/\/secure\.materiel\.net\/Cart/,
-        methodName: 'fromCart'
-      },
-      {
-        regex: /https:\/\/www\.materiel\.net\/configurateur-pc-sur-mesure/,
-        methodName: 'fromConfigurateur'
-      },
-      {
-        regex: /https:\/\/secure\.materiel\.net\/Account\/SavedCartsSection/,
-        methodName: 'fromSavedCart'
-      },
-      {
-        regex: /https:\/\/www\.materiel\.net\/produit\/[0-9]+\.html/,
-        methodName: 'fromProduct'
-      }
     ]
+
+    // ]
   };
 
   fromCart = (): SetupPC => {
-    console.log('test');
     let config = SetupPC.create();
+    config.reseller = this.reseller;
+
     let elements = this.getAllElements(
       document.body,
       '.cart-list__body > .cart-table'
@@ -1367,7 +1352,6 @@ export default class MaterielNetParser extends AbstractParser {
       config.components.push(component);
     });
 
-    config.currency = this.reseller.currency;
     config.reseller = this.reseller;
 
     console.log(config);
@@ -1376,6 +1360,8 @@ export default class MaterielNetParser extends AbstractParser {
 
   fromSavedCart = (): SetupPC => {
     let config = SetupPC.create();
+    config.reseller = this.reseller;
+
     let elements = this.getAllElements(
       document.body,
       '.basket__body.show .order__body .order-table'
@@ -1431,6 +1417,7 @@ export default class MaterielNetParser extends AbstractParser {
 
   fromConfigurateur = (): SetupPC => {
     let config = SetupPC.create();
+    config.reseller = this.reseller;
 
     const elements = this.getAllElements(document.body, '.c-row__content');
 
@@ -1561,7 +1548,7 @@ export default class MaterielNetParser extends AbstractParser {
       });
   };
 
-  updateComponent = (component: ComponentPC): Promise<ComponentPC> => {
+  updateComponentPC = (component: ComponentPC): Promise<ComponentPC> => {
     return axios.get(component.url).then(({ data }) => {
       const parser = new DOMParser();
       const doc = parser.parseFromString(data, 'text/html');
@@ -1689,7 +1676,7 @@ export default class MaterielNetParser extends AbstractParser {
       filter.label = this.getElementAttribute(filterNode, {
         selector: 'a:first-child',
         attribute: 'innerText',
-        noChildInnerText: true,
+        onlyRootText: true,
         defaultValue: ''
       }).trim();
 
@@ -1720,7 +1707,7 @@ export default class MaterielNetParser extends AbstractParser {
           option.label = this.getElementAttribute(inputNode, {
             selector: 'label',
             attribute: 'innerText',
-            noChildInnerText: true,
+            onlyRootText: true,
             defaultValue: ''
           }).trim();
 
@@ -1896,7 +1883,7 @@ export default class MaterielNetParser extends AbstractParser {
       });
   };
 
-  searchComponent = async (keys: SearchArgs): Promise<SearchResponse> => {
+  searchComponentPC = async (keys: SearchArgs): Promise<SearchResponse> => {
     if (keys.text === undefined || keys.text === '') {
       return this.searchComponentWithFilter(keys);
     }

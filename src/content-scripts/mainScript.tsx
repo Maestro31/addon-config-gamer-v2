@@ -2,7 +2,7 @@ import * as React from 'react';
 import emotion from 'react-emotion';
 import * as DOM from 'react-dom';
 import Menu from '../components/Menu';
-import Parser from '../services/Parsers/Parser';
+import ParserService from '../services/Parsers/Parser';
 import ConfigDlg from '../components/ConfigDlg';
 import { saveConfigMessage, sendMessage } from '../services/Messages';
 import SetupPC from '../Models/SetupPC';
@@ -28,7 +28,7 @@ export default class Main extends React.Component<{}, State> {
   componentWillMount = () => {
     chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       if (msg && msg.command === 'copy_config') {
-        const config = Parser.parseConfig();
+        const config = ParserService.parseSetupPC();
         console.log(config);
         sendResponse(config);
       }
@@ -36,7 +36,7 @@ export default class Main extends React.Component<{}, State> {
   };
 
   onSaveConfigClick = () => {
-    const config = Parser.parseConfig();
+    const config = ParserService.parseSetupPC();
     this.setState({ config, openConfigDlg: true, configCopied: false });
   };
 
