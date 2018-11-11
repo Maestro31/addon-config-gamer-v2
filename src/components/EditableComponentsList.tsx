@@ -51,6 +51,10 @@ export default class EditableComponentsList extends React.Component<
     this.onComponentChange(component);
   };
 
+  componentDidCatch = error => {
+    console.error(error);
+  };
+
   render() {
     const columns: Column[] = [
       {

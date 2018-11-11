@@ -412,12 +412,12 @@ export default class TopAchatParser extends AbstractParser {
         const doc = parser.parseFromString(data, 'text/html');
 
         const price = this.getElementAttribute(doc.body, {
-          selector: '.priceFinal',
+          selector: '#panier .priceFinal',
           attribute: 'innerText',
           defaultValue: '0'
-        })
-          .replace('€', '.')
-          .replace(/(\s|\*)/, '');
+        }); //.replace(/(\s|\*|€)/g, '');
+
+        console.warn(price);
 
         component.price = parseFloat(price);
         component.available =
@@ -456,7 +456,7 @@ export default class TopAchatParser extends AbstractParser {
       const doc = parser.parseFromString(data, 'text/html');
 
       const price = this.getElementAttribute(doc.body, {
-        selector: '.priceFinal',
+        selector: '#panier .priceFinal',
         attribute: 'innerText',
         defaultValue: '0'
       })

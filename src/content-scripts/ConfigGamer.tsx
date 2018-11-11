@@ -20,7 +20,7 @@ export default class ConfigGamer extends React.Component<{}, State> {
     messageIntro: ''
   };
   componentDidMount() {
-    chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+    chrome.runtime.onMessage.addListener(msg => {
       if (
         msg.command &&
         msg.command === 'post_config' &&
@@ -30,9 +30,11 @@ export default class ConfigGamer extends React.Component<{}, State> {
           config: msg.config,
           openConfigDlg: true
         });
-        sendResponse(true);
       } else {
-        alert('Aucune config copiée');
+        this.setState({
+          config: SetupPC.create(),
+          openConfigDlg: true
+        });
       }
     });
   }

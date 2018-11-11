@@ -44,6 +44,7 @@ interface State {
   messageIntro: string;
   addComponentClicked: boolean;
   componentLink: string;
+  error: Error;
 }
 
 export default class ConfigDlg extends React.Component<Props, State> {
@@ -53,7 +54,8 @@ export default class ConfigDlg extends React.Component<Props, State> {
     message: '',
     messageIntro: '',
     addComponentClicked: false,
-    componentLink: ''
+    componentLink: '',
+    error: null
   };
 
   onSubjectIdConfigChange = (subjectId: string): void => {
@@ -165,14 +167,17 @@ export default class ConfigDlg extends React.Component<Props, State> {
 
     const { submitButtonTitle, title } = this.props;
     const { config } = this.state;
+    const currency =
+      (config && config.reseller && config.reseller.currency) || 'EUR';
+
     return (
       <Modal
+        {...this.props}
         title={title}
         height={950}
         width={1200}
         submitButtonTitle={submitButtonTitle || 'Confirmer'}
-        onConfirm={this.onConfirmConfig}
-        {...this.props}>
+        onConfirm={this.onConfirmConfig}>
         {this.props.mode === 'post' && (
           <>
             <Label>Message:</Label>
@@ -188,12 +193,12 @@ export default class ConfigDlg extends React.Component<Props, State> {
               <>
                 <Input
                   label="Id du sujet:"
-                  value={config.subjectId}
+                  value={config.subjectId || ''}
                   onChange={this.onSubjectIdConfigChange}
                 />
                 <Input
                   label="Membre:"
-                  value={config.owner}
+                  value={config.owner || ''}
                   onChange={this.onOwnerConfigChange}
                 />
                 <TagInput
@@ -206,7 +211,7 @@ export default class ConfigDlg extends React.Component<Props, State> {
               <HorizontalLayout>
                 <Label>Lien vers la config:</Label>
                 <LinkInput
-                  value={config.url}
+                  value={config.url || ''}
                   onChange={this.onConfigUrlChange}
                 />
               </HorizontalLayout>
@@ -292,7 +297,7 @@ export default class ConfigDlg extends React.Component<Props, State> {
             Prix total:{' '}
             {`${new Intl.NumberFormat('fr-FR', {
               style: 'currency',
-              currency: config.reseller.currency
+              currency: currency
             }).format(SetupPC.getPriceWithRefund(config))}`}
           </PriceText>
         </RowReverseLayout>
@@ -302,7 +307,7 @@ export default class ConfigDlg extends React.Component<Props, State> {
               Remise:{' '}
               {`${new Intl.NumberFormat('fr-FR', {
                 style: 'currency',
-                currency: config.reseller.currency
+                currency: currency
               }).format(SetupPC.getTotalRefund(config))}`}
             </TitleH4>
           </RowReverseLayout>
