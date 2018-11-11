@@ -69,29 +69,30 @@ function createCopyMenu() {
   });
 }
 
+const matchesForPaste = [
+  'www.config-gamer.fr/forum/',
+  'www.config-gamer.fr/administrator/'
+];
+
+const matchesForCopy = [
+  'www.topachat.com/pages/configomatic.php',
+  'secure.materiel.net/Cart',
+  'materiel.net/configurateur-pc-sur-mesure/',
+  'www.ldlc',
+  'infomaxparis.com'
+];
+
 var tabListener = function() {
   chrome.tabs.query(
     { currentWindow: true, active: true, highlighted: true },
     function(tab) {
       if (!tab[0]) return;
 
-      if (tab[0].url.indexOf('www.config-gamer.fr/forum/') != -1) {
+      if (matchesForPaste.some(url => tab[0].url.indexOf(url) != -1))
         createPasteMenu();
-      } else if (
-        tab[0].url.indexOf('www.topachat.com/pages/configomatic.php') != -1
-      ) {
+      else if (matchesForCopy.some(url => tab[0].url.indexOf(url) != -1))
         createCopyMenu();
-      } else if (tab[0].url.indexOf('secure.materiel.net/Cart') != -1) {
-        createCopyMenu();
-      } else if (
-        tab[0].url.indexOf('materiel.net/configurateur-pc-sur-mesure/') != -1
-      ) {
-        createCopyMenu();
-      } else if (tab[0].url.indexOf('www.ldlc') != -1) {
-        createCopyMenu();
-      } else if (tab[0].url.indexOf('infomaxparis.com') != -1) {
-        createCopyMenu();
-      } else chrome.contextMenus.removeAll();
+      else chrome.contextMenus.removeAll();
     }
   );
 };
