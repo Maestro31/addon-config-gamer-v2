@@ -1,12 +1,12 @@
 import chrome from '../services/Browser';
 import {
-  addConfig,
+  addCart,
   addTags,
-  setConfigs,
+  setCarts,
   setTags,
   setComments
 } from '../services/Storage';
-import SetupPC from '../Models/SetupPC';
+import Cart from '../Models/Cart';
 import Messenger from '../services/Messages';
 
 //Action du clique sur l'icone de l'extension
@@ -16,24 +16,24 @@ chrome.browserAction.onClicked.addListener(() => {
 
 // Réinitialise les données
 // if (true) {
-//   setConfigs(null);
+//   setCarts(null);
 //   setComments(null);
 //   setTags(null);
 // }
 
-let copiedConfig: SetupPC;
+let copiedCart: Cart;
 
 Messenger.register('open_dashboard', () => {
   chrome.tabs.create({ url: chrome.runtime.getURL('dashboard.html') });
 });
 
-Messenger.register('save_config', msg => {
-  addConfig(msg.config);
-  addTags(msg.config.tags);
+Messenger.register('save_cart', msg => {
+  addCart(msg.cart);
+  addTags(msg.cart.tags);
 });
 
-Messenger.register('copy_config', msg => {
-  copiedConfig = msg.config;
+Messenger.register('copy_cart', msg => {
+  copiedCart = msg.cart;
 });
 
 Messenger.register('open_options', () => {
@@ -47,11 +47,11 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 function createPasteMenu() {
   chrome.contextMenus.removeAll();
   chrome.contextMenus.create({
-    title: 'Poster config',
+    title: 'Poster les articles',
     onclick: (object, tab) => {
       chrome.tabs.sendMessage(tab.id, {
-        command: 'post_config',
-        config: copiedConfig
+        command: 'post_cart',
+        cart: copiedCart
       });
     }
   });
@@ -60,10 +60,10 @@ function createPasteMenu() {
 function createCopyMenu() {
   chrome.contextMenus.removeAll();
   chrome.contextMenus.create({
-    title: 'Copier config',
+    title: 'Copier les articles',
     onclick: function(object, tab) {
-      chrome.tabs.sendMessage(tab.id, { command: 'copy_config' }, config => {
-        copiedConfig = config;
+      chrome.tabs.sendMessage(tab.id, { command: 'copy_cart' }, cart => {
+        copiedCart = cart;
       });
     }
   });

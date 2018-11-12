@@ -8,19 +8,19 @@ import * as ReactTooltip from 'react-tooltip';
 import * as uuid from 'uuid/v4';
 
 import 'react-table/react-table.css';
-import SetupPC from '../Models/SetupPC';
-import ComponentsListView from './ComponentsListView';
+import Cart from '../Models/Cart';
+import ArticlesListView from './ArticlesListView';
 
 interface Props {
-  configs: SetupPC[];
-  onPressUpdateItem(config: SetupPC): void;
-  onPressEditItem(config: SetupPC): void;
+  carts: Cart[];
+  onPressUpdateItem(cart: Cart): void;
+  onPressEditItem(cart: Cart): void;
   onPressDeleteItem(id: string): void;
 }
 
-export default class ConfigTable extends React.Component<Props> {
+export default class CartTable extends React.Component<Props> {
   render() {
-    if (!this.props.configs) return null;
+    if (!this.props.carts) return null;
 
     const columns = [
       {
@@ -50,7 +50,7 @@ export default class ConfigTable extends React.Component<Props> {
       },
       {
         Header: 'Composants',
-        accessor: 'components',
+        accessor: 'articles',
         minWidth: 100,
         filterMethod: (filter, row) => {
           console.log(
@@ -68,18 +68,17 @@ export default class ConfigTable extends React.Component<Props> {
           const id = uuid();
           return (
             <div>
-              <CellComponents data-tip data-for={id}>
-                {value.map(
-                  (item, i) =>
-                    i != value.length - 1 ? item.name + ', ' : item.name
+              <ArticlesCell data-tip data-for={id}>
+                {value.map((item, i) =>
+                  i != value.length - 1 ? item.name + ', ' : item.name
                 )}
-              </CellComponents>
+              </ArticlesCell>
               <Tooltip
                 id={id}
                 place="right"
                 type="light"
                 effect="float"
-                getContent={() => <ComponentsListView components={value} />}
+                getContent={() => <ArticlesListView articles={value} />}
               />
             </div>
           );
@@ -99,8 +98,8 @@ export default class ConfigTable extends React.Component<Props> {
         Cell: ({ value }) => (
           <span>
             {value &&
-              value.map(
-                (item, i) => (i != value.length - 1 ? item + ', ' : item)
+              value.map((item, i) =>
+                i != value.length - 1 ? item + ', ' : item
               )}
           </span>
         )
@@ -112,7 +111,7 @@ export default class ConfigTable extends React.Component<Props> {
           new Intl.NumberFormat('fr-FR', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
-          }).format(SetupPC.getPriceWithRefund(o)),
+          }).format(Cart.getPriceWithRefund(o)),
         resizable: false,
         width: 120,
         Filter: () => null,
@@ -121,7 +120,7 @@ export default class ConfigTable extends React.Component<Props> {
       {
         Header: 'Date de création',
         id: 'creationDate',
-        accessor: o => SetupPC.getCreationDate(o),
+        accessor: o => Cart.getCreationDate(o),
         resizable: false,
         width: 180,
         Cell: ({ value }) => <CenterCell>{value}</CenterCell>
@@ -146,7 +145,7 @@ export default class ConfigTable extends React.Component<Props> {
       {
         Header: 'Dispo.',
         id: 'available',
-        accessor: o => SetupPC.isAvailable(o),
+        accessor: o => Cart.isAvailable(o),
         resizable: false,
         width: 100,
         Cell: ({ value }) => (
@@ -200,7 +199,7 @@ export default class ConfigTable extends React.Component<Props> {
     ];
 
     return (
-      <ReactTable data={this.props.configs} columns={columns} filterable />
+      <ReactTable data={this.props.carts} columns={columns} filterable />
     );
   }
 }
@@ -212,7 +211,7 @@ const Tooltip = emotion(ReactTooltip)({
   }
 });
 
-const CellComponents = emotion('span')({
+const ArticlesCell = emotion('span')({
   cursor: 'pointer'
 });
 

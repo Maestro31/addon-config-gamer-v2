@@ -1,6 +1,6 @@
 import axios from 'axios';
-import ComponentPC from '../../Models/ComponentPC';
-import SetupPC from '../../Models/SetupPC';
+import Article from '../../Models/Article';
+import Cart from '../../Models/Cart';
 import AbstractParser from './AbstractParser';
 
 export default class LdlcParserV1 extends AbstractParser {
@@ -16,13 +16,13 @@ export default class LdlcParserV1 extends AbstractParser {
       `https://www.ldlc.com/navigation-p${index}e48t5o1a1/${text}/`
   };
 
-  searchComponentPC(keys: SearchArgs): Promise<SearchResponse> {
+  searchArticle(keys: SearchArgs): Promise<SearchResponse> {
     throw new Error('Method not implemented.');
   }
 
-  fromCart(): SetupPC {
-    let config = SetupPC.create();
-    config.reseller = this.reseller;
+  fromCart(): Cart {
+    let cart = Cart.create();
+    cart.reseller = this.reseller;
 
     const elements = this.getAllElements(
       document.body,
@@ -30,22 +30,22 @@ export default class LdlcParserV1 extends AbstractParser {
     );
 
     Array.prototype.forEach.call(elements, parentNode => {
-      let component = ComponentPC.create();
+      let article = Article.create();
 
-      component.imageUrl = this.getElementAttribute(parentNode, {
+      article.imageUrl = this.getElementAttribute(parentNode, {
         selector: '.vignette > img',
         attribute: 'src',
         defaultValue: '#'
       });
 
-      component.name = this.getElementAttribute(parentNode, {
+      article.name = this.getElementAttribute(parentNode, {
         selector: '.dgnLongue > a',
         attribute: 'innerText',
         onlyRootText: true,
         defaultValue: ''
       });
 
-      component.url =
+      article.url =
         this.getElementAttribute(parentNode, {
           selector: '.dgnLongue > a',
           attribute: 'href',
@@ -58,11 +58,11 @@ export default class LdlcParserV1 extends AbstractParser {
         defaultValue: ''
       });
 
-      component.available =
+      article.available =
         availability === 'Disponible en envoi immédiat' ||
         availability === 'Disponible';
 
-      component.quantity = parseInt(
+      article.quantity = parseInt(
         this.getElementAttribute(parentNode, {
           selector: '.quantity input',
           attribute: 'value',
@@ -77,35 +77,35 @@ export default class LdlcParserV1 extends AbstractParser {
       });
 
       if (this.reseller.currency === 'CHF')
-        component.price = parseFloat(priceText.replace(/(CHF|\s|')/g, ''));
+        article.price = parseFloat(priceText.replace(/(CHF|\s|')/g, ''));
       else
-        component.price = parseFloat(
+        article.price = parseFloat(
           priceText.replace(/(€|\s)/g, '').replace(',', '.')
         );
 
-      config.components.push(component);
+      cart.articles.push(article);
     });
 
-    return config;
+    return cart;
   }
 
-  fromConfigurateur = (): SetupPC => {
-    let config = SetupPC.create();
-    config.reseller = this.reseller;
+  fromConfigurateur = (): Cart => {
+    let cart = Cart.create();
+    cart.reseller = this.reseller;
 
     const recapElements = this.getAllElements(document.body, '.summary li');
 
     Array.prototype.forEach.call(recapElements, parentNode => {
-      let component = ComponentPC.create();
+      let article = Article.create();
 
-      component.available =
+      article.available =
         this.getElementAttribute(parentNode, {
           selector: '.dispo',
           attribute: 'title',
           defaultValue: ''
         }) === 'Stock web : disponible';
 
-      component.name = this.getElementAttribute(parentNode, {
+      article.name = this.getElementAttribute(parentNode, {
         selector: '.designation',
         attribute: 'title',
         defaultValue: ''
@@ -130,9 +130,9 @@ export default class LdlcParserV1 extends AbstractParser {
         price = parseFloat(priceText.replace(/(CHF|\s|')/g, ''));
       else price = parseFloat(priceText.replace('€', '.').replace(/\s/g, ''));
 
-      component.price = price / quantity;
-      component.quantity = quantity;
-      config.components.push(component);
+      article.price = price / quantity;
+      article.quantity = quantity;
+      cart.articles.push(article);
     });
 
     const elements = this.getAllElements(document.body, '.product');
@@ -154,7 +154,7 @@ export default class LdlcParserV1 extends AbstractParser {
           defaultValue: '#'
         }) + this.reseller.tag;
 
-      config.components = config.components.map(item => {
+      cart.articles = cart.articles.map(item => {
         if (name === item.name) {
           item.imageUrl = imageUrl;
           item.url = url;
@@ -163,14 +163,14 @@ export default class LdlcParserV1 extends AbstractParser {
       });
     });
 
-    return config;
+    return cart;
   };
 
-  fromProduct = async (url: string): Promise<ComponentPC> => {
+  fromProduct = async (url: string): Promise<Article> => {
     return axios
       .get(url)
       .then(({ data }) => {
-        let component = ComponentPC.create();
+        let article = Article.create();
 
         const parser = new DOMParser();
         const doc = parser.parseFromString(data, 'text/html');
@@ -182,9 +182,9 @@ export default class LdlcParserV1 extends AbstractParser {
         });
 
         if (this.reseller.currency === 'CHF')
-          component.price = parseFloat(priceText.replace(/(CHF|'|\s)/g, ''));
+          article.price = parseFloat(priceText.replace(/(CHF|'|\s)/g, ''));
         else
-          component.price = parseFloat(
+          article.price = parseFloat(
             priceText.replace('€', '.').replace(/(\s)/g, '')
           );
 
@@ -194,26 +194,26 @@ export default class LdlcParserV1 extends AbstractParser {
           defaultValue: false
         });
 
-        component.available =
+        article.available =
           availability === 'Disponible en envoi immédiat' ||
           availability === 'Disponible';
 
-        component.imageUrl =
+        article.imageUrl =
           this.getElementAttribute(doc.body, {
             selector: '#productphoto img',
             attribute: 'src',
             defaultValue: '#'
           }) + this.reseller.tag;
 
-        component.name = this.getElementAttribute(doc.body, {
+        article.name = this.getElementAttribute(doc.body, {
           selector: '.designation_courte',
           attribute: 'innerText',
           defaultValue: ''
         });
 
-        component.url = url + this.reseller.tag;
+        article.url = url + this.reseller.tag;
 
-        return component;
+        return article;
       })
       .catch(error => {
         console.error(error.message);
@@ -221,8 +221,8 @@ export default class LdlcParserV1 extends AbstractParser {
       });
   };
 
-  updateComponentPC = (component: ComponentPC): Promise<ComponentPC> => {
-    return axios.get(component.url).then(({ data }) => {
+  updateArticle = (article: Article): Promise<Article> => {
+    return axios.get(article.url).then(({ data }) => {
       const parser = new DOMParser();
       const doc = parser.parseFromString(data, 'text/html');
 
@@ -233,9 +233,9 @@ export default class LdlcParserV1 extends AbstractParser {
       });
 
       if (this.reseller.currency === 'CHF')
-        component.price = parseFloat(priceText.replace(/(CHF|'|\s)/g, ''));
+        article.price = parseFloat(priceText.replace(/(CHF|'|\s)/g, ''));
       else
-        component.price = parseFloat(
+        article.price = parseFloat(
           priceText.replace('€', '.').replace(/(\s)/g, '')
         );
 
@@ -245,11 +245,11 @@ export default class LdlcParserV1 extends AbstractParser {
         defaultValue: false
       });
 
-      component.available =
+      article.available =
         availability === 'Disponible en envoi immédiat' ||
         availability === 'Disponible';
 
-      return component;
+      return article;
     });
   };
 }

@@ -6,7 +6,7 @@ import { faDownload } from '@fortawesome/free-solid-svg-icons';
 import chrome from '../services/Browser';
 
 interface Props {
-  onSaveConfigClick(): void;
+  onSaveCart(): void;
 }
 
 export default class MenuBar extends React.Component<Props> {
@@ -26,8 +26,8 @@ export default class MenuBar extends React.Component<Props> {
         </ButtonIcon>
         <ButtonIcon
           height="90%"
-          title="Sauvegarder config"
-          onClick={this.props.onSaveConfigClick}>
+          title="Sauvegarder panier"
+          onClick={this.props.onSaveCart}>
           <SmallIcon icon={faDownload} />
         </ButtonIcon>
       </Container>

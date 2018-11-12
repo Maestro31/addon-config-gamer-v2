@@ -1,12 +1,12 @@
-import SetupPC from '../../Models/SetupPC';
-import ComponentPC from '../../Models/ComponentPC';
-import Config from '../../Models/SetupPC';
+import Cart from '../../Models/Cart';
+import Article from '../../Models/Article';
+import Config from '../../Models/Cart';
 import AbstractParser from './AbstractParser';
 
 export default class InfomaxParser extends AbstractParser {
   config: ParserParams;
   
-  fromProduct(url: string): Promise<ComponentPC> {
+  fromProduct(url: string): Promise<Article> {
     throw new Error('Method not implemented.');
   }
 
@@ -17,21 +17,21 @@ export default class InfomaxParser extends AbstractParser {
     tag: '#ae1'
   };
 
-  searchComponentPC(keys: SearchArgs): Promise<SearchResponse> {
+  searchArticle(keys: SearchArgs): Promise<SearchResponse> {
     throw new Error('Method not implemented.');
   }
 
-  updateComponentPC(component: ComponentPC): Promise<ComponentPC> {
+  updateArticle(article: Article): Promise<Article> {
     return;
   }
 
-  fromCart(): SetupPC {
+  fromCart(): Cart {
     throw new Error('Method not implemented.');
   }
 
-  fromConfigurateur = (): SetupPC => {
-    let config: SetupPC = Config.create();
-    config.reseller = this.reseller;
+  fromConfigurateur = (): Cart => {
+    let cart: Cart = Config.create();
+    cart.reseller = this.reseller;
 
     const refund = this.getElementAttribute(document.body, {
       selector: '.custom-product-savings > strong',
@@ -39,7 +39,7 @@ export default class InfomaxParser extends AbstractParser {
       defaultValue: 0
     });
 
-    config.refund = refund.replace(/(\s|€)/g, '').replace(',', '.');
+    cart.refund = refund.replace(/(\s|€)/g, '').replace(',', '.');
 
     const elements = this.getAllElements(
       document.body,
@@ -47,18 +47,18 @@ export default class InfomaxParser extends AbstractParser {
     );
 
     Array.prototype.forEach.call(elements, parentNode => {
-      let component = ComponentPC.create();
-      component.name = this.getElementAttribute(parentNode, {
+      let article = Article.create();
+      article.name = this.getElementAttribute(parentNode, {
         selector: '.remarketing--content-product-title',
         attribute: 'innerHTML',
         defaultValue: ''
       });
 
-      if (component.name === 'Sans') {
+      if (article.name === 'Sans') {
         return;
       }
 
-      component.imageUrl = this.getElementAttribute(parentNode, {
+      article.imageUrl = this.getElementAttribute(parentNode, {
         selector: '.remarketing--content-product-image > img',
         attribute: 'src',
         defaultValue: '#'
@@ -70,15 +70,15 @@ export default class InfomaxParser extends AbstractParser {
         defaultValue: '0'
       });
 
-      component.price = parseFloat(
+      article.price = parseFloat(
         price.replace(/(\s|€)/g, '').replace(',', '.')
       );
 
-      component.available = true;
+      article.available = true;
 
-      config.components.push(component);
+      cart.articles.push(article);
     });
-    console.log(config);
-    return config;
+    console.log(cart);
+    return cart;
   };
 }

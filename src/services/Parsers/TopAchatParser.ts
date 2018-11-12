@@ -1,6 +1,6 @@
 import axios from 'axios';
-import SetupPC from '../../Models/SetupPC';
-import ComponentPC from '../../Models/ComponentPC';
+import Cart from '../../Models/Cart';
+import Article from '../../Models/Article';
 import AbstractParser from './AbstractParser';
 
 export default class TopAchatParser extends AbstractParser {
@@ -289,26 +289,26 @@ export default class TopAchatParser extends AbstractParser {
     ]
   };
 
-  fromCart(): SetupPC {
-    let config = SetupPC.create();
-    config.reseller = this.reseller;
+  fromCart(): Cart {
+    let cart = Cart.create();
+    cart.reseller = this.reseller;
 
     const elements = this.getAllElements(document.body, '#recap tbody > tr');
 
     Array.prototype.forEach.call(elements, parentNode => {
-      let component = ComponentPC.create();
-      component.imageUrl = this.getElementAttribute(parentNode, {
+      let article = Article.create();
+      article.imageUrl = this.getElementAttribute(parentNode, {
         selector: 'img',
         attribute: 'src',
         defaultValue: '#'
       });
-      component.name = this.getElementAttribute(parentNode, {
+      article.name = this.getElementAttribute(parentNode, {
         selector: '.unstyled',
         attribute: 'innerText',
         onlyRootText: true,
         defaultValue: ''
       });
-      component.url =
+      article.url =
         this.getElementAttribute(parentNode, {
           selector: '.unstyled',
           attribute: 'href',
@@ -320,61 +320,61 @@ export default class TopAchatParser extends AbstractParser {
         defaultValue: '0'
       });
 
-      component.price = parseFloat(price.replace('€', '').replace(/\s/g, ''));
-      component.quantity = this.getElementAttribute(parentNode, {
+      article.price = parseFloat(price.replace('€', '').replace(/\s/g, ''));
+      article.quantity = this.getElementAttribute(parentNode, {
         selector: '.currQt',
         attribute: 'innerText',
         defaultValue: 1
       });
 
-      component.available =
+      article.available =
         this.getElementAttribute(parentNode, {
           selector: '.en-stock',
           attribute: 'innerText',
           defaultValue: ''
         }) !== '';
 
-      config.components.push(component);
+      cart.articles.push(article);
     });
 
-    const price = SetupPC.getPriceWithoutRefund(config);
+    const price = Cart.getPriceWithoutRefund(cart);
 
     if (price >= 1000) {
-      config.refundPercent = 5;
-      config.priceInfo = this.priceInfo;
+      cart.refundPercent = 5;
+      cart.priceInfo = this.priceInfo;
     }
 
-    return config;
+    return cart;
   }
 
-  fromConfigurateur = (): SetupPC => {
-    let config = SetupPC.create();
-    config.reseller = this.reseller;
+  fromConfigurateur = (): Cart => {
+    let cart = Cart.create();
+    cart.reseller = this.reseller;
 
     let elements = this.getAllElements(document.body, '.hasProduct');
 
     Array.prototype.forEach.call(elements, parentNode => {
-      let component = ComponentPC.create();
-      component.imageUrl = this.getElementAttribute(parentNode, {
+      let article = Article.create();
+      article.imageUrl = this.getElementAttribute(parentNode, {
         selector: '.configomatic-product__image > img',
         attribute: 'src',
         defaultValue: '#'
       });
 
-      component.name = this.getElementAttribute(parentNode, {
+      article.name = this.getElementAttribute(parentNode, {
         selector: '.configomatic__product-label',
         attribute: 'innerText',
         defaultValue: ''
       });
 
-      component.url =
+      article.url =
         this.getElementAttribute(parentNode, {
           selector: '.configomatic-product__actions > a',
           attribute: 'href',
           defaultValue: '#'
         }) + this.reseller.tag;
 
-      component.price = parseFloat(
+      article.price = parseFloat(
         this.getElementAttribute(parentNode, {
           selector: '.configomatic-product__price',
           attribute: 'innerText',
@@ -382,31 +382,31 @@ export default class TopAchatParser extends AbstractParser {
         }).replace(/\s/g, '')
       );
 
-      component.available =
+      article.available =
         this.getElementAttribute(parentNode, {
           selector: '.cfgo-availability',
           attribute: 'innerText',
           defaultValue: ''
         }) === 'En stock';
 
-      config.components.push(component);
+      cart.articles.push(article);
     });
 
-    const price = SetupPC.getPriceWithoutRefund(config);
+    const price = Cart.getPriceWithoutRefund(cart);
 
     if (price >= 1000) {
-      config.refundPercent = 5;
-      config.priceInfo = this.priceInfo;
+      cart.refundPercent = 5;
+      cart.priceInfo = this.priceInfo;
     }
 
-    return config;
+    return cart;
   };
 
-  fromProduct = async (url: string): Promise<ComponentPC> => {
+  fromProduct = async (url: string): Promise<Article> => {
     return axios
       .get(url)
       .then(({ data }) => {
-        let component = ComponentPC.create();
+        let article = Article.create();
 
         const parser = new DOMParser();
         const doc = parser.parseFromString(data, 'text/html');
@@ -415,34 +415,32 @@ export default class TopAchatParser extends AbstractParser {
           selector: '#panier .priceFinal',
           attribute: 'innerText',
           defaultValue: '0'
-        }); //.replace(/(\s|\*|€)/g, '');
+        }).replace(/(\s|€|\*)/g, '');
 
-        console.warn(price);
-
-        component.price = parseFloat(price);
-        component.available =
+        article.price = parseFloat(price);
+        article.available =
           this.getElementAttribute(doc.body, {
             selector: '#panier.en-stock',
             attribute: 'innerText',
             defaultValue: false
           }) !== '';
 
-        component.imageUrl =
+        article.imageUrl =
           this.getElementAttribute(doc.body, {
             selector: '.images > figure  img',
             attribute: 'src',
             defaultValue: '#'
           }) + this.reseller.tag;
 
-        component.name = this.getElementAttribute(doc.body, {
+        article.name = this.getElementAttribute(doc.body, {
           selector: '.libelle > h1',
           attribute: 'innerText',
           defaultValue: ''
         });
 
-        component.url = url + this.reseller.tag;
+        article.url = url + this.reseller.tag;
 
-        return component;
+        return article;
       })
       .catch(error => {
         console.error(error.message);
@@ -450,8 +448,8 @@ export default class TopAchatParser extends AbstractParser {
       });
   };
 
-  updateComponentPC = async (component: ComponentPC): Promise<ComponentPC> => {
-    return axios.get(component.url).then(({ data }) => {
+  updateArticle = async (article: Article): Promise<Article> => {
+    return axios.get(article.url).then(({ data }) => {
       const parser = new DOMParser();
       const doc = parser.parseFromString(data, 'text/html');
 
@@ -463,20 +461,20 @@ export default class TopAchatParser extends AbstractParser {
         .replace('€', '.')
         .replace(' ', '');
 
-      component.price = parseFloat(price);
-      component.available =
+      article.price = parseFloat(price);
+      article.available =
         this.getElementAttribute(doc.body, {
           selector: '#panier.en-stock',
           attribute: 'innerText',
           defaultValue: false
         }) !== '';
 
-      return component;
+      return article;
     });
   };
 
-  parseListComponents = (doc: Document): ComponentPC[] => {
-    let components: Array<ComponentPC> = [];
+  parseListComponents = (doc: Document): Article[] => {
+    let articles: Array<Article> = [];
 
     const elements = this.getAllElements(
       doc.body,
@@ -484,16 +482,16 @@ export default class TopAchatParser extends AbstractParser {
     );
 
     Array.prototype.forEach.call(elements, parentNode => {
-      let component = ComponentPC.create();
+      let article = Article.create();
 
       const id = parentNode.id;
 
-      component.imageUrl = `${this.reseller.url}/boutique/img/${id.substr(
+      article.imageUrl = `${this.reseller.url}/boutique/img/${id.substr(
         0,
         2
       )}/${id.substr(0, 6)}/${id}/${id}01.jpg`;
 
-      component.name = this.getElementAttribute(parentNode, {
+      article.name = this.getElementAttribute(parentNode, {
         selector: '.libelle h3 ',
         attribute: 'innerText',
         defaultValue: ''
@@ -508,10 +506,10 @@ export default class TopAchatParser extends AbstractParser {
 
       url = url.replace(/^https?:\/\/[a-zA-Z\.:0-9]+/g, '');
 
-      component.url = `${this.reseller.url}${url}`;
+      article.url = `${this.reseller.url}${url}`;
 
       const classList = parentNode.classList;
-      component.available =
+      article.available =
         classList.contains('en-stock') || classList.contains('en-stock-limite');
 
       const price = this.getElementAttribute(parentNode, {
@@ -520,15 +518,15 @@ export default class TopAchatParser extends AbstractParser {
         defaultValue: '0'
       });
 
-      component.price = parseFloat(price.replace(/(\s|€|\*)/g, ''));
+      article.price = parseFloat(price.replace(/(\s|€|\*)/g, ''));
 
-      components.push(component);
+      articles.push(article);
     });
 
-    return components;
+    return articles;
   };
 
-  async searchComponentPC(keys: SearchArgs): Promise<SearchResponse> {
+  async searchArticle(keys: SearchArgs): Promise<SearchResponse> {
     if (keys.text === undefined || keys.text === '') {
       return this.searchComponentWithFilter(keys);
     }
@@ -549,17 +547,17 @@ export default class TopAchatParser extends AbstractParser {
 
         const match = itemsCountString.match(/\(([0-9])+/g);
 
-        if (!match) return this.sendNoComponentsFound('Aucun élément trouvé');
+        if (!match) return this.sendNoArticleFound('Aucun élément trouvé');
 
-        const itemsCount = parseInt(match[0].replace('(', ''));
+        const articlesCount = parseInt(match[0].replace('(', ''));
         const pageCount = 1;
         const components = this.parseListComponents(doc);
 
         return {
           pageCount,
           currentPage: keys.index,
-          itemsCount,
-          items: components
+          articlesCount,
+          articles: components
         };
       })
       .catch(error => {
@@ -567,8 +565,8 @@ export default class TopAchatParser extends AbstractParser {
         return {
           pageCount: 0,
           currentPage: 0,
-          itemsCount: 0,
-          items: [],
+          articlesCount: 0,
+          articles: [],
           error
         };
       });
@@ -697,7 +695,7 @@ export default class TopAchatParser extends AbstractParser {
 
         const pageCount = maxPage;
 
-        const components = this.parseListComponents(doc);
+        const articles = this.parseListComponents(doc);
 
         const errorMessage = this.getElementAttribute(doc.body, {
           selector: '#filtres > div:first-child',
@@ -708,7 +706,7 @@ export default class TopAchatParser extends AbstractParser {
         let result: SearchResponse = {
           pageCount,
           currentPage: args.index,
-          items: components
+          articles
         };
 
         let filters = this.getFilters(doc);
@@ -762,10 +760,10 @@ export default class TopAchatParser extends AbstractParser {
         return {
           pageCount: 0,
           currentPage: 0,
-          itemsCount: 0,
+          articlesCount: 0,
           error: error.message,
           filters: [],
-          items: []
+          articles: []
         };
       });
   };

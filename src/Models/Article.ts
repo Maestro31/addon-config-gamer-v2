@@ -1,6 +1,6 @@
 import * as uuid from 'uuid/v4';
 
-interface ComponentPC {
+interface Article {
   readonly id: string;
   error?: string;
   imageUrl?: string;
@@ -14,8 +14,8 @@ interface ComponentPC {
   comment?: string;
 }
 
-namespace ComponentPC {
-  export function create(): ComponentPC {
+namespace Article {
+  export function create(): Article {
     return {
       id: uuid(),
       refund: 0,
@@ -24,11 +24,11 @@ namespace ComponentPC {
     };
   }
 
-  export function getTotalPrice(c: ComponentPC): number {
+  export function getTotalPrice(article: Article): number {
     return (
-      (c.price - (c.price * c.refundPercent) / 100 - c.refund) * c.quantity
+      (article.price - (article.price * article.refundPercent) / 100 - article.refund) * article.quantity
     );
   }
 }
 
-export default ComponentPC;
+export default Article;

@@ -1,44 +1,44 @@
 import * as React from 'react';
-import ComponentPC from '../../Models/ComponentPC';
+import Article from '../../Models/Article';
 import Table, { Column, CellData, FilterInfo } from '../Table/Table';
 import { DispoView, Link } from '../SharedComponents';
 
 interface Props {
-  components: ComponentPC[];
-  selectionChange(selectedItems: ComponentPC[]);
+  articles: Article[];
+  selectionChange(selectedArticles: Article[]);
 }
 
 interface State {
-  selectedComponents: ComponentPC[];
+  selectedArticles: Article[];
 }
 
-export default class SearchComponentsList extends React.Component<
+export default class SearchArticlesList extends React.Component<
   Props,
   State
 > {
   state = {
-    selectedComponents: []
+    selectedArticles: []
   };
 
   componentDidUpdate = (prevProps): void => {
-    if (this.props.components !== prevProps.components)
-      this.setState({ selectedComponents: [] });
+    if (this.props.articles !== prevProps.articles)
+      this.setState({ selectedArticles: [] });
   };
 
-  onSelectItemChange = (component: ComponentPC, isSelected: boolean): void => {
-    console.log({ component, isSelected });
-    let selectedComponents = this.state.selectedComponents;
+  onSelectItemChange = (article: Article, isSelected: boolean): void => {
+    console.log({ article, isSelected });
+    let selectedArticles = this.state.selectedArticles;
 
-    if (isSelected) selectedComponents.push(component);
+    if (isSelected) selectedArticles.push(article);
     else
-      selectedComponents = selectedComponents.filter(
-        item => item.id !== component.id
+    selectedArticles = selectedArticles.filter(
+        item => item.id !== article.id
       );
 
     this.props.selectionChange &&
-      this.props.selectionChange(selectedComponents);
+      this.props.selectionChange(selectedArticles);
 
-    this.setState({ selectedComponents });
+    this.setState({ selectedArticles });
   };
 
   render() {
@@ -57,7 +57,7 @@ export default class SearchComponentsList extends React.Component<
         header: 'Nom',
         accessor: 'name',
         alignHeader: 'left',
-        filterMethod: (filter: FilterInfo, row: ComponentPC): boolean => {
+        filterMethod: (filter: FilterInfo, row: Article): boolean => {
           return row[filter.id]
             .toUpperCase()
             .includes(filter.value.toUpperCase());
@@ -84,19 +84,8 @@ export default class SearchComponentsList extends React.Component<
         alignContent: 'center',
         cell: ({ value }) => <DispoView isDispo={value} />
       }
-      // {
-      //   accessor: 'id',
-      //   alignHeader: 'center',
-      //   alignContent: 'center',
-      //   cell: ({ original }) => (
-      //     <input
-      //       type="checkbox"
-      //       onChange={e => this.onSelectItemChange(original, e.target.checked)}
-      //     />
-      //   )
-      // }
     ];
 
-    return <Table filterable columns={columns} data={this.props.components} />;
+    return <Table filterable columns={columns} data={this.props.articles} />;
   }
 }

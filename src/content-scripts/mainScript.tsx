@@ -3,41 +3,40 @@ import emotion from 'react-emotion';
 import * as DOM from 'react-dom';
 import Menu from '../components/Menu';
 import ParserService from '../services/Parsers/Parser';
-import ConfigDlg from '../components/ConfigDlg';
-import { saveConfigMessage, sendMessage } from '../services/Messages';
-import SetupPC from '../Models/SetupPC';
-import { copyConfigMessage } from '../services/Messages';
+import CartDialog from '../components/CartDialog';
+import { saveCartMessage, sendMessage } from '../services/Messages';
+import Cart from '../Models/Cart';
+import { copyCartMessage } from '../services/Messages';
 import { Button } from '../components/SharedComponents';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import chrome from '../services/Browser';
 
 interface State {
-  openConfigDlg: boolean;
-  config: SetupPC;
-  configCopied: boolean;
+  openDialog: boolean;
+  cart: Cart;
+  copiedCart: boolean;
 }
 
 export default class Main extends React.Component<{}, State> {
   state: State = {
-    openConfigDlg: false,
-    config: null,
-    configCopied: false
+    openDialog: false,
+    cart: null,
+    copiedCart: false
   };
 
   componentWillMount = () => {
     chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-      if (msg && msg.command === 'copy_config') {
-        const config = ParserService.parseSetupPC();
-        console.log(config);
-        sendResponse(config);
+      if (msg && msg.command === 'copy_cart') {
+        const cart = ParserService.parseSetupPC();
+        sendResponse(cart);
       }
     });
   };
 
-  onSaveConfigClick = () => {
-    const config = ParserService.parseSetupPC();
-    this.setState({ config, openConfigDlg: true, configCopied: false });
+  onSaveCart = () => {
+    const cart = ParserService.parseSetupPC();
+    this.setState({ cart, openDialog: true, copiedCart: false });
   };
 
   onSettingsClick = () => {
@@ -45,44 +44,44 @@ export default class Main extends React.Component<{}, State> {
   };
 
   onCloseModal = () => {
-    this.setState({ openConfigDlg: false, config: null, configCopied: false });
+    this.setState({ openDialog: false, cart: null, copiedCart: false });
   };
 
-  onConfirmModal = (config: SetupPC) => {
+  onConfirmModal = (cart: Cart) => {
     this.onCloseModal();
-    saveConfigMessage(config);
+    saveCartMessage(cart);
   };
 
-  onCopyConfig = () => {
-    this.setState({ configCopied: true });
-    copyConfigMessage(this.state.config);
+  onCopyCart = () => {
+    this.setState({ copiedCart: true });
+    copyCartMessage(this.state.cart);
   };
 
-  onConfigChange = (config: SetupPC) => {
-    this.setState({ config });
+  onCartChange = (cart: Cart) => {
+    this.setState({ cart });
   };
 
   render() {
     return (
       <>
         <Menu
-          onSaveConfigClick={this.onSaveConfigClick}
+          onSaveCart={this.onSaveCart}
           onSettingsClick={this.onSettingsClick}
         />
-        {this.state.config && (
-          <ConfigDlg
+        {this.state.cart && (
+          <CartDialog
             mode="editable"
-            title="Nouvelle config"
+            title="Nouveau panier"
             submitButtonTitle="Sauvegarder"
-            config={this.state.config}
-            onConfigChange={this.onConfigChange}
-            open={this.state.openConfigDlg}
-            onConfirmConfig={this.onConfirmModal}
+            cart={this.state.cart}
+            onCartChange={this.onCartChange}
+            open={this.state.openDialog}
+            onConfirmCart={this.onConfirmModal}
             onClose={this.onCloseModal}
             renderFooter={() => (
-              <CopyButton onClick={this.onCopyConfig}>
-                Copier config
-                {this.state.configCopied && <CheckIcon icon={faCheck} />}
+              <CopyButton onClick={this.onCopyCart}>
+                Copier les articles
+                {this.state.copiedCart && <CheckIcon icon={faCheck} />}
               </CopyButton>
             )}
           />

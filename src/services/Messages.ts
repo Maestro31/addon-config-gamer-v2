@@ -1,20 +1,20 @@
 import chrome from './Browser';
-import SetupPC from '../Models/SetupPC';
+import Cart from '../Models/Cart';
 
 interface Message {
   [key: string]: any;
 }
 
-export const saveConfigMessage = (config: SetupPC) => {
-  sendMessage('save_config', { config });
+export const saveCartMessage = (cart: Cart) => {
+  sendMessage('save_cart', { cart });
 };
 
 export const sendMessage = (command: string, message?: Message) => {
   chrome.runtime.sendMessage({ command, ...message });
 };
 
-export const copyConfigMessage = (config: SetupPC) => {
-  sendMessage('copy_config', { config });
+export const copyCartMessage = (cart: Cart) => {
+  sendMessage('copy_cart', { cart });
 };
 
 interface Actions {

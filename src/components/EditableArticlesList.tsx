@@ -1,20 +1,19 @@
 import * as React from 'react';
 import emotion from 'react-emotion';
-import ComponentPC from '../Models/ComponentPC';
+import Article from '../Models/Article';
 import Table, { Column, CellData } from './Table/Table';
 import { DispoView, VerticalLayout, Link } from './SharedComponents';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import ButtonIcon from './ButtonIcon';
-import TextInput from './TextInput';
 import * as NumericInput from 'react-numeric-input';
 import { getComments, addComment } from '../services/Storage';
 import CommentInput from './CommentInput';
 
 interface Props {
-  components: ComponentPC[];
-  onComponentChange?(component: ComponentPC): void;
-  onDeleteComponent?(id: string): void;
+  articles: Article[];
+  onArticleChange?(article: Article): void;
+  onDeleteArticle?(id: string): void;
   activeComment?: boolean;
 }
 
@@ -22,7 +21,7 @@ interface State {
   comments: string[];
 }
 
-export default class EditableComponentsList extends React.Component<
+export default class EditableArticlesList extends React.Component<
   Props,
   State
 > {
@@ -37,18 +36,18 @@ export default class EditableComponentsList extends React.Component<
   };
 
   onDeleteItem = (id: string): void => {
-    this.props.onDeleteComponent && this.props.onDeleteComponent(id);
+    this.props.onDeleteArticle && this.props.onDeleteArticle(id);
   };
 
-  onComponentChange = (component: ComponentPC): void => {
-    this.props.onComponentChange && this.props.onComponentChange(component);
+  onArticleChange = (article: Article): void => {
+    this.props.onArticleChange && this.props.onArticleChange(article);
   };
 
-  onCreateComment = (component: ComponentPC, value: string) => {
+  onCreateComment = (article: Article, value: string) => {
     this.setState({ comments: [...this.state.comments, value] });
     addComment(value);
-    component.comment = value;
-    this.onComponentChange(component);
+    article.comment = value;
+    this.onArticleChange(article);
   };
 
   componentDidCatch = error => {
@@ -83,7 +82,7 @@ export default class EditableComponentsList extends React.Component<
               <CommentInput
                 onChange={(value: string) => {
                   original.comment = value;
-                  this.onComponentChange(original);
+                  this.onArticleChange(original);
                 }}
                 onCreateOption={value => this.onCreateComment(original, value)}
                 comments={this.state.comments}
@@ -102,7 +101,7 @@ export default class EditableComponentsList extends React.Component<
             value={original.quantity}
             onChange={value => {
               original.quantity = value;
-              this.onComponentChange(original);
+              this.onArticleChange(original);
             }}
             step={1}
             min={1}
@@ -127,7 +126,7 @@ export default class EditableComponentsList extends React.Component<
             value={original.refundPercent}
             onChange={value => {
               original.refundPercent = value;
-              this.onComponentChange(original);
+              this.onArticleChange(original);
             }}
             step={1}
             min={0}
@@ -153,7 +152,7 @@ export default class EditableComponentsList extends React.Component<
             value={original.refund}
             onChange={value => {
               original.refund = value;
-              this.onComponentChange(original);
+              this.onArticleChange(original);
             }}
             step={1}
             min={0}
@@ -175,7 +174,7 @@ export default class EditableComponentsList extends React.Component<
           new Intl.NumberFormat('fr-FR', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
-          }).format(ComponentPC.getTotalPrice(o)),
+          }).format(Article.getTotalPrice(o)),
         alignContent: 'right'
       },
       {
@@ -199,7 +198,7 @@ export default class EditableComponentsList extends React.Component<
       }
     ];
 
-    return <Table data={this.props.components} columns={columns} />;
+    return <Table data={this.props.articles} columns={columns} />;
   }
 }
 

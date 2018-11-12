@@ -1,5 +1,5 @@
 import chrome from './Browser';
-import SetupPC from '../Models/SetupPC';
+import Cart from '../Models/Cart';
 
 const storage = chrome.storage.local;
 
@@ -21,14 +21,14 @@ export const addComment = async (newComment: string) => {
   setComments(Array.from(new Set([...comments, newComment])));
 };
 
-export const getConfigs = async (): Promise<any> => {
-  return await get('configs');
+export const getCarts = async (): Promise<any> => {
+  return await get('carts');
 };
 
-export const addConfig = async (config: SetupPC) => {
-  const configs = await getConfigs();
-  configs.push(config);
-  setConfigs(configs);
+export const addCart = async (cart: Cart) => {
+  const carts = await getCarts();
+  carts.push(cart);
+  setCarts(carts);
 };
 
 export const get = (key: string): Promise<any[]> => {
@@ -43,8 +43,8 @@ export const get = (key: string): Promise<any[]> => {
 export const setTags = (tags: string[]) => {
   set({ tags });
 };
-export const setConfigs = (configs: SetupPC[]) => {
-  set({ configs });
+export const setCarts = (carts: Cart[]) => {
+  set({ carts });
 };
 
 export const setComments = (comments: string[]) => {

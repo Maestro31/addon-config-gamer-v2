@@ -1,5 +1,5 @@
-import SetupPC from '../../Models/SetupPC';
-import ComponentPC from '../../Models/ComponentPC';
+import Cart from '../../Models/Cart';
+import Article from '../../Models/Article';
 
 interface GetAttributeOptions {
   selector: string;
@@ -21,9 +21,9 @@ export default abstract class AbstractParser {
   abstract reseller: ResellerInfo;
   abstract config: ParserParams;
 
-  abstract updateComponentPC(component: ComponentPC): Promise<any>;
-  abstract searchComponentPC(keys: SearchArgs): Promise<SearchResponse>;
-  abstract fromProduct(url: string): Promise<ComponentPC>;
+  abstract updateArticle(article: Article): Promise<any>;
+  abstract searchArticle(keys: SearchArgs): Promise<SearchResponse>;
+  abstract fromProduct(url: string): Promise<Article>;
 
   getAllElements(parentNode: Element, selector: string): NodeListOf<Element> {
     return parentNode.querySelectorAll(selector);
@@ -55,26 +55,26 @@ export default abstract class AbstractParser {
     return targetNode[options.attribute] || options.defaultValue;
   }
 
-  updateSetupPC = async (config: SetupPC): Promise<SetupPC> => {
+  updateCart = async (cart: Cart): Promise<Cart> => {
 
     let promises = [];
-    for (let component of config.components) {
-      promises.push(this.updateComponentPC(component));
+    for (let article of cart.articles) {
+      promises.push(this.updateArticle(article));
     }
 
     return Promise.all(promises).then(values => {
-      config.components = values;
-      config.modificationDate = new Date();
-      return config;
+      cart.articles = values;
+      cart.modificationDate = new Date();
+      return cart;
     });
   };
 
-  sendNoComponentsFound = (message: string): SearchResponse => {
+  sendNoArticleFound = (message: string): SearchResponse => {
     return {
       pageCount: 0,
       currentPage: 1,
-      itemsCount: 0,
-      items: [],
+      articlesCount: 0,
+      articles: [],
       error: message
     };
   };

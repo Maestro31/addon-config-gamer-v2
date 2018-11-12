@@ -8,84 +8,84 @@ import {
 import TextInput from './TextInput';
 import TagInput from './TagInput';
 import { getTags } from '../services/Storage';
-import SetupPC from '../Models/SetupPC';
-import ComponentPC from '../Models/ComponentPC';
+import Cart from '../Models/Cart';
+import Article from '../Models/Article';
 import emotion from 'react-emotion';
 import * as NumericInput from 'react-numeric-input';
-import EditableComponentsList from './EditableComponentsList';
+import EditableArticlesList from './EditableArticlesList';
 import GroupCard from './Configurateur/GroupCard';
 import ParserService from '../services/Parsers/Parser';
-import AddComponentPCButton from './AddComponentPCButton';
+import AddArticleButton from './AddArticleButton';
 
 interface Props {
   mode: 'editable' | 'post';
   open: boolean;
-  config: SetupPC;
+  cart: Cart;
   submitButtonTitle?: string;
   title: string;
   onClose(): void;
   onMessageChange?: (text: string) => void;
   onMessageIntroChange?: (text: string) => void;
-  onConfirmConfig(config: SetupPC): void;
-  onCopyConfig?(): void;
-  onConfigChange?(config: SetupPC): void;
-  onDeleteItem?(name: string): void;
+  onConfirmCart(cart: Cart): void;
+  onCopyCart?(): void;
+  onCartChange?(cart: Cart): void;
+  onDeleteArticle?(name: string): void;
   renderFooter?(): JSX.Element;
 }
 
 interface State {
-  config: SetupPC;
-  configCopied: boolean;
+  cart: Cart;
+  copiedCart: boolean;
   message: string;
   messageIntro: string;
 }
 
-export default class ConfigDlg extends React.Component<Props, State> {
+export default class CartDialog extends React.Component<Props, State> {
   state: State = {
-    config: this.props.config,
-    configCopied: false,
+    cart: this.props.cart,
+    copiedCart: false,
     message: '',
     messageIntro: ''
   };
 
-  onSubjectIdConfigChange = (subjectId: string): void => {
-    let config = this.state.config;
-    config.subjectId = subjectId;
+  onCartSubjectIdChange = (subjectId: string): void => {
+    let cart = this.state.cart;
+    cart.subjectId = subjectId;
     this.setState({
-      config: { ...this.state.config, subjectId },
-      configCopied: false
+      cart: { ...this.state.cart, subjectId },
+      copiedCart: false
     });
-    this.onConfigChange(config);
+    this.onCartChange(cart);
   };
 
-  onOwnerConfigChange = (owner: string): void => {
-    let config = this.state.config;
-    config.owner = owner;
+  onCartOwnerChange = (owner: string): void => {
+    let cart = this.state.cart;
+    cart.owner = owner;
     this.setState({
-      config: { ...this.state.config, owner },
-      configCopied: false
+      cart: { ...this.state.cart, owner },
+      copiedCart: false
     });
-    this.onConfigChange(config);
+    this.onCartChange(cart);
   };
 
-  onConfigTagsChange = (tags: string[]): void => {
-    let config = this.state.config;
-    config.tags = tags;
+  onCartTagsChange = (tags: string[]): void => {
+    let cart = this.state.cart;
+    cart.tags = tags;
     this.setState({
-      config,
-      configCopied: false
+      cart,
+      copiedCart: false
     });
-    this.onConfigChange(config);
+    this.onCartChange(cart);
   };
 
-  onConfigUrlChange = (url: string) => {
-    let config = this.state.config;
-    config.url = url;
+  onCartUrlChange = (url: string) => {
+    let cart = this.state.cart;
+    cart.url = url;
     this.setState({
-      config,
-      configCopied: false
+      cart,
+      copiedCart: false
     });
-    this.onConfigChange(config);
+    this.onCartChange(cart);
   };
 
   onMessageChange = e => {
@@ -101,48 +101,47 @@ export default class ConfigDlg extends React.Component<Props, State> {
       this.props.onMessageIntroChange(messageIntro);
   };
 
-  onDeleteComponent = (id: string): void => {
-    const components = this.state.config.components.filter(
-      component => component.id !== id
+  onDeleteArticle = (id: string): void => {
+    const articles = this.state.cart.articles.filter(
+      article => article.id !== id
     );
     this.setState({
-      config: { ...this.state.config, components },
-      configCopied: false
+      cart: { ...this.state.cart, articles },
+      copiedCart: false
     });
   };
 
-  onConfirmConfig = (): void => {
-    this.props.onConfirmConfig(this.state.config);
-    this.setState({ configCopied: false });
+  onConfirmCart = (): void => {
+    this.props.onConfirmCart(this.state.cart);
+    this.setState({ copiedCart: false });
   };
 
-  onComponentChange = (editedComponent: ComponentPC): void => {
-    const components = this.state.config.components.map(component => {
-      if (component.name === name) {
-        return editedComponent;
+  onArticleChange = (newArticle: Article): void => {
+    const articles = this.state.cart.articles.map(article => {
+      if (article.name === name) {
+        return newArticle;
       }
-      return component;
+      return article;
     });
 
     this.setState({
-      config: { ...this.state.config, components },
-      configCopied: false
+      cart: { ...this.state.cart, articles },
+      copiedCart: false
     });
   };
 
-  onConfigChange = (config: SetupPC) => {
-    this.props.onConfigChange && this.props.onConfigChange(config);
+  onCartChange = (cart: Cart) => {
+    this.props.onCartChange && this.props.onCartChange(cart);
   };
 
-  onAddComponentClick = async (url: string) => {
-    const component = await ParserService.parseComponentPC(url);
-    console.log(component);
-    if (component) {
-      let config = this.state.config;
-      config.components.push(component);
-      this.setState({ config });
+  onAddArticle = async (url: string) => {
+    const article = await ParserService.parseComponentPC(url);
+    if (article) {
+      let cart = this.state.cart;
+      cart.articles.push(article);
+      this.setState({ cart });
 
-      this.onConfigChange(config);
+      this.onCartChange(cart);
     }
   };
 
@@ -150,9 +149,9 @@ export default class ConfigDlg extends React.Component<Props, State> {
     if (!this.props.open) return null;
 
     const { submitButtonTitle, title } = this.props;
-    const { config } = this.state;
+    const { cart } = this.state;
     const currency =
-      (config && config.reseller && config.reseller.currency) || 'EUR';
+      (cart && cart.reseller && cart.reseller.currency) || 'EUR';
 
     return (
       <Modal
@@ -161,7 +160,7 @@ export default class ConfigDlg extends React.Component<Props, State> {
         height={950}
         width={1200}
         submitButtonTitle={submitButtonTitle || 'Confirmer'}
-        onConfirm={this.onConfirmConfig}>
+        onConfirm={this.onConfirmCart}>
         {this.props.mode === 'post' && (
           <>
             <Label>Message:</Label>
@@ -177,46 +176,46 @@ export default class ConfigDlg extends React.Component<Props, State> {
               <>
                 <TextInput
                   label="Id du sujet:"
-                  value={config.subjectId || ''}
-                  onChange={this.onSubjectIdConfigChange}
+                  value={cart.subjectId || ''}
+                  onChange={this.onCartSubjectIdChange}
                 />
                 <TextInput
                   label="Membre:"
-                  value={config.owner || ''}
-                  onChange={this.onOwnerConfigChange}
+                  value={cart.owner || ''}
+                  onChange={this.onCartOwnerChange}
                 />
                 <TagInput
                   getTags={getTags}
-                  value={config.tags}
-                  onChange={this.onConfigTagsChange}
+                  value={cart.tags}
+                  onChange={this.onCartTagsChange}
                 />
               </>
             ) : (
               <HorizontalLayout>
-                <Label>Lien vers la config:</Label>
+                <Label>Lien vers le panier:</Label>
                 <LinkInput
-                  value={config.url || ''}
-                  onChange={this.onConfigUrlChange}
+                  value={cart.url || ''}
+                  onChange={this.onCartUrlChange}
                 />
               </HorizontalLayout>
             )}
           </VerticalLayout>
         </GroupCard>
-        <GroupCard title="Les composants">
-          <EditableComponentsList
-            components={config.components}
+        <GroupCard title="Les articles">
+          <EditableArticlesList
+            articles={cart.articles}
             activeComment={this.props.mode === 'post'}
-            onDeleteComponent={this.onDeleteComponent}
-            onComponentChange={this.onComponentChange}
+            onDeleteArticle={this.onDeleteArticle}
+            onArticleChange={this.onArticleChange}
           />
-          <AddComponentPCButton onSubmit={this.onAddComponentClick} />
+          <AddArticleButton onSubmit={this.onAddArticle} />
         </GroupCard>
         <RowReverseLayout>
           <NumberInput
-            value={config.refund}
+            value={cart.refund}
             onChange={value => {
-              config.refund = value;
-              this.onConfigChange(config);
+              cart.refund = value;
+              this.onCartChange(cart);
             }}
             step={1}
             min={0}
@@ -230,10 +229,10 @@ export default class ConfigDlg extends React.Component<Props, State> {
           />
           <Label>&nbsp;%</Label>
           <NumberInput
-            value={config.refundPercent}
+            value={cart.refundPercent}
             onChange={value => {
-              config.refundPercent = value;
-              this.onConfigChange(config);
+              cart.refundPercent = value;
+              this.onCartChange(cart);
             }}
             step={1}
             min={0}
@@ -254,17 +253,17 @@ export default class ConfigDlg extends React.Component<Props, State> {
             {`${new Intl.NumberFormat('fr-FR', {
               style: 'currency',
               currency: currency
-            }).format(SetupPC.getPriceWithRefund(config))}`}
+            }).format(Cart.getPriceWithRefund(cart))}`}
           </PriceText>
         </RowReverseLayout>
-        {(config.refund !== 0 || config.refundPercent !== 0) && (
+        {(cart.refund !== 0 || cart.refundPercent !== 0) && (
           <RowReverseLayout>
             <TitleH4>
               Remise:{' '}
               {`${new Intl.NumberFormat('fr-FR', {
                 style: 'currency',
                 currency: currency
-              }).format(SetupPC.getTotalRefund(config))}`}
+              }).format(Cart.getTotalRefund(cart))}`}
             </TitleH4>
           </RowReverseLayout>
         )}

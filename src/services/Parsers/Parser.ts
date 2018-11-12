@@ -3,8 +3,8 @@ import TopAchatParser from './TopAchatParser';
 import LdlcParserV1 from './LdlcParserV1';
 import LdlcParserV2 from './LdlcParserV2';
 import InfomaxParser from './InfomaxParser';
-import SetupPC from '../../Models/SetupPC';
-import ComponentPC from '../../Models/ComponentPC';
+import Cart from '../../Models/Cart';
+import Article from '../../Models/Article';
 
 type Parser =
   | MaterielNetParser
@@ -35,7 +35,7 @@ export default class ParserService {
     return matchParser.method();
   }
 
-  static parseSetupPC = (): SetupPC => {
+  static parseSetupPC = (): Cart => {
     const url = window.location.href;
     const matchParser = ParserService.matches.find(
       match => !!url.match(match.regex)
@@ -43,20 +43,20 @@ export default class ParserService {
     return matchParser.method();
   };
 
-  static parseComponentPC = (url: string): ComponentPC => {
+  static parseComponentPC = (url: string): Article => {
     const matchParser = ParserService.productMatches.find(
       match => !!url.match(match.regex)
     );
     return matchParser ? matchParser.method(url) : null;
   };
 
-  static updateSetupPC = (config): Promise<SetupPC> => {
+  static updateSetupPC = (config): Promise<Cart> => {
     for (let parser of ParserService.parsers) {
       if (
         config.reseller.name === parser.reseller.name &&
-        parser.updateSetupPC
+        parser.updateCart
       ) {
-        return parser.updateSetupPC(config);
+        return parser.updateCart(config);
       }
     }
   };
@@ -65,7 +65,7 @@ export default class ParserService {
     resellerName: string,
     keys: SearchArgs
   ): Promise<SearchResponse> => {
-    return ParserService.getParserByName(resellerName).searchComponentPC(keys);
+    return ParserService.getParserByName(resellerName).searchArticle(keys);
   };
 }
 

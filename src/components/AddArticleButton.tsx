@@ -19,7 +19,7 @@ interface State {
   url: string;
 }
 
-export default class AddComponentPCButton extends React.Component<
+export default class AddArticleButton extends React.Component<
   Props,
   State
 > {
@@ -39,9 +39,9 @@ export default class AddComponentPCButton extends React.Component<
     return (
       <>
         {this.state.isOpen ? (
-          <AddComponentLayout>
-            <LinkComponentInput
-              placeholder="Inserer le lien ici..."
+          <Container>
+            <ArticleUrlInput
+              placeholder="Inserer le lien de l'article ici..."
               onChange={(url: string) => this.setState({ url })}
             />
             <SubmitButton
@@ -54,7 +54,7 @@ export default class AddComponentPCButton extends React.Component<
               onClick={() => this.setState({ isOpen: false, url: '' })}
               title="Annuler"
             />
-          </AddComponentLayout>
+          </Container>
         ) : (
           <AddButton
             onClick={() => this.setState({ isOpen: true })}
@@ -74,13 +74,13 @@ const AddButton = emotion(ButtonIcon)({
   margin: '10px auto'
 });
 
-const LinkComponentInput = emotion(TextInput)({
+const ArticleUrlInput = emotion(TextInput)({
   '& input': {
     margin: 0
   }
 });
 
-const AddComponentLayout = emotion(HorizontalLayout)({
+const Container = emotion(HorizontalLayout)({
   margin: '10px auto',
   height: '50px'
 });

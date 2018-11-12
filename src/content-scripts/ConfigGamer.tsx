@@ -1,21 +1,21 @@
 import * as React from 'react';
 import * as DOM from 'react-dom';
 import chrome from '../services/Browser';
-import SetupPC from '../Models/SetupPC';
-import ConfigDlg from '../components/ConfigDlg';
-import { postConfig } from '../services/PostConfig';
+import Cart from '../Models/Cart';
+import CartDialog from '../components/CartDialog';
+import { postCart } from '../services/PostCart';
 
 interface State {
-  config: SetupPC;
-  openConfigDlg: boolean;
+  cart: Cart;
+  openDialog: boolean;
   message: string;
   messageIntro: string;
 }
 
 export default class ConfigGamer extends React.Component<{}, State> {
   state = {
-    config: null,
-    openConfigDlg: false,
+    cart: null,
+    openDialog: false,
     message: '',
     messageIntro: ''
   };
@@ -23,17 +23,17 @@ export default class ConfigGamer extends React.Component<{}, State> {
     chrome.runtime.onMessage.addListener(msg => {
       if (
         msg.command &&
-        msg.command === 'post_config' &&
-        msg.config !== undefined
+        msg.command === 'post_cart' &&
+        msg.cart !== undefined
       ) {
         this.setState({
-          config: msg.config,
-          openConfigDlg: true
+          cart: msg.cart,
+          openDialog: true
         });
       } else {
         this.setState({
-          config: SetupPC.create(),
-          openConfigDlg: true
+          cart: Cart.create(),
+          openDialog: true
         });
       }
     });
@@ -41,30 +41,30 @@ export default class ConfigGamer extends React.Component<{}, State> {
 
   onConfirmModal = (): void => {
     this.onCloseModal();
-    postConfig(this.state.config, this.state.messageIntro, this.state.message);
+    postCart(this.state.cart, this.state.messageIntro, this.state.message);
   };
 
   onCloseModal = (): void => {
-    this.setState({ openConfigDlg: false, config: null });
+    this.setState({ openDialog: false, cart: null });
   };
 
-  onConfigChange = (config: SetupPC): void => {
-    this.setState({ config });
+  onCartChange = (cart: Cart): void => {
+    this.setState({ cart });
   };
 
   render() {
     return (
       <>
-        {this.state.config && (
-          <ConfigDlg
+        {this.state.cart && (
+          <CartDialog
             mode="post"
-            title="Poster config"
+            title="Poster les articles"
             submitButtonTitle="Poster"
-            config={this.state.config}
-            open={this.state.openConfigDlg}
-            onConfirmConfig={this.onConfirmModal}
+            cart={this.state.cart}
+            open={this.state.openDialog}
+            onConfirmCart={this.onConfirmModal}
             onClose={this.onCloseModal}
-            onConfigChange={this.onConfigChange}
+            onCartChange={this.onCartChange}
             onMessageChange={message => this.setState({ message })}
             onMessageIntroChange={messageIntro =>
               this.setState({ messageIntro })

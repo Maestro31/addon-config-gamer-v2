@@ -1,20 +1,18 @@
 import * as React from 'react';
 import * as DOM from 'react-dom';
-import ConfigTable from './components/ConfigTable';
-import ConfigDlg from './components/ConfigDlg';
-import SearchDlg from './components/SearchComponent/SearchDlg';
-import { getConfigs, setConfigs } from './services/Storage';
-import { copyConfigMessage } from './services/Messages';
+import CartTable from './components/CartTable';
+import CartDialog from './components/CartDialog';
+import { getCarts, setCarts } from './services/Storage';
+import { copyCartMessage } from './services/Messages';
 import ParserService from './services/Parsers/Parser';
-import SetupPC from './Models/SetupPC';
-import ButtonIcon from './components/ButtonIcon';
+import Cart from './Models/Cart';
 
 interface State {
   openModal: boolean;
-  configs: SetupPC[];
+  configs: Cart[];
   openConfigDlg: boolean;
   openSearchDlg: boolean;
-  config: SetupPC;
+  config: Cart;
 }
 
 export default class Dashboard extends React.Component<{}, State> {
@@ -31,13 +29,13 @@ export default class Dashboard extends React.Component<{}, State> {
   };
 
   async componentWillMount() {
-    this.setState({ configs: await getConfigs() });
+    this.setState({ configs: await getCarts() });
   }
 
   onPressDeleteItem = (id: string): void => {
     if (window.confirm('La suppression est définitive.\nContinuer ?')) {
       const configs = this.state.configs.filter(config => config.id !== id);
-      setConfigs(configs);
+      setCarts(configs);
       this.setState({ configs });
     }
   };
@@ -53,7 +51,7 @@ export default class Dashboard extends React.Component<{}, State> {
     );
 
     this.setState({ configs });
-    setConfigs(configs);
+    setCarts(configs);
   };
 
   onConfirmEditConfig = () => {
@@ -66,7 +64,7 @@ export default class Dashboard extends React.Component<{}, State> {
       }
     });
 
-    setConfigs(configs);
+    setCarts(configs);
     this.setState({ openConfigDlg: false, config: null, configs });
   };
 
@@ -74,13 +72,13 @@ export default class Dashboard extends React.Component<{}, State> {
     this.setState({ openConfigDlg: false });
   };
 
-  onConfigChange = (config: SetupPC): void => {
+  onConfigChange = (config: Cart): void => {
     this.setState({ config });
   };
 
   onCopyConfig = (): void => {
     console.log(this.state.config);
-    copyConfigMessage(this.state.config);
+    copyCartMessage(this.state.config);
   };
 
   onOpenSearchDlg = (): void => {
@@ -98,24 +96,24 @@ export default class Dashboard extends React.Component<{}, State> {
   render() {
     return (
       <div>
-        <ConfigTable
-          configs={this.state.configs}
+        <CartTable
+          carts={this.state.configs}
           onPressUpdateItem={this.onPressUpdateItem}
           onPressEditItem={this.onPressEditItem}
           onPressDeleteItem={this.onPressDeleteItem}
         />
         {/* <ButtonIcon onClick={this.onOpenSearchDlg}>Test de bouton</ButtonIcon> */}
         {this.state.config && (
-          <ConfigDlg
+          <CartDialog
             mode="editable"
             title={`Config de ${this.state.config && this.state.config.owner}`}
             submitButtonTitle="Modifier"
-            config={this.state.config}
+            cart={this.state.config}
             open={this.state.openConfigDlg}
-            onConfirmConfig={this.onConfirmEditConfig}
+            onConfirmCart={this.onConfirmEditConfig}
             onClose={this.onCloseConfigModal}
-            onConfigChange={this.onConfigChange}
-            onCopyConfig={this.onCopyConfig}
+            onCartChange={this.onConfigChange}
+            onCopyCart={this.onCopyConfig}
           />
         )}
         {/* <SearchDlg

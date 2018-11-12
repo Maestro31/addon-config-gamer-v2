@@ -1,12 +1,12 @@
-import ComponentPC from './ComponentPC';
+import Article from './Article';
 import * as uuid from 'uuid/v4';
 
-interface SetupPC {
+interface Cart {
   readonly id: string;
   readonly creationDate: Date;
   owner?: string;
   subjectId?: string;
-  components?: ComponentPC[];
+  articles?: Article[];
   modificationDate?: Date;
   refund?: number;
   refundPercent?: number;
@@ -16,36 +16,36 @@ interface SetupPC {
   priceInfo?: string;
 }
 
-namespace SetupPC {
-  export function create(): SetupPC {
+namespace Cart {
+  export function create(): Cart {
     return {
       id: uuid(),
       creationDate: new Date(),
       refund: 0,
       refundPercent: 0,
-      components: []
+      articles: []
     };
   }
 
-  export function getPriceWithRefund(config: SetupPC) {
-    const price = config.components.reduce(
-      (acc, c) => acc + ComponentPC.getTotalPrice(c),
+  export function getPriceWithRefund(config: Cart) {
+    const price = config.articles.reduce(
+      (acc, c) => acc + Article.getTotalPrice(c),
       0
     );
 
     return price - (price * config.refundPercent) / 100 - config.refund;
   }
 
-  export function getPriceWithoutRefund(config: SetupPC) {
-    return config.components.reduce((acc, c) => acc + c.price, 0);
+  export function getPriceWithoutRefund(config: Cart) {
+    return config.articles.reduce((acc, c) => acc + c.price, 0);
   }
 
-  export function getTotalRefund(config: SetupPC) {
+  export function getTotalRefund(config: Cart) {
     return getPriceWithoutRefund(config) - getPriceWithRefund(config);
   }
 
-  export function isAvailable(config: SetupPC) {
-    return config.components.every(c => c.available);
+  export function isAvailable(config: Cart) {
+    return config.articles.every(c => c.available);
   }
 
   export function getCreationDate(config) {
@@ -57,4 +57,4 @@ namespace SetupPC {
   }
 }
 
-export default SetupPC;
+export default Cart;
