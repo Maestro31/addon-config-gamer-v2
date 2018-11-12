@@ -32,8 +32,8 @@ interface ParserParams {
 interface SearchResponse {
   pageCount: number;
   currentPage: number;
-  itemsCount?: number;
-  items: any[];
+  articlesCount?: number;
+  articles: any[];
   filters?: FilterData[];
   error?: string;
 }

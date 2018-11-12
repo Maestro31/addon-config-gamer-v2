@@ -10,7 +10,7 @@ export default class GroupCard extends React.Component<Props> {
     return (
       <Container>
         <Title>{this.props.title}</Title>
-        <SectionComponents>{this.props.children}</SectionComponents>
+        <SectionArticles>{this.props.children}</SectionArticles>
       </Container>
     );
   }
@@ -36,6 +36,6 @@ const Title = emotion('h3')({
   color: '#A7A7A7'
 });
 
-const SectionComponents = emotion('div')({
+const SectionArticles = emotion('div')({
   lineHeight: '1.5'
 });

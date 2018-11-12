@@ -2,8 +2,8 @@ import * as React from 'react';
 import emotion from 'react-emotion';
 import Modal from '../Modal';
 import ParserService from '../../services/Parsers/Parser';
-import ComponentPC from '../../Models/ComponentPC';
-import SearchComponentsList from './SearchComponentsList';
+import Article from '../../Models/Article';
+import SearchArticlesList from './SearhArticlesList';
 import Pagination from '../Pagination';
 import TextInput from '../TextInput';
 import { Button } from '../SharedComponents';
@@ -27,11 +27,11 @@ interface SelectOption {
 }
 
 interface State {
-  items: Array<ComponentPC>;
+  articles: Array<Article>;
   categories: ResellerCategory[];
   currentPage: number;
   pageCount: number;
-  itemsCount?: number;
+  articlesCount?: number;
   filters?: FilterData[];
   filterValues: FilterValue[];
   searchText: string;
@@ -42,11 +42,11 @@ interface State {
 }
 
 const initialState = {
-  items: [],
+  articles: [],
   categories: [],
   currentPage: 0,
   pageCount: 0,
-  itemsCount: 0,
+  articlesCount: 0,
   searchText: '',
   isLoading: false,
   error: null,
@@ -65,8 +65,9 @@ export default class SearchDlg extends React.Component<Props, State> {
       value: p.reseller.name.toLowerCase().replace(/\W/g, '')
     }));
 
-    const categories = ParserService.getParserByName(this.resellerOptions[0].label)
-      .config.categoryList;
+    const categories = ParserService.getParserByName(
+      this.resellerOptions[0].label
+    ).config.categoryList;
 
     this.state = {
       ...initialState,
@@ -82,7 +83,7 @@ export default class SearchDlg extends React.Component<Props, State> {
   }
 
   search = (name: string, keys: SearchArgs) => {
-    this.setState({ items: [], isLoading: true, error: null });
+    this.setState({ articles: [], isLoading: true, error: null });
     ParserService.searchComponentPC(name, keys)
       .then((response: SearchResponse) => {
         console.group('Résultat de la recherche');
@@ -91,23 +92,23 @@ export default class SearchDlg extends React.Component<Props, State> {
         const {
           pageCount,
           currentPage,
-          itemsCount,
-          items,
+          articlesCount,
+          articles,
           filters,
           error
         } = response;
         this.setState({
           pageCount,
           currentPage,
-          itemsCount,
-          items,
+          articlesCount,
+          articles,
           filters,
           error,
           isLoading: false
         });
       })
       .catch(error => {
-        this.setState({ items: [], isLoading: false, error });
+        this.setState({ articles: [], isLoading: false, error });
       });
   };
 
@@ -121,8 +122,8 @@ export default class SearchDlg extends React.Component<Props, State> {
     });
   };
 
-  onSelectionChange = (components: ComponentPC[]): void => {
-    console.log(components);
+  onSelectionChange = (articles: Article[]): void => {
+    console.log(articles);
   };
 
   onClose = (): void => {
@@ -219,9 +220,7 @@ export default class SearchDlg extends React.Component<Props, State> {
   render() {
     const { open, submitButtonTitle, cancelButtonTitle } = this.props;
 
-    if (!open) {
-      return null;
-    }
+    if (!open) return null;
 
     return (
       <Modal
@@ -240,27 +239,17 @@ export default class SearchDlg extends React.Component<Props, State> {
           isSearchable={true}
           onChange={this.onResellerChange}
         />
-        {this.state.categories &&
-          this.state.categories.length > 0 && (
-            <Select
-              value={this.state.selectedCategory}
-              options={this.state.categories}
-              isClearable={false}
-              isSearchable={true}
-              onChange={this.onCategoryChange}
-              formatGroupLabel={this.formatGroupLabel}
-            />
-          )}
-
-        {/* <HorizontalLayout>
-          <Input
-            onChange={(value: string) => this.setState({ searchText: value })}
+        {this.state.categories && this.state.categories.length > 0 && (
+          <Select
+            value={this.state.selectedCategory}
+            options={this.state.categories}
+            isClearable={false}
+            isSearchable={true}
+            onChange={this.onCategoryChange}
+            formatGroupLabel={this.formatGroupLabel}
           />
-          <SearchButton onClick={this.onClickSearch}>Rechercher</SearchButton>
-          {this.state.isLoading && (
-            <Loading type="cylon" color="#000" height="35px" />
-          )}
-        </HorizontalLayout> */}
+        )}
+
         {this.state.error && <p>{this.state.error}</p>}
         <SearchContainer>
           <FormFilter
@@ -273,20 +262,19 @@ export default class SearchDlg extends React.Component<Props, State> {
               pageCount={this.state.pageCount}
               onIndexChange={this.onIndexChange}
             />
-            {this.state.items &&
-              this.state.items.length > 0 && (
-                <>
-                  <SearchComponentsList
-                    components={this.state.items}
-                    selectionChange={this.onSelectionChange}
-                  />
-                  <Pagination
-                    currentIndex={this.state.currentPage}
-                    pageCount={this.state.pageCount}
-                    onIndexChange={this.onIndexChange}
-                  />
-                </>
-              )}
+            {this.state.articles && this.state.articles.length > 0 && (
+              <>
+                <SearchArticlesList
+                  articles={this.state.articles}
+                  selectionChange={this.onSelectionChange}
+                />
+                <Pagination
+                  currentIndex={this.state.currentPage}
+                  pageCount={this.state.pageCount}
+                  onIndexChange={this.onIndexChange}
+                />
+              </>
+            )}
           </div>
         </SearchContainer>
       </Modal>

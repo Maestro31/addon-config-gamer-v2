@@ -15,7 +15,7 @@ const MenuBar = Keyframes.Spring({
 });
 
 interface Props {
-  onSaveConfigClick: () => void;
+  onSaveCart: () => void;
   onSettingsClick: () => void;
 }
 
@@ -48,7 +48,7 @@ export default class Menu extends React.Component<Props, State> {
               }}>
               <ContentMenu>
                 <MenuIcon src={chrome.runtime.getURL('/img/icon48.png')} />
-                <Button onClick={this.props.onSaveConfigClick}>
+                <Button onClick={this.props.onSaveCart}>
                   <FontAwesomeIcon icon={faDownload} />
                 </Button>
                 <Button onClick={this.props.onSettingsClick}>

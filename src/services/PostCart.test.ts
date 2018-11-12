@@ -1,4 +1,4 @@
-import { surroundWithTag, surroundWithTags } from './PostConfig';
+import { surroundWithTag, surroundWithTags } from './PostCart';
 
 /**
  * Test de surroundWithTag

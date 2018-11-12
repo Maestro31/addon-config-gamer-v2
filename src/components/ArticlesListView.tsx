@@ -1,13 +1,13 @@
 import * as React from 'react';
 import Table, { CellData, Column } from './Table/Table';
-import ComponentPC from '../Models/ComponentPC';
+import Article from '../Models/Article';
 import { DispoView } from './SharedComponents';
 
 interface Props {
-  components: ComponentPC[];
+  articles: Article[];
 }
 
-export default class ComponentsListView extends React.Component<Props> {
+export default class ArticlesListView extends React.Component<Props> {
   render() {
     const columns: Column[] = [
       {
@@ -52,6 +52,6 @@ export default class ComponentsListView extends React.Component<Props> {
       }
     ];
 
-    return <Table data={this.props.components} columns={columns} />;
+    return <Table data={this.props.articles} columns={columns} />;
   }
 }

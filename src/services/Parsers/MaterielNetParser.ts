@@ -1,6 +1,6 @@
 import axios from 'axios';
-import SetupPC from '../../Models/SetupPC';
-import ComponentPC from '../../Models/ComponentPC';
+import Cart from '../../Models/Cart';
+import Article from '../../Models/Article';
 import AbstractParser from './AbstractParser';
 
 export default class MaterielNetParser extends AbstractParser {
@@ -1296,9 +1296,9 @@ export default class MaterielNetParser extends AbstractParser {
     // ]
   };
 
-  fromCart = (): SetupPC => {
-    let config = SetupPC.create();
-    config.reseller = this.reseller;
+  fromCart = (): Cart => {
+    let cart = Cart.create();
+    cart.reseller = this.reseller;
 
     let elements = this.getAllElements(
       document.body,
@@ -1308,7 +1308,7 @@ export default class MaterielNetParser extends AbstractParser {
     console.log(elements);
 
     Array.prototype.forEach.call(elements, parentNode => {
-      let component = ComponentPC.create();
+      let component = Article.create();
       component.available =
         this.getElementAttribute(parentNode, {
           selector: '.o-availability__value',
@@ -1349,18 +1349,18 @@ export default class MaterielNetParser extends AbstractParser {
         defaultValue: '',
         attribute: 'innerText'
       });
-      config.components.push(component);
+      cart.articles.push(component);
     });
 
-    config.reseller = this.reseller;
+    cart.reseller = this.reseller;
 
-    console.log(config);
-    return config;
+    console.log(cart);
+    return cart;
   };
 
-  fromSavedCart = (): SetupPC => {
-    let config = SetupPC.create();
-    config.reseller = this.reseller;
+  fromSavedCart = (): Cart => {
+    let cart = Cart.create();
+    cart.reseller = this.reseller;
 
     let elements = this.getAllElements(
       document.body,
@@ -1368,7 +1368,7 @@ export default class MaterielNetParser extends AbstractParser {
     );
 
     Array.prototype.forEach.call(elements, parentNode => {
-      let component = ComponentPC.create();
+      let component = Article.create();
       component.available =
         this.getElementAttribute(parentNode, {
           selector: '.order-cell--stock .o-availability__value',
@@ -1409,20 +1409,20 @@ export default class MaterielNetParser extends AbstractParser {
         attribute: 'src'
       });
 
-      config.components.push(component);
+      cart.articles.push(component);
     });
 
-    return config;
+    return cart;
   };
 
-  fromConfigurateur = (): SetupPC => {
-    let config = SetupPC.create();
-    config.reseller = this.reseller;
+  fromConfigurateur = (): Cart => {
+    let cart = Cart.create();
+    cart.reseller = this.reseller;
 
     const elements = this.getAllElements(document.body, '.c-row__content');
 
     Array.prototype.forEach.call(elements, parentNode => {
-      let component = ComponentPC.create();
+      let component = Article.create();
 
       component.name = this.getElementAttribute(parentNode, {
         selector: '.c-meta__title',
@@ -1449,7 +1449,7 @@ export default class MaterielNetParser extends AbstractParser {
         attribute: 'innerText'
       });
       console.log(component);
-      config.components.push(component);
+      cart.articles.push(component);
     });
 
     let recapElements = this.getAllElements(
@@ -1487,7 +1487,7 @@ export default class MaterielNetParser extends AbstractParser {
         name = match[2];
       }
 
-      config.components = config.components.map(item => {
+      cart.articles = cart.articles.map(item => {
         if (name === item.name) {
           item.available = availability;
           item.quantity = quantity;
@@ -1497,14 +1497,14 @@ export default class MaterielNetParser extends AbstractParser {
       });
     });
 
-    return config;
+    return cart;
   };
 
-  fromProduct = async (url: string): Promise<ComponentPC> => {
+  fromProduct = async (url: string): Promise<Article> => {
     return axios
       .get(url)
       .then(({ data }) => {
-        let component = ComponentPC.create();
+        let article = Article.create();
 
         const parser = new DOMParser();
         const doc = parser.parseFromString(data, 'text/html');
@@ -1517,30 +1517,30 @@ export default class MaterielNetParser extends AbstractParser {
           .replace('€', '.')
           .replace(/\s/g, '');
 
-        component.price = parseFloat(price);
-        component.available =
+        article.price = parseFloat(price);
+        article.available =
           this.getElementAttribute(doc.body, {
             selector: '.o-availability__value',
             attribute: 'innerText',
             defaultValue: false
           }) === 'En stock';
 
-        component.imageUrl =
+        article.imageUrl =
           this.getElementAttribute(doc.body, {
             selector: '.c-product__thumb > img',
             innerAttribute: 'data-src-large',
             defaultValue: '#'
           }) + this.reseller.tag;
 
-        component.name = this.getElementAttribute(doc.body, {
+        article.name = this.getElementAttribute(doc.body, {
           selector: '.c-product__header h1',
           attribute: 'innerText',
           defaultValue: ''
         });
 
-        component.url = url + this.reseller.tag;
+        article.url = url + this.reseller.tag;
 
-        return component;
+        return article;
       })
       .catch(error => {
         console.error(error.message);
@@ -1548,8 +1548,8 @@ export default class MaterielNetParser extends AbstractParser {
       });
   };
 
-  updateComponentPC = (component: ComponentPC): Promise<ComponentPC> => {
-    return axios.get(component.url).then(({ data }) => {
+  updateArticle = (article: Article): Promise<Article> => {
+    return axios.get(article.url).then(({ data }) => {
       const parser = new DOMParser();
       const doc = parser.parseFromString(data, 'text/html');
 
@@ -1561,21 +1561,21 @@ export default class MaterielNetParser extends AbstractParser {
         .replace('€', '.')
         .replace(/\s/g, '');
 
-      component.price = parseFloat(price);
-      component.available =
+      article.price = parseFloat(price);
+      article.available =
         this.getElementAttribute(doc.body, {
           selector: '.o-availability__value',
           attribute: 'innerText',
           defaultValue: false
         }) === 'En stock';
 
-      return component;
+      return article;
     });
   };
 
-  parseListComponents(doc: Document): ComponentPC[] {
+  parseListComponents(doc: Document): Article[] {
     console.log('Analyse des composants en cours...');
-    let components: Array<ComponentPC> = [];
+    let articles: Array<Article> = [];
 
     const html = doc.head.innerHTML;
 
@@ -1604,15 +1604,15 @@ export default class MaterielNetParser extends AbstractParser {
     );
 
     Array.prototype.forEach.call(elements, parentNode => {
-      let component = ComponentPC.create();
+      let article = Article.create();
 
-      component.imageUrl = this.getElementAttribute(parentNode, {
+      article.imageUrl = this.getElementAttribute(parentNode, {
         selector: '.c-product__thumb > img',
         innerAttribute: 'data-src',
         defaultValue: '#'
       });
 
-      component.name = this.getElementAttribute(parentNode, {
+      article.name = this.getElementAttribute(parentNode, {
         selector: '.c-product__title ',
         attribute: 'innerText',
         defaultValue: ''
@@ -1624,19 +1624,19 @@ export default class MaterielNetParser extends AbstractParser {
         defaultValue: '#'
       });
 
-      component.url = `${this.reseller.url}${relativeUrl}${this.reseller.tag}`;
+      article.url = `${this.reseller.url}${relativeUrl}${this.reseller.tag}`;
 
       const componentId = parentNode.id || parentNode.getAttribute('data-id');
 
       if (stocks === undefined) {
-        component.available =
+        article.available =
           this.getElementAttribute(parentNode, {
             selector: '.o-availability__value',
             attribute: 'innerText',
             defaultValue: ''
           }) === 'En stock';
       } else if (Object.keys(stocks).includes(componentId))
-        component.available = stocks[componentId];
+        article.available = stocks[componentId];
 
       if (prices === undefined) {
         const price = this.getElementAttribute(parentNode, {
@@ -1645,15 +1645,15 @@ export default class MaterielNetParser extends AbstractParser {
           defaultValue: '0'
         });
 
-        component.price = parseFloat(
+        article.price = parseFloat(
           price.replace('€', '.').replace(/\s/g, '')
         );
       } else if (Object.keys(prices).includes(componentId))
-        component.price = prices[componentId];
+        article.price = prices[componentId];
 
-      components.push(component);
+      articles.push(article);
     });
-    return components;
+    return articles;
   }
 
   getFilters = (doc: Document): FilterData[] => {
@@ -1860,7 +1860,7 @@ export default class MaterielNetParser extends AbstractParser {
 
         const match = itemsCountString.match(/([0-9])+/g);
 
-        if (!match) return this.sendNoComponentsFound('Aucun élément trouvé');
+        if (!match) return this.sendNoArticleFound('Aucun élément trouvé');
 
         const itemsCount = parseInt(match[2]);
         const pageCount = Math.round(itemsCount / 48 + 0.5);
@@ -1874,16 +1874,16 @@ export default class MaterielNetParser extends AbstractParser {
         return {
           pageCount,
           currentPage: args.index,
-          items: components,
+          articles: components,
           filters
         };
       })
       .catch(error => {
-        return this.sendNoComponentsFound(error.message);
+        return this.sendNoArticleFound(error.message);
       });
   };
 
-  searchComponentPC = async (keys: SearchArgs): Promise<SearchResponse> => {
+  searchArticle = async (keys: SearchArgs): Promise<SearchResponse> => {
     if (keys.text === undefined || keys.text === '') {
       return this.searchComponentWithFilter(keys);
     }
@@ -1904,22 +1904,22 @@ export default class MaterielNetParser extends AbstractParser {
 
         const match = itemsCountString.match(/([0-9])+/g);
 
-        if (!match) return this.sendNoComponentsFound('Aucun élément trouvé');
+        if (!match) return this.sendNoArticleFound('Aucun élément trouvé');
 
-        const itemsCount = parseInt(match[2]);
-        const pageCount = Math.round(itemsCount / 48 + 0.5);
+        const articlesCount = parseInt(match[2]);
+        const pageCount = Math.round(articlesCount / 48 + 0.5);
 
         const components = this.parseListComponents(doc);
 
         return {
           pageCount,
           currentPage: keys.index,
-          itemsCount,
-          items: components
+          articlesCount,
+          articles: components
         };
       })
       .catch(error => {
-        return this.sendNoComponentsFound(error.message);
+        return this.sendNoArticleFound(error.message);
       });
   };
 }

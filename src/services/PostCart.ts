@@ -1,4 +1,4 @@
-import SetupPC from '../Models/SetupPC';
+import Cart from '../Models/Cart';
 
 interface Tag {
   name: string;
@@ -53,8 +53,8 @@ export const createTable = (table: {
   return surroundWithTag(tableContent, 'table');
 };
 
-export const postConfig = (
-  config: SetupPC,
+export const postCart = (
+  cart: Cart,
   messageIntro: string,
   message: string
 ): void => {
@@ -66,7 +66,7 @@ export const postConfig = (
       surroundWithTags('Quantité', ['b', 'center']),
       surroundWithTags('Prix', ['b', 'right'])
     ],
-    rows: config.components.map(c => [
+    rows: cart.articles.map(c => [
       surroundWithTags('O', [
         'b',
         { name: 'color', value: c.available ? '#44bb00' : '#880000' },
@@ -74,14 +74,14 @@ export const postConfig = (
       ]),
       surroundWithTag(c.name, {
         name: 'url',
-        value: c.url || config.reseller.url + config.reseller.tag
+        value: c.url || cart.reseller.url + cart.reseller.tag
       }),
       c.comment || '',
       surroundWithTag(c.quantity.toString(), 'center'),
       surroundWithTag(
         new Intl.NumberFormat('fr-FR', {
           style: 'currency',
-          currency: config.reseller.currency
+          currency: cart.reseller.currency
         }).format(c.price * c.quantity),
         'right'
       )
@@ -90,35 +90,35 @@ export const postConfig = (
 
   let responseText = '';
 
-  let configPrice = surroundWithTags(
+  let cartPrice = surroundWithTags(
     `Prix total: ${new Intl.NumberFormat('fr-FR', {
       style: 'currency',
-      currency: config.reseller.currency
-    }).format(SetupPC.getPriceWithRefund(config))}`,
+      currency: cart.reseller.currency
+    }).format(Cart.getPriceWithRefund(cart))}`,
     ['b', 'right']
   );
 
-  const totalRefund = SetupPC.getTotalRefund(config);
+  const totalRefund = Cart.getTotalRefund(cart);
   if (totalRefund > 0) {
-    const configRefund = surroundWithTag(
+    const cartRefund = surroundWithTag(
       `Remise totale: ${new Intl.NumberFormat('fr-FR', {
         style: 'currency',
-        currency: config.reseller.currency
+        currency: cart.reseller.currency
       }).format(totalRefund)}`,
       'right'
     );
-    configPrice += `${configRefund}\n\n`;
+    cartPrice += `${cartRefund}\n\n`;
   }
 
-  if (config.priceInfo) {
-    configPrice += surroundWithTags(config.priceInfo, ['i', 'right']);
+  if (cart.priceInfo) {
+    cartPrice += surroundWithTags(cart.priceInfo, ['i', 'right']);
   }
 
-  const configLink = config.url
-    ? `Lien vers la config: ${config.url + config.reseller.tag}`
+  const cartUrl = cart.url
+    ? `Lien vers le panier: ${cart.url + cart.reseller.tag}`
     : '';
 
-  responseText = `${messageIntro}\n\n\n${configLink}\n\n\n${table}\n\n\n${configPrice}\n\n`;
+  responseText = `${messageIntro}\n\n\n${cartUrl}\n\n\n${table}\n\n\n${cartPrice}\n\n`;
 
   responseText += message ? `${message}\n\n` : '';
 
@@ -126,7 +126,7 @@ export const postConfig = (
     document.forms['postform']['message']
   );
 
-  console.log(config);
+  console.log(cart);
 
   messageElement.value = responseText;
 };
