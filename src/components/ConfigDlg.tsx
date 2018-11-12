@@ -3,9 +3,7 @@ import Modal from './Modal';
 import {
   VerticalLayout,
   RowReverseLayout,
-  HorizontalLayout,
-  SubmitButton,
-  CancelButton
+  HorizontalLayout
 } from './SharedComponents';
 import TextInput from './TextInput';
 import TagInput from './TagInput';
@@ -16,10 +14,8 @@ import emotion from 'react-emotion';
 import * as NumericInput from 'react-numeric-input';
 import EditableComponentsList from './EditableComponentsList';
 import GroupCard from './Configurateur/GroupCard';
-import ButtonIcon from './ButtonIcon';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import ParserService from '../services/Parsers/Parser';
+import AddComponentPCButton from './AddComponentPCButton';
 
 interface Props {
   mode: 'editable' | 'post';
@@ -42,9 +38,6 @@ interface State {
   configCopied: boolean;
   message: string;
   messageIntro: string;
-  addComponentClicked: boolean;
-  componentLink: string;
-  error: Error;
 }
 
 export default class ConfigDlg extends React.Component<Props, State> {
@@ -52,10 +45,7 @@ export default class ConfigDlg extends React.Component<Props, State> {
     config: this.props.config,
     configCopied: false,
     message: '',
-    messageIntro: '',
-    addComponentClicked: false,
-    componentLink: '',
-    error: null
+    messageIntro: ''
   };
 
   onSubjectIdConfigChange = (subjectId: string): void => {
@@ -144,19 +134,13 @@ export default class ConfigDlg extends React.Component<Props, State> {
     this.props.onConfigChange && this.props.onConfigChange(config);
   };
 
-  onAddComponentClick = async () => {
-    const component = await ParserService.parseComponentPC(
-      this.state.componentLink
-    );
+  onAddComponentClick = async (url: string) => {
+    const component = await ParserService.parseComponentPC(url);
     console.log(component);
     if (component) {
       let config = this.state.config;
       config.components.push(component);
-      this.setState({
-        config,
-        addComponentClicked: false,
-        componentLink: ''
-      });
+      this.setState({ config });
 
       this.onConfigChange(config);
     }
@@ -191,12 +175,12 @@ export default class ConfigDlg extends React.Component<Props, State> {
           <VerticalLayout>
             {this.props.mode === 'editable' ? (
               <>
-                <Input
+                <TextInput
                   label="Id du sujet:"
                   value={config.subjectId || ''}
                   onChange={this.onSubjectIdConfigChange}
                 />
-                <Input
+                <TextInput
                   label="Membre:"
                   value={config.owner || ''}
                   onChange={this.onOwnerConfigChange}
@@ -225,35 +209,7 @@ export default class ConfigDlg extends React.Component<Props, State> {
             onDeleteComponent={this.onDeleteComponent}
             onComponentChange={this.onComponentChange}
           />
-          {this.state.addComponentClicked ? (
-            <AddComponentLayout>
-              <LinkComponentInput
-                placeholder="Inserer le lien ici..."
-                onChange={componentLink => this.setState({ componentLink })}
-              />
-              <SubmitButton
-                style={{ marginLeft: '10px' }}
-                onClick={this.onAddComponentClick}
-                title="Ajouter"
-              />
-              <CancelButton
-                style={{ marginRight: 0 }}
-                onClick={() =>
-                  this.setState({
-                    addComponentClicked: false,
-                    componentLink: ''
-                  })
-                }
-                title="Annuler"
-              />
-            </AddComponentLayout>
-          ) : (
-            <AddButton
-              onClick={() => this.setState({ addComponentClicked: true })}
-              height="50px">
-              <FontAwesomeIcon icon={faPlus} />
-            </AddButton>
-          )}
+          <AddComponentPCButton onSubmit={this.onAddComponentClick} />
         </GroupCard>
         <RowReverseLayout>
           <NumberInput
@@ -326,8 +282,6 @@ export default class ConfigDlg extends React.Component<Props, State> {
   }
 }
 
-const Input = emotion(TextInput)({});
-
 const PriceText = emotion('h3')({
   fontSize: '21px',
   fontWeight: 500,
@@ -360,28 +314,10 @@ const Label = emotion('label')({
   color: '#676767!important'
 });
 
-const LinkInput = emotion(Input)({
+const LinkInput = emotion(TextInput)({
   width: '100%'
 });
 
 const NumberInput = emotion(NumericInput)({
   width: '60px'
-});
-
-const AddButton = emotion(ButtonIcon)({
-  fontSize: '2em',
-  border: '1px solid gray',
-  width: '100%',
-  margin: '10px auto'
-});
-
-const LinkComponentInput = emotion(Input)({
-  '& input': {
-    marginBottom: 0
-  }
-});
-
-const AddComponentLayout = emotion(HorizontalLayout)({
-  margin: '10px auto',
-  height: '50px'
 });
