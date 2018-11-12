@@ -6,7 +6,7 @@ interface Tag {
 }
 
 export const surroundWithTag = (text: string, tag: string | Tag): string => {
-  if (!text || text === '') return '';
+  if (!text || text === '') return `[${tag}][/${tag}]`;
 
   if (typeof tag === 'string') return `[${tag}]${text}[/${tag}]`;
 

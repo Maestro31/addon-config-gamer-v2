@@ -4,12 +4,12 @@ import { surroundWithTag, surroundWithTags } from './PostConfig';
  * Test de surroundWithTag
  */
 
-test("Entourer d'un tag avec valeur null doit retourner une chaîne vide", () => {
-  expect(surroundWithTag(null, 'b')).toBe('');
+test("Entourer d'un tag avec valeur null et le tag B doit retourner [b][/b]", () => {
+  expect(surroundWithTag(null, 'b')).toBe('[b][/b]');
 });
 
-test("Entourer d'un tag avec valeur vide doit retourner une chaîne vide", () => {
-  expect(surroundWithTag('', 'b')).toBe('');
+test("Entourer d'un tag avec valeur vide et le tag B doit retourner [b][/b]", () => {
+  expect(surroundWithTag('', 'b')).toBe('[b][/b]');
 });
 
 test("Entourer d'un tag la valeur 'test' et le tag B doit retourner [b]test[/b]", () => {
