@@ -1,7 +1,7 @@
 {
   "update_url": "https://clients2.google.com/service/update2/crx",
   "name": "Config-Gamer",
-  "version": "2.0.7",
+  "version": "2.0.8",
   "manifest_version": 2,
   "description": "Outils config-gamer",
   "content_scripts": [
@@ -10,8 +10,7 @@
         "http://www.config-gamer.fr/forum/*",
         "https://www.config-gamer.fr/forum/*"
       ],
-      "js": ["static/js/ConfigGamer.js"],
-      "css": ["static/css/main.css"]
+      "js": ["static/js/ConfigGamer.js"]
     },
     {
       "matches": [
