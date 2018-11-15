@@ -52,10 +52,7 @@ export default class ParserService {
 
   static updateSetupPC = (config): Promise<Cart> => {
     for (let parser of ParserService.parsers) {
-      if (
-        config.reseller.name === parser.reseller.name &&
-        parser.updateCart
-      ) {
+      if (config.reseller.name === parser.reseller.name && parser.updateCart) {
         return parser.updateCart(config);
       }
     }
@@ -178,6 +175,11 @@ ParserService.productMatches = [
     regex: /https:\/\/www\.ldlc\.com\/es-es\/fiche\/[A-Z0-9]+\.html/,
     method: ldlcParserV2ES.fromProduct,
     parser: ldlcParserV2ES
+  },
+  {
+    regex: /https:\/\/infomaxparis.com/,
+    method: infomaxParser.fromProduct,
+    parser: infomaxParser
   }
 ];
 

@@ -1,3 +1,4 @@
+import axios from 'axios';
 import Cart from '../../Models/Cart';
 import Article from '../../Models/Article';
 import Config from '../../Models/Cart';
@@ -5,16 +6,60 @@ import AbstractParser from './AbstractParser';
 
 export default class InfomaxParser extends AbstractParser {
   config: ParserParams;
-  
-  fromProduct(url: string): Promise<Article> {
-    throw new Error('Method not implemented.');
-  }
 
   reseller: ResellerInfo = {
     name: 'Infomax',
     url: 'https://www.infomaxparis.com/',
     currency: 'EUR',
     tag: '#ae1'
+  };
+
+  fromProduct = async (url: string): Promise<Article> => {
+    return axios
+      .get(url)
+      .then(({ data }) => {
+        let article = Article.create();
+
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(data, 'text/html');
+
+        const price = this.getElementAttribute(doc.body, {
+          selector: '.product--action-price-value',
+          attribute: 'innerText',
+          defaultValue: '0'
+        })
+          .replace(',', '.')
+          .replace(/(\s|€)/g, '');
+
+        article.price = parseFloat(price);
+        article.available =
+          this.getElementAttribute(doc.body, {
+            selector: '.custom-product-available',
+            attribute: 'innerText',
+            defaultValue: false
+          }) === ' EN STOCK';
+
+        article.imageUrl =
+          this.getElementAttribute(doc.body, {
+            selector: '#bigpic',
+            attribute: 'src',
+            defaultValue: '#'
+          }) + this.reseller.tag;
+
+        article.name = this.getElementAttribute(doc.body, {
+          selector: '.product--title > h1',
+          attribute: 'innerText',
+          defaultValue: ''
+        });
+
+        article.url = url + this.reseller.tag;
+
+        return article;
+      })
+      .catch(error => {
+        console.error(error.message);
+        return null;
+      });
   };
 
   searchArticle(keys: SearchArgs): Promise<SearchResponse> {
