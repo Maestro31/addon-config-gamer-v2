@@ -5,18 +5,20 @@ import LdlcParserV2 from './LdlcParserV2';
 import InfomaxParser from './InfomaxParser';
 import Cart from '../../Models/Cart';
 import Article from '../../Models/Article';
+import AmazonParser from './AmazonParser';
 
 type Parser =
   | MaterielNetParser
   | TopAchatParser
   | InfomaxParser
   | LdlcParserV1
-  | LdlcParserV2;
+  | LdlcParserV2
+  | AmazonParser;
 
 interface ParserMatch {
   regex: RegExp;
   parser: Parser;
-  method: Function;
+  method?: Function;
 }
 
 export default class ParserService {
@@ -28,14 +30,7 @@ export default class ParserService {
     return ParserService.parsers.find(parser => parser.reseller.name === name);
   }
 
-  static getMethodByMatchingUrl(url: string): (url?: any) => any {
-    const matchParser = ParserService.productMatches.find(
-      match => !!url.match(match.regex)
-    );
-    return matchParser.method();
-  }
-
-  static parseSetupPC = (): Cart => {
+  static parseCart = (): Cart => {
     const url = window.location.href;
     const matchParser = ParserService.matches.find(
       match => !!url.match(match.regex)
@@ -43,25 +38,22 @@ export default class ParserService {
     return matchParser.method();
   };
 
-  static parseComponentPC = (url: string): Article => {
+  static parseArticle = (url: string): Promise<Article> => {
     const matchParser = ParserService.productMatches.find(
       match => !!url.match(match.regex)
     );
-    return matchParser ? matchParser.method(url) : null;
+    return matchParser ? matchParser.parser.fromArticlePage(url) : null;
   };
 
-  static updateSetupPC = (config): Promise<Cart> => {
+  static updateCart = (config): Promise<Cart> => {
     for (let parser of ParserService.parsers) {
-      if (
-        config.reseller.name === parser.reseller.name &&
-        parser.updateCart
-      ) {
+      if (config.reseller.name === parser.reseller.name && parser.updateCart) {
         return parser.updateCart(config);
       }
     }
   };
 
-  static searchComponentPC = (
+  static searchArticle = (
     resellerName: string,
     keys: SearchArgs
   ): Promise<SearchResponse> => {
@@ -132,6 +124,17 @@ const ldlcParserV2BE = new LdlcParserV2(
   }
 );
 
+const amazonParserFR = new AmazonParser(
+  {
+    name: 'Amazon France',
+    url: 'https://www.amazon.fr',
+    currency: 'EUR'
+  },
+  {
+    searchUrlTemplate: () => ''
+  }
+);
+
 ParserService.parsers = [
   materielNetParser,
   topAchatParser,
@@ -140,43 +143,42 @@ ParserService.parsers = [
   ldlcParserV2BE,
   ldlcParserV2CH,
   ldlcParserV2ES,
-  ldlcParserV2LU
+  ldlcParserV2LU,
+  amazonParserFR
 ];
 
 ParserService.productMatches = [
   {
+    regex: /https:\/\/www\.amazon\.fr\/gp\/product\/[A-Z0-9]+\//,
+    parser: amazonParserFR
+  },
+  {
     regex: /https:\/\/www\.materiel\.net\/produit\/[0-9]+\.html/,
-    method: materielNetParser.fromProduct,
     parser: materielNetParser
   },
   {
     regex: /https:\/\/www\.topachat\.com\/pages\/detail2_cat_est_.+_puis_.+_puis_ref_est_.+\.html/,
-    method: topAchatParser.fromProduct,
     parser: topAchatParser
   },
   {
     regex: /https:\/\/www\.ldlc\.com\/fiche\/[A-Z0-9]+\.html/,
-    method: ldlcParserV1.fromProduct,
     parser: ldlcParserV1
   },
   {
     regex: /https:\/\/www\.ldlc\.com\/fr-ch\/fiche\/[A-Z0-9]+\.html/,
-    method: ldlcParserV2CH.fromProduct,
+    method: ldlcParserV2CH.fromArticlePage,
     parser: ldlcParserV2CH
   },
   {
     regex: /https:\/\/www\.ldlc\.com\/fr-be\/fiche\/[A-Z0-9]+\.html/,
-    method: ldlcParserV2BE.fromProduct,
     parser: ldlcParserV2BE
   },
   {
     regex: /https:\/\/www\.ldlc\.com\/fr-lu\/fiche\/[A-Z0-9]+\.html/,
-    method: ldlcParserV2LU.fromProduct,
     parser: ldlcParserV2LU
   },
   {
     regex: /https:\/\/www\.ldlc\.com\/es-es\/fiche\/[A-Z0-9]+\.html/,
-    method: ldlcParserV2ES.fromProduct,
     parser: ldlcParserV2ES
   }
 ];

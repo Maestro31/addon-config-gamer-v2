@@ -23,7 +23,7 @@ export default abstract class AbstractParser {
 
   abstract updateArticle(article: Article): Promise<any>;
   abstract searchArticle(keys: SearchArgs): Promise<SearchResponse>;
-  abstract fromProduct(url: string): Promise<Article>;
+  abstract fromArticlePage(url: string): Promise<Article>;
 
   getAllElements(parentNode: Element, selector: string): NodeListOf<Element> {
     return parentNode.querySelectorAll(selector);

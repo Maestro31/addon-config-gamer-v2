@@ -402,7 +402,7 @@ export default class TopAchatParser extends AbstractParser {
     return cart;
   };
 
-  fromProduct = async (url: string): Promise<Article> => {
+  fromArticlePage = async (url: string): Promise<Article> => {
     return axios
       .get(url)
       .then(({ data }) => {

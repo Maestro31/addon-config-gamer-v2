@@ -6,7 +6,7 @@ import AbstractParser from './AbstractParser';
 export default class InfomaxParser extends AbstractParser {
   config: ParserParams;
   
-  fromProduct(url: string): Promise<Article> {
+  fromArticlePage(url: string): Promise<Article> {
     throw new Error('Method not implemented.');
   }
 

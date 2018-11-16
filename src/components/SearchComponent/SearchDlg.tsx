@@ -84,7 +84,7 @@ export default class SearchDlg extends React.Component<Props, State> {
 
   search = (name: string, keys: SearchArgs) => {
     this.setState({ articles: [], isLoading: true, error: null });
-    ParserService.searchComponentPC(name, keys)
+    ParserService.searchArticle(name, keys)
       .then((response: SearchResponse) => {
         console.group('Résultat de la recherche');
         console.log(response);

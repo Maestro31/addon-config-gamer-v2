@@ -28,14 +28,14 @@ export default class Main extends React.Component<{}, State> {
   componentWillMount = () => {
     chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       if (msg && msg.command === 'copy_cart') {
-        const cart = ParserService.parseSetupPC();
+        const cart = ParserService.parseCart();
         sendResponse(cart);
       }
     });
   };
 
   onSaveCart = () => {
-    const cart = ParserService.parseSetupPC();
+    const cart = ParserService.parseCart();
     this.setState({ cart, openDialog: true, copiedCart: false });
   };
 

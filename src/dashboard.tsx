@@ -45,7 +45,7 @@ export default class Dashboard extends React.Component<{}, State> {
   };
 
   onPressUpdateItem = async config => {
-    const updatedConfig = await ParserService.updateSetupPC(config);
+    const updatedConfig = await ParserService.updateCart(config);
     const configs = this.state.configs.map(
       config => (config.id === updatedConfig.id ? updatedConfig : config)
     );

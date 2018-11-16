@@ -135,7 +135,7 @@ export default class CartDialog extends React.Component<Props, State> {
   };
 
   onAddArticle = async (url: string) => {
-    const article = await ParserService.parseComponentPC(url);
+    const article = await ParserService.parseArticle(url);
     if (article) {
       let cart = this.state.cart;
       cart.articles.push(article);
