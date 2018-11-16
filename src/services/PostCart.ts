@@ -119,12 +119,21 @@ export const postCart = (
   ) {
     cartPrice += surroundWithTags(cart.priceInfo, ['i', 'right']);
   }
+  const mounting = cart.articles.some(
+    article => !!article.name.match(/(M|m)ontage/)
+  );
+  const deliveryInfo = surroundWithTags(
+    'Attention, les frais de livraison sont plus élevés lorsque les configs sont montées par le revendeur',
+    ['i', 'right']
+  );
 
   const cartUrl = cart.url
     ? `Lien vers le panier: ${cart.url + cart.reseller.tag}`
     : '';
 
-  responseText = `${messageIntro}\n\n\n${cartUrl}\n\n\n${table}\n\n\n${cartPrice}\n\n`;
+  responseText = `${messageIntro}\n\n\n${cartUrl}\n\n\n${table}\n\n\n${cartPrice}\n\n${
+    mounting ? deliveryInfo : ''
+  }`;
 
   responseText += message ? `${message}\n\n` : '';
 
