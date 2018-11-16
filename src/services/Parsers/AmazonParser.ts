@@ -13,6 +13,17 @@ export default class AmazonParser extends AbstractParser {
     this.config = config;
   }
 
+  addResellerTag(url: any): string {
+    const regex = /https:\/\/www\.amazon\.fr\/(.+\/)?[a-z]+\/(product\/)?([A-Z0-9]+)\//;
+    const matches = regex.exec(url);
+
+    if (matches) {
+      return `${this.reseller.url}/dp/${matches[3]}/ref=nosim?tag=confgame-21`;
+    }
+
+    return url;
+  }
+
   updateArticle(article: Article): Promise<any> {
     throw new Error('Method not implemented.');
   }
@@ -64,11 +75,13 @@ export default class AmazonParser extends AbstractParser {
         attribute: 'innerText'
       });
 
-      article.url = this.getElementAttribute(parentNode, {
-        selector: '.sc-product-link',
-        defaultValue: '#',
-        attribute: 'href'
-      });
+      article.url = this.addResellerTag(
+        this.getElementAttribute(parentNode, {
+          selector: '.sc-product-link',
+          defaultValue: '#',
+          attribute: 'href'
+        })
+      );
 
       article.imageUrl = this.getElementAttribute(parentNode, {
         selector: '.sc-product-image',
@@ -123,11 +136,13 @@ export default class AmazonParser extends AbstractParser {
         attribute: 'innerText'
       });
 
-      article.url = this.getElementAttribute(parentNode, {
-        selector: '.g-item-details .a-link-normal',
-        defaultValue: '#',
-        attribute: 'href'
-      });
+      article.url = this.addResellerTag(
+        this.getElementAttribute(parentNode, {
+          selector: '.g-item-details .a-link-normal',
+          defaultValue: '#',
+          attribute: 'href'
+        })
+      );
 
       article.imageUrl = this.getElementAttribute(parentNode, {
         selector: '.g-itemImage img',
@@ -183,7 +198,7 @@ export default class AmazonParser extends AbstractParser {
           defaultValue: ''
         });
 
-        article.url = url;
+        article.url = this.addResellerTag(url);
 
         return article;
       })
