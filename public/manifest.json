@@ -41,7 +41,8 @@
         "https://infomaxparis.com/index.php*",
         "https://infomaxparis.com/achat-pc-gamer-configuration-fixes/*",
 
-        "https://www.amazon.fr/gp/cart/view.html*"
+        "https://www.amazon.fr/gp/cart/view.html*",
+        "https://www.amazon.fr/hz/wishlist/*"
       ],
       "js": ["static/js/mainScript.js"]
     }

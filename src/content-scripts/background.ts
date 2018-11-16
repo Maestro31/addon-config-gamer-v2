@@ -47,14 +47,25 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 function createPasteMenu() {
   chrome.contextMenus.removeAll();
   chrome.contextMenus.create({
-    title: 'Poster les articles',
+    title: 'Créer un panier',
     onclick: (object, tab) => {
       chrome.tabs.sendMessage(tab.id, {
-        command: 'post_cart',
-        cart: copiedCart
+        command: 'post_cart'
       });
     }
   });
+
+  if (copiedCart) {
+    chrome.contextMenus.create({
+      title: 'Poster les articles',
+      onclick: (object, tab) => {
+        chrome.tabs.sendMessage(tab.id, {
+          command: 'post_cart',
+          cart: copiedCart
+        });
+      }
+    });
+  }
 }
 
 function createCopyMenu() {
@@ -89,9 +100,9 @@ var tabListener = function() {
     function(tab) {
       if (!tab[0]) return;
 
-      if (matchesForPaste.some(url => tab[0].url.indexOf(url) != -1))
+      if (matchesForPaste.some(url => tab[0].url.indexOf(url) != -1)) {
         createPasteMenu();
-      else if (matchesForCopy.some(url => tab[0].url.indexOf(url) != -1))
+      } else if (matchesForCopy.some(url => tab[0].url.indexOf(url) != -1))
         createCopyMenu();
       else chrome.contextMenus.removeAll();
     }

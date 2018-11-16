@@ -91,6 +91,59 @@ export default class AmazonParser extends AbstractParser {
     return cart;
   };
 
+  fromSharedList = (): Cart => {
+    let cart = Cart.create();
+    cart.reseller = this.reseller;
+
+    let articleNodes = this.getAllElements(document.body, '#g-items > li');
+
+    Array.prototype.forEach.call(articleNodes, parentNode => {
+      let article = Article.create();
+
+      article.available =
+        this.getElementAttribute(parentNode, {
+          selector: '.a-button-text',
+          attribute: 'innerText'
+        }).trim() === 'Ajouter au panier';
+
+      let price = this.getElementAttribute(parentNode, {
+        selector: '.a-price > .a-offscreen',
+        defaultValue: '0',
+        attribute: 'innerText'
+      })
+        .replace(',', '.')
+        .replace('€', '')
+        .trim();
+
+      article.price = parseFloat(price) / article.quantity;
+
+      article.name = this.getElementAttribute(parentNode, {
+        selector: '.g-item-details .a-link-normal',
+        defaultValue: '',
+        attribute: 'innerText'
+      });
+
+      article.url = this.getElementAttribute(parentNode, {
+        selector: '.g-item-details .a-link-normal',
+        defaultValue: '#',
+        attribute: 'href'
+      });
+
+      article.imageUrl = this.getElementAttribute(parentNode, {
+        selector: '.g-itemImage img',
+        defaultValue: '#',
+        attribute: 'src'
+      });
+
+      cart.articles.push(article);
+    });
+
+    cart.reseller = this.reseller;
+
+    console.log(cart);
+    return cart;
+  };
+
   fromArticlePage = async (url: string): Promise<Article> => {
     return axios
       .get(url)
