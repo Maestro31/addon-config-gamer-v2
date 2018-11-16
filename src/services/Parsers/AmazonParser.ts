@@ -1,6 +1,7 @@
 import AbstractParser from './AbstractParser';
-import Article from 'Models/Article';
-import Axios from 'axios';
+import Article from '../../Models/Article';
+import axios from 'axios';
+import Cart from '../../Models/Cart';
 
 export default class AmazonParser extends AbstractParser {
   reseller: ResellerInfo;
@@ -20,10 +21,116 @@ export default class AmazonParser extends AbstractParser {
     throw new Error('Method not implemented.');
   }
 
+  fromCart = (): Cart => {
+    let cart = Cart.create();
+    cart.reseller = this.reseller;
+
+    let articleNodes = this.getAllElements(
+      document.body,
+      'div[data-name="Active Items"] .sc-list-item-content'
+    );
+
+    Array.prototype.forEach.call(articleNodes, parentNode => {
+      let article = Article.create();
+
+      article.available =
+        this.getElementAttribute(parentNode, {
+          selector: '.sc-product-availability',
+          attribute: 'innerText'
+        }).trim() === 'En stock';
+
+      article.quantity = parseInt(
+        this.getElementAttribute(parentNode, {
+          selector: 'span.a-dropdown-prompt',
+          defaultValue: '1',
+          attribute: 'innerText'
+        })
+      );
+
+      let price = this.getElementAttribute(parentNode, {
+        selector: '.sc-price',
+        defaultValue: '0',
+        attribute: 'innerText'
+      })
+        .replace(',', '.')
+        .replace('EUR', '')
+        .trim();
+
+      article.price = parseFloat(price) / article.quantity;
+
+      article.name = this.getElementAttribute(parentNode, {
+        selector: '.sc-product-title',
+        defaultValue: '',
+        attribute: 'innerText'
+      });
+
+      article.url = this.getElementAttribute(parentNode, {
+        selector: '.sc-product-link',
+        defaultValue: '#',
+        attribute: 'href'
+      });
+
+      article.imageUrl = this.getElementAttribute(parentNode, {
+        selector: '.sc-product-image',
+        defaultValue: '#',
+        attribute: 'src'
+      });
+
+      article.error = this.getElementAttribute(parentNode, {
+        selector: '.error',
+        defaultValue: '',
+        attribute: 'innerText'
+      });
+
+      cart.articles.push(article);
+    });
+
+    cart.reseller = this.reseller;
+
+    console.log(cart);
+    return cart;
+  };
+
   fromArticlePage = async (url: string): Promise<Article> => {
-    return Axios.get(url)
+    return axios
+      .get(url)
       .then(({ data }) => {
-        let article: Article = Article.create();
+        let article = Article.create();
+
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(data, 'text/html');
+
+        const price = this.getElementAttribute(doc.body, {
+          selector: '#price_inside_buybox',
+          attribute: 'innerText',
+          defaultValue: '0'
+        })
+          .replace(',', '.')
+          .replace('EUR', '')
+          .trim();
+
+        article.price = parseFloat(price);
+
+        article.available =
+          this.getElementAttribute(doc.body, {
+            selector: '#availability > span',
+            attribute: 'innerText',
+            defaultValue: false
+          }).trim() === 'En stock.';
+
+        article.imageUrl = this.getElementAttribute(doc.body, {
+          selector: '#landingImage',
+          attribute: 'src',
+          defaultValue: '#'
+        });
+
+        article.name = this.getElementAttribute(doc.body, {
+          selector: '#productTitle',
+          attribute: 'innerText',
+          defaultValue: ''
+        });
+
+        article.url = url;
 
         return article;
       })

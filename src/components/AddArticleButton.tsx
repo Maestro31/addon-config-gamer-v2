@@ -9,9 +9,11 @@ import {
 import ButtonIcon from './ButtonIcon';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import ReactLoading from 'react-loading';
 
 interface Props {
   onSubmit: (url: string) => void;
+  loading: boolean;
 }
 
 interface State {
@@ -19,10 +21,7 @@ interface State {
   url: string;
 }
 
-export default class AddArticleButton extends React.Component<
-  Props,
-  State
-> {
+export default class AddArticleButton extends React.Component<Props, State> {
   state = {
     isOpen: false,
     url: ''
@@ -57,9 +56,15 @@ export default class AddArticleButton extends React.Component<
           </Container>
         ) : (
           <AddButton
-            onClick={() => this.setState({ isOpen: true })}
+            onClick={() =>
+              !this.props.loading && this.setState({ isOpen: true })
+            }
             height="50px">
-            <FontAwesomeIcon icon={faPlus} />
+            {this.props.loading ? (
+              <ReactLoading type="bars" color="#A7A7A7" />
+            ) : (
+              <FontAwesomeIcon icon={faPlus} />
+            )}
           </AddButton>
         )}
       </>

@@ -1308,13 +1308,13 @@ export default class MaterielNetParser extends AbstractParser {
     console.log(elements);
 
     Array.prototype.forEach.call(elements, parentNode => {
-      let component = Article.create();
-      component.available =
+      let article = Article.create();
+      article.available =
         this.getElementAttribute(parentNode, {
           selector: '.o-availability__value',
           attribute: 'innerText'
         }) === 'EN STOCK';
-      component.quantity = parseInt(
+      article.quantity = parseInt(
         this.getElementAttribute(parentNode, {
           selector: 'span.hida',
           defaultValue: '1',
@@ -1326,30 +1326,30 @@ export default class MaterielNetParser extends AbstractParser {
         defaultValue: '0',
         attribute: 'innerText'
       }).replace('€', '.');
-      component.price = parseFloat(price) / component.quantity;
-      component.name = this.getElementAttribute(parentNode, {
+      article.price = parseFloat(price) / article.quantity;
+      article.name = this.getElementAttribute(parentNode, {
         selector: '.title > a',
         defaultValue: '',
         attribute: 'innerText'
       });
-      component.url =
+      article.url =
         this.getElementAttribute(parentNode, {
           selector: '.title > a',
           defaultValue: '#',
           attribute: 'href'
         }) + this.reseller.tag;
 
-      component.imageUrl = this.getElementAttribute(parentNode, {
+      article.imageUrl = this.getElementAttribute(parentNode, {
         selector: 'img',
         defaultValue: '#',
         attribute: 'src'
       });
-      component.error = this.getElementAttribute(parentNode, {
+      article.error = this.getElementAttribute(parentNode, {
         selector: '.error',
         defaultValue: '',
         attribute: 'innerText'
       });
-      cart.articles.push(component);
+      cart.articles.push(article);
     });
 
     cart.reseller = this.reseller;

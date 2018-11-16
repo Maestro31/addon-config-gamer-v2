@@ -110,7 +110,13 @@ export const postCart = (
     cartPrice += `${cartRefund}\n\n`;
   }
 
-  if (cart.priceInfo) {
+  // TODO: Partie à revoir, pas assez générique
+
+  if (
+    cart.reseller.name === 'Top Achat' &&
+    cart.priceInfo &&
+    cart.refundPercent === 5
+  ) {
     cartPrice += surroundWithTags(cart.priceInfo, ['i', 'right']);
   }
 

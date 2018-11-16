@@ -180,10 +180,19 @@ ParserService.productMatches = [
   {
     regex: /https:\/\/www\.ldlc\.com\/es-es\/fiche\/[A-Z0-9]+\.html/,
     parser: ldlcParserV2ES
+  },
+  {
+    regex: /https:\/\/infomaxparis.com/,
+    parser: infomaxParser
   }
 ];
 
 ParserService.matches = [
+  {
+    regex: /https:\/\/www\.amazon\.fr\/gp\/cart\/view\.html/,
+    method: amazonParserFR.fromCart,
+    parser: amazonParserFR
+  },
   {
     regex: /https:\/\/secure\.materiel\.net\/Cart/,
     method: materielNetParser.fromCart,

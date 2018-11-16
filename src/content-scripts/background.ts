@@ -79,7 +79,8 @@ const matchesForCopy = [
   'secure.materiel.net/Cart',
   'materiel.net/configurateur-pc-sur-mesure/',
   'www.ldlc',
-  'infomaxparis.com'
+  'infomaxparis.com',
+  'www.amazon'
 ];
 
 var tabListener = function() {

@@ -38,6 +38,7 @@ interface State {
   copiedCart: boolean;
   message: string;
   messageIntro: string;
+  isFetchingArticle: boolean;
 }
 
 export default class CartDialog extends React.Component<Props, State> {
@@ -45,7 +46,8 @@ export default class CartDialog extends React.Component<Props, State> {
     cart: this.props.cart,
     copiedCart: false,
     message: '',
-    messageIntro: ''
+    messageIntro: '',
+    isFetchingArticle: false
   };
 
   onCartSubjectIdChange = (subjectId: string): void => {
@@ -135,8 +137,10 @@ export default class CartDialog extends React.Component<Props, State> {
   };
 
   onAddArticle = async (url: string) => {
+    this.setState({ isFetchingArticle: true });
     const article = await ParserService.parseArticle(url);
     if (article) {
+      this.setState({ isFetchingArticle: false });
       let cart = this.state.cart;
       cart.articles.push(article);
       this.setState({ cart });
@@ -150,8 +154,7 @@ export default class CartDialog extends React.Component<Props, State> {
 
     const { submitButtonTitle, title } = this.props;
     const { cart } = this.state;
-    const currency =
-      (cart && cart.reseller && cart.reseller.currency) || 'EUR';
+    const currency = (cart && cart.reseller && cart.reseller.currency) || 'EUR';
 
     return (
       <Modal
@@ -208,7 +211,10 @@ export default class CartDialog extends React.Component<Props, State> {
             onDeleteArticle={this.onDeleteArticle}
             onArticleChange={this.onArticleChange}
           />
-          <AddArticleButton onSubmit={this.onAddArticle} />
+          <AddArticleButton
+            onSubmit={this.onAddArticle}
+            loading={this.state.isFetchingArticle}
+          />
         </GroupCard>
         <RowReverseLayout>
           <NumberInput

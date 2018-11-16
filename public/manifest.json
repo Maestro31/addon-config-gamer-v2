@@ -1,7 +1,7 @@
 {
   "update_url": "https://clients2.google.com/service/update2/crx",
   "name": "Config-Gamer",
-  "version": "2.0.8",
+  "version": "2.1.0",
   "manifest_version": 2,
   "description": "Outils config-gamer",
   "content_scripts": [
@@ -39,7 +39,9 @@
         "https://www.ldlc.com/configurateur-pc/*",
 
         "https://infomaxparis.com/index.php*",
-        "https://infomaxparis.com/achat-pc-gamer-configuration-fixes/*"
+        "https://infomaxparis.com/achat-pc-gamer-configuration-fixes/*",
+
+        "https://www.amazon.fr/gp/cart/view.html*"
       ],
       "js": ["static/js/mainScript.js"]
     }
