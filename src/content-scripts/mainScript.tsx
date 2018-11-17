@@ -3,7 +3,7 @@ import emotion from 'react-emotion';
 import * as DOM from 'react-dom';
 import Menu from '../components/Menu';
 import ParserService from '../services/Parsers/Parser';
-import CartDialog from '../components/CartDialog';
+import CartDialog from '../components/PostCartDialog';
 import { saveCartMessage, sendMessage } from '../services/Messages';
 import Cart from '../Models/Cart';
 import { copyCartMessage } from '../services/Messages';
@@ -47,9 +47,9 @@ export default class Main extends React.Component<{}, State> {
     this.setState({ openDialog: false, cart: null, copiedCart: false });
   };
 
-  onConfirmModal = (cart: Cart) => {
-    this.onCloseModal();
-    saveCartMessage(cart);
+  onConfirmModal = (carts: Cart[]) => {
+    // this.onCloseModal();
+    // saveCartMessage(cart);
   };
 
   onCopyCart = () => {
@@ -57,8 +57,8 @@ export default class Main extends React.Component<{}, State> {
     copyCartMessage(this.state.cart);
   };
 
-  onCartChange = (cart: Cart) => {
-    this.setState({ cart });
+  onCartsChange = (carts: Cart[]) => {
+    //this.setState({ cart });
   };
 
   render() {
@@ -73,10 +73,10 @@ export default class Main extends React.Component<{}, State> {
             mode="editable"
             title="Nouveau panier"
             submitButtonTitle="Sauvegarder"
-            cart={this.state.cart}
-            onCartChange={this.onCartChange}
+            carts={[this.state.cart]}
+            onCartsChange={this.onCartsChange}
             open={this.state.openDialog}
-            onConfirmCart={this.onConfirmModal}
+            onConfirmCarts={this.onConfirmModal}
             onClose={this.onCloseModal}
             renderFooter={() => (
               <CopyButton onClick={this.onCopyCart}>

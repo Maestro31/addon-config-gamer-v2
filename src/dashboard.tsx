@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as DOM from 'react-dom';
 import CartTable from './components/CartTable';
-import CartDialog from './components/CartDialog';
+import CartDialog from './components/PostCartDialog';
 import { getCarts, setCarts } from './services/Storage';
 import { copyCartMessage } from './services/Messages';
 import ParserService from './services/Parsers/Parser';
@@ -46,8 +46,8 @@ export default class Dashboard extends React.Component<{}, State> {
 
   onPressUpdateItem = async config => {
     const updatedConfig = await ParserService.updateCart(config);
-    const configs = this.state.configs.map(
-      config => (config.id === updatedConfig.id ? updatedConfig : config)
+    const configs = this.state.configs.map(config =>
+      config.id === updatedConfig.id ? updatedConfig : config
     );
 
     this.setState({ configs });
@@ -103,7 +103,7 @@ export default class Dashboard extends React.Component<{}, State> {
           onPressDeleteItem={this.onPressDeleteItem}
         />
         {/* <ButtonIcon onClick={this.onOpenSearchDlg}>Test de bouton</ButtonIcon> */}
-        {this.state.config && (
+        {/* {this.state.config && (
           <CartDialog
             mode="editable"
             title={`Config de ${this.state.config && this.state.config.owner}`}
@@ -115,7 +115,7 @@ export default class Dashboard extends React.Component<{}, State> {
             onCartChange={this.onConfigChange}
             onCopyCart={this.onCopyConfig}
           />
-        )}
+        )} */}
         {/* <SearchDlg
           open={this.state.openSearchDlg}
           onClose={this.onCloseSearchDlg}

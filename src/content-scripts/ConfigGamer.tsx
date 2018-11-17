@@ -2,11 +2,11 @@ import * as React from 'react';
 import * as DOM from 'react-dom';
 import chrome from '../services/Browser';
 import Cart from '../Models/Cart';
-import CartDialog from '../components/CartDialog';
-import { postCart } from '../services/PostCart';
+import CartDialog from '../components/PostCartDialog';
+import { postCarts } from '../services/PostCart';
 
 interface State {
-  cart: Cart;
+  carts: Cart[];
   openDialog: boolean;
   message: string;
   messageIntro: string;
@@ -14,7 +14,7 @@ interface State {
 
 export default class ConfigGamer extends React.Component<{}, State> {
   state = {
-    cart: null,
+    carts: null,
     openDialog: false,
     message: '',
     messageIntro: ''
@@ -24,15 +24,15 @@ export default class ConfigGamer extends React.Component<{}, State> {
       if (
         msg.command &&
         msg.command === 'post_cart' &&
-        msg.cart !== undefined
+        msg.carts !== undefined
       ) {
         this.setState({
-          cart: msg.cart,
+          carts: msg.carts,
           openDialog: true
         });
       } else {
         this.setState({
-          cart: Cart.create(),
+          carts: [],
           openDialog: true
         });
       }
@@ -41,30 +41,30 @@ export default class ConfigGamer extends React.Component<{}, State> {
 
   onConfirmModal = (): void => {
     this.onCloseModal();
-    postCart(this.state.cart, this.state.messageIntro, this.state.message);
+    postCarts(this.state.carts, this.state.messageIntro, this.state.message);
   };
 
   onCloseModal = (): void => {
-    this.setState({ openDialog: false, cart: null });
+    this.setState({ openDialog: false, carts: null });
   };
 
-  onCartChange = (cart: Cart): void => {
-    this.setState({ cart });
+  onCartsChange = (carts: Cart[]): void => {
+    this.setState({ carts });
   };
 
   render() {
     return (
       <>
-        {this.state.cart && (
+        {this.state.carts && (
           <CartDialog
             mode="post"
             title="Poster les articles"
             submitButtonTitle="Poster"
-            cart={this.state.cart}
+            carts={this.state.carts}
             open={this.state.openDialog}
-            onConfirmCart={this.onConfirmModal}
+            onConfirmCarts={this.onConfirmModal}
             onClose={this.onCloseModal}
-            onCartChange={this.onCartChange}
+            onCartsChange={this.onCartsChange}
             onMessageChange={message => this.setState({ message })}
             onMessageIntroChange={messageIntro =>
               this.setState({ messageIntro })

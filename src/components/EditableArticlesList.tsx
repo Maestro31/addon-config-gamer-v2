@@ -174,7 +174,7 @@ export default class EditableArticlesList extends React.Component<
           new Intl.NumberFormat('fr-FR', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
-          }).format(Article.getTotalPrice(o)),
+          }).format(Article.getPriceWithRefund(o)),
         alignContent: 'right'
       },
       {

@@ -149,7 +149,7 @@ ParserService.parsers = [
 
 ParserService.productMatches = [
   {
-    regex: /https:\/\/www\.amazon\.fr\/(.+\/)?[a-z]+\/(product\/)?[A-Z0-9]+\//,
+    regex: /https:\/\/www\.amazon\.fr\/(.+\/)?[a-z]+\/(product\/)?[A-Z0-9]+/,
     parser: amazonParserFR
   },
   {

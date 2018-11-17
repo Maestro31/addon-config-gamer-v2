@@ -43,6 +43,7 @@ export default class AmazonParser extends AbstractParser {
 
     Array.prototype.forEach.call(articleNodes, parentNode => {
       let article = Article.create();
+      article.reseller = this.reseller;
 
       article.available =
         this.getElementAttribute(parentNode, {
@@ -112,6 +113,7 @@ export default class AmazonParser extends AbstractParser {
 
     Array.prototype.forEach.call(articleNodes, parentNode => {
       let article = Article.create();
+      article.reseller = this.reseller;
 
       article.available =
         this.getElementAttribute(parentNode, {
@@ -134,7 +136,7 @@ export default class AmazonParser extends AbstractParser {
         selector: '.g-item-details .a-link-normal',
         defaultValue: '',
         attribute: 'innerText'
-      });
+      }).trim();
 
       article.url = this.addResellerTag(
         this.getElementAttribute(parentNode, {
@@ -164,12 +166,13 @@ export default class AmazonParser extends AbstractParser {
       .get(url)
       .then(({ data }) => {
         let article = Article.create();
+        article.reseller = this.reseller;
 
         const parser = new DOMParser();
         const doc = parser.parseFromString(data, 'text/html');
 
         const price = this.getElementAttribute(doc.body, {
-          selector: '#price_inside_buybox',
+          selector: '#priceblock_ourprice',
           attribute: 'innerText',
           defaultValue: '0'
         })
@@ -196,7 +199,7 @@ export default class AmazonParser extends AbstractParser {
           selector: '#productTitle',
           attribute: 'innerText',
           defaultValue: ''
-        });
+        }).trim();
 
         article.url = this.addResellerTag(url);
 

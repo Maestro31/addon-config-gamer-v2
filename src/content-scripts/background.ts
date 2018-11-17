@@ -61,7 +61,7 @@ function createPasteMenu() {
       onclick: (object, tab) => {
         chrome.tabs.sendMessage(tab.id, {
           command: 'post_cart',
-          cart: copiedCart
+          carts: [copiedCart]
         });
       }
     });

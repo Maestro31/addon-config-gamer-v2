@@ -53,11 +53,47 @@ export const createTable = (table: {
   return surroundWithTag(tableContent, 'table');
 };
 
-export const postCart = (
-  cart: Cart,
+export const postCarts = (
+  carts: Cart[],
   messageIntro: string,
   message: string
-): void => {
+) => {
+  let text = `${messageIntro ? messageIntro + '\n\n\n' : ''}`;
+
+  carts.forEach(cart => {
+    text += postCart(cart);
+  });
+
+  if (carts.length > 1) {
+    text += surroundWithTags(
+      `\n\nTotal: ${new Intl.NumberFormat('fr-FR', {
+        style: 'currency',
+        currency: carts[0].reseller.currency
+      }).format(Cart.getTotalPriceWithRefund(carts))}`,
+      ['b', { name: 'size', value: '6' }, 'right']
+    );
+
+    text += surroundWithTags(
+      `\n\nDont Remise: ${new Intl.NumberFormat('fr-FR', {
+        style: 'currency',
+        currency: carts[0].reseller.currency
+      }).format(Cart.getTotalRefund(carts))}`,
+      ['b', { name: 'size', value: '5' }, 'right']
+    ) + '\n\n';
+  }
+
+  text += `${message ? message : ''}`;
+
+  const messageElement = <HTMLTextAreaElement>(
+    document.forms['postform']['message']
+  );
+
+  console.log(carts);
+
+  messageElement.value = text;
+};
+
+export const postCart = (cart: Cart): string => {
   let table = createTable({
     headers: [
       surroundWithTags('Dispo', ['b', 'center']),
@@ -91,17 +127,17 @@ export const postCart = (
   let responseText = '';
 
   let cartPrice = surroundWithTags(
-    `Prix total: ${new Intl.NumberFormat('fr-FR', {
+    `Total: ${new Intl.NumberFormat('fr-FR', {
       style: 'currency',
       currency: cart.reseller.currency
-    }).format(Cart.getPriceWithRefund(cart))}`,
+    }).format(Cart.getCartPriceWithRefund(cart))}`,
     ['b', 'right']
   );
 
-  const totalRefund = Cart.getTotalRefund(cart);
+  const totalRefund = Cart.getCartTotalRefund(cart);
   if (totalRefund > 0) {
     const cartRefund = surroundWithTag(
-      `Remise totale: ${new Intl.NumberFormat('fr-FR', {
+      `Dont remise: ${new Intl.NumberFormat('fr-FR', {
         style: 'currency',
         currency: cart.reseller.currency
       }).format(totalRefund)}`,
@@ -115,7 +151,7 @@ export const postCart = (
   if (
     cart.reseller.name === 'Top Achat' &&
     cart.priceInfo &&
-    cart.refundPercent === 5
+    Cart.getCartPriceWithoutRefund(cart) > 1000
   ) {
     cartPrice += surroundWithTags(cart.priceInfo, ['i', 'right']);
   }
@@ -128,20 +164,14 @@ export const postCart = (
   );
 
   const cartUrl = cart.url
-    ? `Lien vers le panier: ${cart.url + cart.reseller.tag}`
+    ? `Lien vers le panier: ${
+        cart.url + cart.reseller.tag ? cart.reseller.tag : ''
+      }`
     : '';
 
-  responseText = `${messageIntro}\n\n\n${cartUrl}\n\n\n${table}\n\n\n${cartPrice}\n\n${
+  responseText = `${cartUrl}\n\n\n${table}\n\n\n${cartPrice}\n\n${
     mounting ? deliveryInfo : ''
   }`;
 
-  responseText += message ? `${message}\n\n` : '';
-
-  const messageElement = <HTMLTextAreaElement>(
-    document.forms['postform']['message']
-  );
-
-  console.log(cart);
-
-  messageElement.value = responseText;
+  return responseText;
 };

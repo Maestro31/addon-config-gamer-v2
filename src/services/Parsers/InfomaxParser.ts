@@ -19,6 +19,7 @@ export default class InfomaxParser extends AbstractParser {
       .get(url)
       .then(({ data }) => {
         let article = Article.create();
+        article.reseller = this.reseller;
 
         const parser = new DOMParser();
         const doc = parser.parseFromString(data, 'text/html');
@@ -93,6 +94,8 @@ export default class InfomaxParser extends AbstractParser {
 
     Array.prototype.forEach.call(elements, parentNode => {
       let article = Article.create();
+      article.reseller = this.reseller;
+      
       article.name = this.getElementAttribute(parentNode, {
         selector: '.remarketing--content-product-title',
         attribute: 'innerHTML',

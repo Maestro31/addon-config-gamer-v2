@@ -59,6 +59,7 @@ export default class LdlcParserV2 extends AbstractParser {
 
     Array.prototype.forEach.call(elements, parentNode => {
       let article = Article.create();
+      article.reseller = this.reseller;
 
       article.imageUrl = this.getElementAttribute(parentNode, {
         selector: '.pic > img',
@@ -119,6 +120,7 @@ export default class LdlcParserV2 extends AbstractParser {
 
     Array.prototype.forEach.call(recapElements, parentNode => {
       let article = Article.create();
+      article.reseller = this.reseller;
 
       article.available =
         this.getElementAttribute(parentNode, {
@@ -197,6 +199,7 @@ export default class LdlcParserV2 extends AbstractParser {
       .get(url)
       .then(({ data }) => {
         let article = Article.create();
+        article.reseller = this.reseller;
 
         const parser = new DOMParser();
         const doc = parser.parseFromString(data, 'text/html');

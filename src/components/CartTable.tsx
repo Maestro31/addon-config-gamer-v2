@@ -111,7 +111,7 @@ export default class CartTable extends React.Component<Props> {
           new Intl.NumberFormat('fr-FR', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
-          }).format(Cart.getPriceWithRefund(o)),
+          }).format(Cart.getCartPriceWithRefund(o)),
         resizable: false,
         width: 120,
         Filter: () => null,

@@ -1309,6 +1309,8 @@ export default class MaterielNetParser extends AbstractParser {
 
     Array.prototype.forEach.call(elements, parentNode => {
       let article = Article.create();
+      article.reseller = this.reseller;
+
       article.available =
         this.getElementAttribute(parentNode, {
           selector: '.o-availability__value',
@@ -1325,7 +1327,10 @@ export default class MaterielNetParser extends AbstractParser {
         selector: '.o-product__price',
         defaultValue: '0',
         attribute: 'innerText'
-      }).replace('€', '.');
+      })
+        .replace('€', '.')
+        .replace(/\s/g, '');
+
       article.price = parseFloat(price) / article.quantity;
       article.name = this.getElementAttribute(parentNode, {
         selector: '.title > a',
@@ -1368,14 +1373,16 @@ export default class MaterielNetParser extends AbstractParser {
     );
 
     Array.prototype.forEach.call(elements, parentNode => {
-      let component = Article.create();
-      component.available =
+      let article = Article.create();
+      article.reseller = this.reseller;
+
+      article.available =
         this.getElementAttribute(parentNode, {
           selector: '.order-cell--stock .o-availability__value',
           attribute: 'innerText'
         }) === 'EN STOCK';
 
-      component.quantity = parseInt(
+      article.quantity = parseInt(
         this.getElementAttribute(parentNode, {
           selector: 'order-cell--quantity',
           defaultValue: '1',
@@ -1388,28 +1395,28 @@ export default class MaterielNetParser extends AbstractParser {
         defaultValue: '0',
         attribute: 'innerText'
       }).replace('€', '.');
-      component.price = parseFloat(price) / component.quantity;
+      article.price = parseFloat(price) / article.quantity;
 
-      component.name = this.getElementAttribute(parentNode, {
+      article.name = this.getElementAttribute(parentNode, {
         selector: '.order-cell--designation a',
         defaultValue: '',
         attribute: 'innerText'
       });
 
-      component.url =
+      article.url =
         this.getElementAttribute(parentNode, {
           selector: '.order-cell--designation a',
           defaultValue: '#',
           attribute: 'href'
         }) + this.reseller.tag;
 
-      component.imageUrl = this.getElementAttribute(parentNode, {
+      article.imageUrl = this.getElementAttribute(parentNode, {
         selector: '.order-cell--pic > img',
         defaultValue: '#',
         attribute: 'src'
       });
 
-      cart.articles.push(component);
+      cart.articles.push(article);
     });
 
     return cart;
@@ -1422,34 +1429,35 @@ export default class MaterielNetParser extends AbstractParser {
     const elements = this.getAllElements(document.body, '.c-row__content');
 
     Array.prototype.forEach.call(elements, parentNode => {
-      let component = Article.create();
+      let article = Article.create();
+      article.reseller = this.reseller;
 
-      component.name = this.getElementAttribute(parentNode, {
+      article.name = this.getElementAttribute(parentNode, {
         selector: '.c-meta__title',
         defaultValue: '',
         attribute: 'innerText'
       });
 
-      component.url =
+      article.url =
         this.getElementAttribute(parentNode, {
           selector: '.c-selected-product__meta > a',
           defaultValue: '#',
           attribute: 'href'
         }) + this.reseller.tag;
 
-      component.imageUrl = this.getElementAttribute(parentNode, {
+      article.imageUrl = this.getElementAttribute(parentNode, {
         selector: '.c-selected-product__thumb > img',
         defaultValue: '#',
         attribute: 'src'
       });
 
-      component.error = this.getElementAttribute(parentNode, {
+      article.error = this.getElementAttribute(parentNode, {
         selector: '.error',
         defaultValue: '',
         attribute: 'innerText'
       });
-      console.log(component);
-      cart.articles.push(component);
+      console.log(article);
+      cart.articles.push(article);
     });
 
     let recapElements = this.getAllElements(
@@ -1505,6 +1513,7 @@ export default class MaterielNetParser extends AbstractParser {
       .get(url)
       .then(({ data }) => {
         let article = Article.create();
+        article.reseller = this.reseller;
 
         const parser = new DOMParser();
         const doc = parser.parseFromString(data, 'text/html');
@@ -1605,6 +1614,7 @@ export default class MaterielNetParser extends AbstractParser {
 
     Array.prototype.forEach.call(elements, parentNode => {
       let article = Article.create();
+      article.reseller = this.reseller;
 
       article.imageUrl = this.getElementAttribute(parentNode, {
         selector: '.c-product__thumb > img',
@@ -1645,9 +1655,7 @@ export default class MaterielNetParser extends AbstractParser {
           defaultValue: '0'
         });
 
-        article.price = parseFloat(
-          price.replace('€', '.').replace(/\s/g, '')
-        );
+        article.price = parseFloat(price.replace('€', '.').replace(/\s/g, ''));
       } else if (Object.keys(prices).includes(componentId))
         article.price = prices[componentId];
 

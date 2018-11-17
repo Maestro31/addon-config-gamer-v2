@@ -12,6 +12,7 @@ interface Article {
   url?: string;
   available?: boolean;
   comment?: string;
+  reseller?: ResellerInfo;
 }
 
 namespace Article {
@@ -24,9 +25,12 @@ namespace Article {
     };
   }
 
-  export function getTotalPrice(article: Article): number {
+  export function getPriceWithRefund(article: Article): number {
     return (
-      (article.price - (article.price * article.refundPercent) / 100 - article.refund) * article.quantity
+      (article.price -
+        (article.price * article.refundPercent) / 100 -
+        article.refund) *
+      article.quantity
     );
   }
 }

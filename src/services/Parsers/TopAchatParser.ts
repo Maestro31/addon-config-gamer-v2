@@ -5,7 +5,7 @@ import AbstractParser from './AbstractParser';
 
 export default class TopAchatParser extends AbstractParser {
   priceInfo =
-    '*Config éligible à 5% de réductions sur demande en MP sur FB ou Twitter à Top Achat';
+    '*Panier éligible à 5% de réduction sur demande en MP sur FB ou Twitter à Top Achat';
 
   reseller: ResellerInfo = {
     name: 'Top Achat',
@@ -297,6 +297,8 @@ export default class TopAchatParser extends AbstractParser {
 
     Array.prototype.forEach.call(elements, parentNode => {
       let article = Article.create();
+      article.reseller = this.reseller;
+
       article.imageUrl = this.getElementAttribute(parentNode, {
         selector: 'img',
         attribute: 'src',
@@ -337,7 +339,7 @@ export default class TopAchatParser extends AbstractParser {
       cart.articles.push(article);
     });
 
-    const price = Cart.getPriceWithoutRefund(cart);
+    const price = Cart.getCartPriceWithoutRefund(cart);
 
     if (price >= 1000) {
       cart.refundPercent = 5;
@@ -355,6 +357,8 @@ export default class TopAchatParser extends AbstractParser {
 
     Array.prototype.forEach.call(elements, parentNode => {
       let article = Article.create();
+      article.reseller = this.reseller;
+
       article.imageUrl = this.getElementAttribute(parentNode, {
         selector: '.configomatic-product__image > img',
         attribute: 'src',
@@ -392,7 +396,7 @@ export default class TopAchatParser extends AbstractParser {
       cart.articles.push(article);
     });
 
-    const price = Cart.getPriceWithoutRefund(cart);
+    const price = Cart.getCartPriceWithoutRefund(cart);
 
     if (price >= 1000) {
       cart.refundPercent = 5;
@@ -407,6 +411,7 @@ export default class TopAchatParser extends AbstractParser {
       .get(url)
       .then(({ data }) => {
         let article = Article.create();
+        article.reseller = this.reseller;
 
         const parser = new DOMParser();
         const doc = parser.parseFromString(data, 'text/html');
@@ -483,6 +488,7 @@ export default class TopAchatParser extends AbstractParser {
 
     Array.prototype.forEach.call(elements, parentNode => {
       let article = Article.create();
+      article.reseller = this.reseller;
 
       const id = parentNode.id;
 
