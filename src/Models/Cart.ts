@@ -85,7 +85,10 @@ namespace Cart {
   }
 
   export function getCartPriceWithoutRefund(cart: Cart) {
-    return cart.articles.reduce((acc, c) => acc + c.price, 0);
+    return cart.articles.reduce(
+      (acc, c) => acc + Article.getPriceWithoutRefund(c),
+      0
+    );
   }
 
   export function getCartTotalRefund(cart: Cart) {

@@ -109,7 +109,11 @@ export default class CartDialog extends React.Component<Props, State> {
     if (!this.props.open) return null;
 
     const { submitButtonTitle, title } = this.props;
-    const currency = this.state.carts[0].reseller.currency || 'EUR';
+    const currency =
+      (this.state.carts &&
+        this.state.carts.length !== 0 &&
+        this.state.carts[0].reseller.currency) ||
+      'EUR';
 
     return (
       <Modal

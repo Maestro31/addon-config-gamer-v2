@@ -214,6 +214,11 @@ ParserService.matches = [
     parser: materielNetParser
   },
   {
+    regex: /https:\/\/secure\.materiel\.net\/Cart\/SharedCart/,
+    method: materielNetParser.fromCart,
+    parser: materielNetParser
+  },
+  {
     regex: /https:\/\/www\.topachat\.com\/pages\/mon_panier\.php/,
     method: topAchatParser.fromCart,
     parser: topAchatParser

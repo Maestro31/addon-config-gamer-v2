@@ -33,6 +33,10 @@ namespace Article {
       article.quantity
     );
   }
+
+  export function getPriceWithoutRefund(article: Article): number {
+    return article.price * article.quantity;
+  }
 }
 
 export default Article;

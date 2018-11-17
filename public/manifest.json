@@ -1,7 +1,7 @@
 {
   "update_url": "https://clients2.google.com/service/update2/crx",
   "name": "Config-Gamer",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "manifest_version": 2,
   "description": "Outils config-gamer",
   "content_scripts": [
@@ -20,6 +20,7 @@
         "https://secure.materiel.net/Cart",
         "https://www.materiel.net/configurateur-pc-sur-mesure/",
         "https://secure.materiel.net/Account/SavedCartsSection",
+        "https://secure.materiel.net/Cart/SharedCart/*",
 
         "https://secure2.ldlc.com/es-es/Cart",
         "https://secure2.ldlc.com/fr-lu/Cart",

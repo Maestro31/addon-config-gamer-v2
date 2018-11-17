@@ -65,21 +65,25 @@ export const postCarts = (
   });
 
   if (carts.length > 1) {
-    text += surroundWithTags(
-      `\n\nTotal: ${new Intl.NumberFormat('fr-FR', {
-        style: 'currency',
-        currency: carts[0].reseller.currency
-      }).format(Cart.getTotalPriceWithRefund(carts))}`,
-      ['b', { name: 'size', value: '6' }, 'right']
-    );
+    text +=
+      '\n\n' +
+      surroundWithTags(
+        `Total: ${new Intl.NumberFormat('fr-FR', {
+          style: 'currency',
+          currency: carts[0].reseller.currency
+        }).format(Cart.getTotalPriceWithRefund(carts))}`,
+        ['b', { name: 'size', value: '6' }, 'right']
+      ) +
+      '\n';
 
-    text += surroundWithTags(
-      `\n\nDont Remise: ${new Intl.NumberFormat('fr-FR', {
-        style: 'currency',
-        currency: carts[0].reseller.currency
-      }).format(Cart.getTotalRefund(carts))}`,
-      ['b', { name: 'size', value: '5' }, 'right']
-    ) + '\n\n';
+    text +=
+      surroundWithTags(
+        `Remise incluse: ${new Intl.NumberFormat('fr-FR', {
+          style: 'currency',
+          currency: carts[0].reseller.currency
+        }).format(Cart.getTotalRefund(carts))}`,
+        ['b', { name: 'size', value: '5' }, 'right']
+      ) + '\n\n';
   }
 
   text += `${message ? message : ''}`;
@@ -158,20 +162,26 @@ export const postCart = (cart: Cart): string => {
   const mounting = cart.articles.some(
     article => !!article.name.match(/(M|m)ontage/)
   );
-  const deliveryInfo = surroundWithTags(
-    'Attention, les frais de livraison sont plus élevés lorsque les configs sont montées par le revendeur',
-    ['i', 'right']
-  );
+  const deliveryInfo =
+    surroundWithTags(
+      'Attention, les frais de livraison sont plus élevés lorsque les configs sont montées par le revendeur',
+      ['i', 'right']
+    ) + '\n\n';
 
-  const cartUrl = cart.url
-    ? `Lien vers le panier: ${
-        cart.url + cart.reseller.tag ? cart.reseller.tag : ''
-      }`
+  const cartResellerName = cart.reseller.name
+    ? surroundWithTags(
+        `Panier ${cart.reseller.name}`,
+        ['b', { name: 'size', value: '5' }]
+      ) + '\n\n'
     : '';
 
-  responseText = `${cartUrl}\n\n\n${table}\n\n\n${cartPrice}\n\n${
-    mounting ? deliveryInfo : ''
-  }`;
+  const cartUrl = cart.url
+    ? `Lien vers le panier: ${cart.url +
+        (cart.reseller.tag ? cart.reseller.tag + '\n\n\n' : '')}`
+    : '';
+
+  responseText = `${cartResellerName}${cartUrl ||
+    '\n'}${table}\n\n\n${cartPrice}\n\n${mounting ? deliveryInfo : ''}`;
 
   return responseText;
 };
