@@ -386,15 +386,13 @@ export default class TopAchatParser extends AbstractParser {
 
       const match = priceStr.match(/^([0-9]+) x (.+)$/);
 
-      let quantity = 1;
       if (match) {
-        quantity = parseInt(match[1]);
+        article.quantity = parseInt(match[1]);
         article.price = parseFloat(match[2].replace(/\s/g, ''));
       } else {
+        article.quantity = 1;
         article.price = parseFloat(priceStr.replace(/\s/g, ''));
       }
-
-      article.quantity = quantity;
 
       article.available =
         this.getElementAttribute(parentNode, {

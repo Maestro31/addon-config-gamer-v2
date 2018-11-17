@@ -14,7 +14,7 @@ export default class AmazonParser extends AbstractParser {
   }
 
   addResellerTag(url: any): string {
-    const regex = /https:\/\/www\.amazon\.fr\/(.+\/)?[a-z]+\/(product\/)?([A-Z0-9]+)\//;
+    const regex = /https:\/\/www\.amazon\.fr\/(.+\/)?[a-z]+\/(product\/)?([A-Z0-9]+)/;
     const matches = regex.exec(url);
 
     if (matches) {
