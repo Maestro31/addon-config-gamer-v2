@@ -9,7 +9,6 @@ import AddArticleButton from './AddArticleButton';
 import CartList from './CartList';
 
 interface Props {
-  mode: 'editable' | 'post';
   open: boolean;
   carts: Cart[];
   submitButtonTitle?: string;
@@ -126,7 +125,6 @@ export default class CartDialog extends React.Component<Props, State> {
         />
         <CartList
           carts={this.state.carts}
-          mode={this.props.mode}
           onArticleChange={this.onArticleChange}
           onDeleteArticle={this.onDeleteArticle}
           onCartChange={this.onCartChange}

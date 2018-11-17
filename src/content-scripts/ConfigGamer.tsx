@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as DOM from 'react-dom';
 import chrome from '../services/Browser';
 import Cart from '../Models/Cart';
-import CartDialog from '../components/PostCartDialog';
+import PostCartDialog from '../components/PostCartDialog';
 import { postCarts } from '../services/PostCart';
 
 interface State {
@@ -56,8 +56,7 @@ export default class ConfigGamer extends React.Component<{}, State> {
     return (
       <>
         {this.state.carts && (
-          <CartDialog
-            mode="post"
+          <PostCartDialog
             title="Poster les articles"
             submitButtonTitle="Poster"
             carts={this.state.carts}

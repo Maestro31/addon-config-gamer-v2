@@ -10,7 +10,6 @@ import TextInput from './TextInput';
 
 interface Props {
   carts: Cart[];
-  mode: 'post' | 'editable';
   onDeleteArticle: (index: number) => (id: string) => void;
   onArticleChange: (index: number) => (article: Article) => void;
   onCartChange: (index: number) => (cart: Cart) => void;
@@ -33,7 +32,7 @@ export default class CartList extends React.Component<Props> {
             />
           </HorizontalLayout>
           <EditableArticlesList
-            activeComment={this.props.mode === 'post'}
+            activeComment={true}
             articles={cart.articles}
             onDeleteArticle={this.props.onDeleteArticle(i)}
             onArticleChange={this.props.onArticleChange(i)}
