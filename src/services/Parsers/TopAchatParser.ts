@@ -378,13 +378,23 @@ export default class TopAchatParser extends AbstractParser {
           defaultValue: '#'
         }) + this.reseller.tag;
 
-      article.price = parseFloat(
-        this.getElementAttribute(parentNode, {
-          selector: '.configomatic-product__price',
-          attribute: 'innerText',
-          defaultValue: '0'
-        }).replace(/\s/g, '')
-      );
+      const priceStr = this.getElementAttribute(parentNode, {
+        selector: '.configomatic-product__price',
+        attribute: 'innerText',
+        defaultValue: '0'
+      });
+
+      const match = priceStr.match(/^([0-9]+) x (.+)$/);
+
+      let quantity = 1;
+      if (match) {
+        quantity = parseInt(match[1]);
+        article.price = parseFloat(match[2].replace(/\s/g, ''));
+      } else {
+        article.price = parseFloat(priceStr.replace(/\s/g, ''));
+      }
+
+      article.quantity = quantity;
 
       article.available =
         this.getElementAttribute(parentNode, {
