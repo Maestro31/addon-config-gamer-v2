@@ -1,7 +1,6 @@
 import axios from 'axios';
-import Cart from '../../Models/Cart';
 import Article from '../../Models/Article';
-import Config from '../../Models/Cart';
+import { default as Cart, default as Config } from '../../Models/Cart';
 import AbstractParser from './AbstractParser';
 
 export default class InfomaxParser extends AbstractParser {

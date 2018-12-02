@@ -164,8 +164,8 @@ export const postCart = (cart: Cart): string => {
   );
   const deliveryInfo =
     surroundWithTags(
-      'Attention, les frais de livraison sont plus élevés lorsque les configs sont montées par le revendeur',
-      ['i', 'right']
+      'Attention, les frais de livraison sont plus élevés lorsque les configs sont montées par le revendeur (+/- 35€)',
+      [{name: 'color', value: '#BB0000'}, 'i', 'right']
     ) + '\n\n';
 
   const cartResellerName = cart.reseller.name

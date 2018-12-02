@@ -1,7 +1,7 @@
 {
   "update_url": "https://clients2.google.com/service/update2/crx",
   "name": "Config-Gamer",
-  "version": "2.1.3",
+  "version": "2.1.5",
   "manifest_version": 2,
   "description": "Outils config-gamer",
   "content_scripts": [

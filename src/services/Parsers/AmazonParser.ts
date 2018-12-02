@@ -1,7 +1,7 @@
-import AbstractParser from './AbstractParser';
-import Article from '../../Models/Article';
 import axios from 'axios';
+import Article from '../../Models/Article';
 import Cart from '../../Models/Cart';
+import AbstractParser from './AbstractParser';
 
 export default class AmazonParser extends AbstractParser {
   reseller: ResellerInfo;
@@ -14,7 +14,7 @@ export default class AmazonParser extends AbstractParser {
   }
 
   addResellerTag(url: any): string {
-    const regex = /https:\/\/www\.amazon\.fr\/(.+\/)?[a-z]+\/(product\/)?([A-Z0-9]+)/;
+    const regex = /https:\/\/www\.amazon\.fr\/(.+\/)?[a-z]+\/(product\/)?([A-Z0-9]+)\//;
     const matches = regex.exec(url);
 
     if (matches) {
