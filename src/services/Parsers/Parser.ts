@@ -1,11 +1,11 @@
-import MaterielNetParser from './MaterielNetParser';
-import TopAchatParser from './TopAchatParser';
+import Article from '../../Models/Article';
+import Cart from '../../Models/Cart';
+import AmazonParser from './AmazonParser';
+import InfomaxParser from './InfomaxParser';
 import LdlcParserV1 from './LdlcParserV1';
 import LdlcParserV2 from './LdlcParserV2';
-import InfomaxParser from './InfomaxParser';
-import Cart from '../../Models/Cart';
-import Article from '../../Models/Article';
-import AmazonParser from './AmazonParser';
+import MaterielNetParser from './MaterielNetParser';
+import TopAchatParser from './TopAchatParser';
 
 type Parser =
   | MaterielNetParser
@@ -68,7 +68,22 @@ export default class ParserService {
 const materielNetParser = new MaterielNetParser();
 const topAchatParser = new TopAchatParser();
 const infomaxParser = new InfomaxParser();
-const ldlcParserV1 = new LdlcParserV1();
+//const ldlcParserV1 = new LdlcParserV1();
+
+const ldlcParserV2FR = new LdlcParserV2(
+  {
+    name: 'LDLC France',
+    url: 'https://www.ldlc.com',
+    currency: 'EUR'
+  },
+  {
+    searchUrlTemplate: ({ text, index, categories }: SearchArgs): string =>
+      `https://www.ldlc.com/search/product/${text}/ftxt-/${index}?department=${
+        categories[0]
+      }`
+  }
+);
+
 const ldlcParserV2ES = new LdlcParserV2(
   {
     name: 'LDLC Espagne',
@@ -139,7 +154,8 @@ ParserService.parsers = [
   materielNetParser,
   topAchatParser,
   infomaxParser,
-  ldlcParserV1,
+  //ldlcParserV1,
+  ldlcParserV2FR,
   ldlcParserV2BE,
   ldlcParserV2CH,
   ldlcParserV2ES,
@@ -162,7 +178,8 @@ ParserService.productMatches = [
   },
   {
     regex: /https:\/\/www\.ldlc\.com\/fiche\/[A-Z0-9]+\.html/,
-    parser: ldlcParserV1
+    //parser: ldlcParserV1
+    parser: ldlcParserV2FR
   },
   {
     regex: /https:\/\/www\.ldlc\.com\/fr-ch\/fiche\/[A-Z0-9]+\.html/,
@@ -241,13 +258,17 @@ ParserService.matches = [
   },
   {
     regex: /https:\/\/www\.ldlc\.com\/Sales\/BasketPage\.aspx/,
-    method: ldlcParserV1.fromCart,
-    parser: ldlcParserV1
+    // method: ldlcParserV1.fromCart,
+    // parser: ldlcParserV1
+    method: ldlcParserV2FR.fromCart,
+    parser: ldlcParserV2FR
   },
   {
     regex: /https:\/\/www\.ldlc\.com\/configurateur-pc/,
-    method: ldlcParserV1.fromConfigurateur,
-    parser: ldlcParserV1
+    // method: ldlcParserV1.fromConfigurateur,
+    // parser: ldlcParserV1
+    method: ldlcParserV2FR.fromConfigurateur,
+    parser: ldlcParserV2FR
   },
 
   {
