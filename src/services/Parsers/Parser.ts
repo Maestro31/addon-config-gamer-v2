@@ -68,7 +68,6 @@ export default class ParserService {
 const materielNetParser = new MaterielNetParser();
 const topAchatParser = new TopAchatParser();
 const infomaxParser = new InfomaxParser();
-//const ldlcParserV1 = new LdlcParserV1();
 
 const ldlcParserV2FR = new LdlcParserV2(
   {
@@ -154,7 +153,6 @@ ParserService.parsers = [
   materielNetParser,
   topAchatParser,
   infomaxParser,
-  //ldlcParserV1,
   ldlcParserV2FR,
   ldlcParserV2BE,
   ldlcParserV2CH,
@@ -178,7 +176,6 @@ ParserService.productMatches = [
   },
   {
     regex: /https:\/\/www\.ldlc\.com\/fiche\/[A-Z0-9]+\.html/,
-    //parser: ldlcParserV1
     parser: ldlcParserV2FR
   },
   {
@@ -258,15 +255,11 @@ ParserService.matches = [
   },
   {
     regex: /https:\/\/www\.ldlc\.com\/Sales\/BasketPage\.aspx/,
-    // method: ldlcParserV1.fromCart,
-    // parser: ldlcParserV1
     method: ldlcParserV2FR.fromCart,
     parser: ldlcParserV2FR
   },
   {
     regex: /https:\/\/www\.ldlc\.com\/configurateur-pc/,
-    // method: ldlcParserV1.fromConfigurateur,
-    // parser: ldlcParserV1
     method: ldlcParserV2FR.fromConfigurateur,
     parser: ldlcParserV2FR
   },
