@@ -6,6 +6,7 @@ interface Props {
   height?: string;
   width?: string;
   title?: string;
+  children?: any
 }
 
 const ButtonIcon = ({ onClick, height, title, width, ...rest }: Props) => (

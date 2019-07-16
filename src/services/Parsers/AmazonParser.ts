@@ -14,7 +14,7 @@ export default class AmazonParser extends AbstractParser {
   }
 
   addResellerTag(url: any): string {
-    const regex = /https:\/\/www\.amazon\.fr\/(.+\/)?[a-z]+\/(product\/)?([A-Z0-9]+)\//;
+    const regex = /https:\/\/www\.amazon\.fr\/(.+\/)?[a-z]+\/(product\/)?([A-Z0-9]+)\/?/;
     const matches = regex.exec(url);
 
     if (matches) {
@@ -172,13 +172,15 @@ export default class AmazonParser extends AbstractParser {
         const doc = parser.parseFromString(data, 'text/html');
 
         const price = this.getElementAttribute(doc.body, {
-          selector: '#priceblock_ourprice',
+          selector: '#price_inside_buybox',
           attribute: 'innerText',
           defaultValue: '0'
         })
           .replace(',', '.')
-          .replace('EUR', '')
+          .replace(/\s|€/g, '')
           .trim();
+
+        console.log(price)
 
         article.price = parseFloat(price);
 

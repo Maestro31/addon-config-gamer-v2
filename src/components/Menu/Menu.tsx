@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import delay from 'delay';
 import chrome from '../../services/Browser';
 
-const MenuBar = Keyframes.Spring({
+const MenuBar: any = Keyframes.Spring({
   open: { x: 150 },
   close: async call => {
     await delay(400);
