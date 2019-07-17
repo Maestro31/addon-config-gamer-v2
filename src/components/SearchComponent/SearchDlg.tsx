@@ -1,7 +1,7 @@
 import * as React from 'react';
 import emotion from 'react-emotion';
 import Modal from '../Modal';
-import ParserService from '../../services/Parsers/Parser';
+import ParserService from '../../services/Parsers';
 import Article from '../../Models/Article';
 import SearchArticlesList from './SearhArticlesList';
 import Pagination from '../Pagination';

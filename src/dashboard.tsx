@@ -4,7 +4,7 @@ import CartTable from './components/CartTable';
 import CartDialog from './components/PostCartDialog';
 import { getCarts, setCarts } from './services/Storage';
 import { copyCartMessage } from './services/Messages';
-import ParserService from './services/Parsers/Parser';
+import ParserService from './services/Parsers';
 import Cart from './Models/Cart';
 
 interface State {

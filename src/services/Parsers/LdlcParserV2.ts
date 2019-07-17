@@ -1,14 +1,14 @@
-import axios from 'axios';
 import Article from '../../Models/Article';
 import Cart from '../../Models/Cart';
 import AbstractParser from './AbstractParser';
+import HttpService from '../../services/Http/HttpService';
 
 export default class LdlcParserV2 extends AbstractParser {
   reseller: ResellerInfo;
   config: ParserParams;
 
-  constructor(resellerInfo: ResellerInfo, config: ParserParams) {
-    super();
+  constructor(resellerInfo: ResellerInfo, config: ParserParams, httpService: HttpService) {
+    super(httpService);
     this.reseller = resellerInfo;
     this.config = config;
     this.reseller.tag = '#aff764';
@@ -115,7 +115,7 @@ export default class LdlcParserV2 extends AbstractParser {
   fromConfigurateur = (): Cart => {
     let cart = Cart.create();
     cart.reseller = this.reseller;
-    
+
     const recapElements = this.getAllElements(document.body, '.sbloc li');
 
     Array.prototype.forEach.call(recapElements, parentNode => {
@@ -195,14 +195,11 @@ export default class LdlcParserV2 extends AbstractParser {
   };
 
   fromArticlePage = async (url: string): Promise<Article> => {
-    return axios
+    return this.http
       .get(url)
-      .then(({ data }) => {
+      .then((doc: Document) => {
         let article = Article.create();
         article.reseller = this.reseller;
-
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(data, 'text/html');
 
         const priceText = this.getElementAttribute(doc.body, {
           selector: '.price > .price',
@@ -248,9 +245,7 @@ export default class LdlcParserV2 extends AbstractParser {
   };
 
   updateArticle = async (article: Article): Promise<Article> => {
-    return axios.get(article.url).then(({ data }) => {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(data, 'text/html');
+    return this.http.get(article.url).then((doc: Document) => {
 
       const priceText = this.getElementAttribute(doc.body, {
         selector: '.price > .price',
@@ -280,11 +275,9 @@ export default class LdlcParserV2 extends AbstractParser {
     const url = this.config.searchUrlTemplate(keys);
     console.log(url);
 
-    return axios
+    return this.http
       .get(url)
-      .then(({ data }) => {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(data, 'text/html');
+      .then((doc: Document) => {
 
         const itemsCountString = this.getElementAttribute(doc.body, {
           selector: '.head-list .title-3',
@@ -329,7 +322,7 @@ export default class LdlcParserV2 extends AbstractParser {
 
           article.url = `https://www.ldlc.com${relativeUrl}${
             this.reseller.tag
-          }`;
+            }`;
 
           article.available =
             this.getElementAttribute(parentNode, {

@@ -2,8 +2,7 @@ import * as React from 'react';
 import Modal from './Modal';
 import {
   VerticalLayout,
-  RowReverseLayout,
-  HorizontalLayout
+  RowReverseLayout
 } from './SharedComponents';
 import TextInput from './TextInput';
 import TagInput from './TagInput';
@@ -14,8 +13,7 @@ import emotion from 'react-emotion';
 import * as NumericInput from 'react-numeric-input';
 import EditableArticlesList from './EditableArticlesList';
 import GroupCard from './Configurateur/GroupCard';
-import ParserService from '../services/Parsers/Parser';
-import AddArticleButton from './AddArticleButton';
+import ParserService from '../services/Parsers';
 
 interface Props {
   open: boolean;

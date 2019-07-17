@@ -1,4 +1,3 @@
-import axios from 'axios';
 import Article from '../../Models/Article';
 import { default as Cart, default as Config } from '../../Models/Cart';
 import AbstractParser from './AbstractParser';
@@ -14,14 +13,11 @@ export default class InfomaxParser extends AbstractParser {
   };
 
   fromArticlePage = async (url: string): Promise<Article> => {
-    return axios
+    return this.http
       .get(url)
-      .then(({ data }) => {
+      .then((doc: Document) => {
         let article = Article.create();
         article.reseller = this.reseller;
-
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(data, 'text/html');
 
         const price = this.getElementAttribute(doc.body, {
           selector: '.product--action-price-value',
@@ -94,7 +90,7 @@ export default class InfomaxParser extends AbstractParser {
     Array.prototype.forEach.call(elements, parentNode => {
       let article = Article.create();
       article.reseller = this.reseller;
-      
+
       article.name = this.getElementAttribute(parentNode, {
         selector: '.remarketing--content-product-title',
         attribute: 'innerHTML',

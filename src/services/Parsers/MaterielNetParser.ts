@@ -1,4 +1,3 @@
-import axios from 'axios';
 import Cart from '../../Models/Cart';
 import Article from '../../Models/Article';
 import AbstractParser from './AbstractParser';
@@ -14,11 +13,11 @@ export default class MaterielNetParser extends AbstractParser {
   config: ParserParams = {
     searchUrlTemplate: ({ text, index, categories }: SearchArgs): string =>
       `https://www.materiel.net/search/product/${text}/ftxt-/${index}?department=${
-        categories[0]
+      categories[0]
       }`,
     searchUrlByCategoryTemplate: (categories: string[]): string =>
       `https://www.materiel.net/${categories[0]}/${categories[1]}/${
-        categories[2] ? categories[2] : ''
+      categories[2] ? categories[2] : ''
       }`,
     categoryList: [
       {
@@ -1509,14 +1508,11 @@ export default class MaterielNetParser extends AbstractParser {
   };
 
   fromArticlePage = async (url: string): Promise<Article> => {
-    return axios
+    return this.http
       .get(url)
-      .then(({ data }) => {
+      .then((doc: Document) => {
         let article = Article.create();
         article.reseller = this.reseller;
-
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(data, 'text/html');
 
         const price = this.getElementAttribute(doc.body, {
           selector: '.o-product__price',
@@ -1558,9 +1554,7 @@ export default class MaterielNetParser extends AbstractParser {
   };
 
   updateArticle = (article: Article): Promise<Article> => {
-    return axios.get(article.url).then(({ data }) => {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(data, 'text/html');
+    return this.http.get(article.url).then((doc: Document) => {
 
       const price = this.getElementAttribute(doc.body, {
         selector: '.o-product__price',
@@ -1854,11 +1848,9 @@ export default class MaterielNetParser extends AbstractParser {
   ): Promise<SearchResponse> => {
     const url = this.getSearchWithFilterUrl(args);
 
-    return axios
+    return this.http
       .get(url)
-      .then(({ data }) => {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(data, 'text/html');
+      .then((doc: Document) => {
 
         const itemsCountString = this.getElementAttribute(doc.body, {
           selector: '.c-products__count',
@@ -1898,11 +1890,9 @@ export default class MaterielNetParser extends AbstractParser {
 
     const url = this.config.searchUrlTemplate(keys);
 
-    return axios
+    return this.http
       .get(url)
-      .then(({ data }) => {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(data, 'text/html');
+      .then((doc: Document) => {
 
         const itemsCountString = this.getElementAttribute(doc.body, {
           selector: '.c-products__count',

@@ -4,7 +4,7 @@ import { RowReverseLayout } from './SharedComponents';
 import Cart from '../Models/Cart';
 import Article from '../Models/Article';
 import emotion from 'react-emotion';
-import ParserService from '../services/Parsers/Parser';
+import ParserService from '../services/Parsers';
 import AddArticleButton from './AddArticleButton';
 import CartList from './CartList';
 

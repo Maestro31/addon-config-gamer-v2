@@ -1,4 +1,3 @@
-import axios from 'axios';
 import Article from '../../Models/Article';
 import Cart from '../../Models/Cart';
 import AbstractParser from './AbstractParser';
@@ -169,14 +168,11 @@ export default class LdlcParserV1 extends AbstractParser {
   };
 
   fromArticlePage = async (url: string): Promise<Article> => {
-    return axios
+    return this.http
       .get(url)
-      .then(({ data }) => {
+      .then((doc: Document) => {
         let article = Article.create();
         article.reseller = this.reseller;
-
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(data, 'text/html');
 
         const priceText = this.getElementAttribute(doc.body, {
           selector: '.miniPrice',
@@ -225,9 +221,7 @@ export default class LdlcParserV1 extends AbstractParser {
   };
 
   updateArticle = (article: Article): Promise<Article> => {
-    return axios.get(article.url).then(({ data }) => {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(data, 'text/html');
+    return this.http.get(article.url).then((doc: Document) => {
 
       const priceText = this.getElementAttribute(doc.body, {
         selector: '.miniPrice',

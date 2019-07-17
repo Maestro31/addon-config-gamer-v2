@@ -1,29 +1,36 @@
 import Cart from '../../Models/Cart';
 import Article from '../../Models/Article';
+import Http from '../../services/Adapters/Http'
+import HttpService from '../../services/Http/HttpService';
 
 interface GetAttributeOptions {
   selector: string;
   attribute?:
-    | 'innerText'
-    | 'innerHTML'
-    | 'src'
-    | 'href'
-    | 'title'
-    | 'value'
-    | 'checked'
-    | 'id';
+  | 'innerText'
+  | 'innerHTML'
+  | 'src'
+  | 'href'
+  | 'title'
+  | 'value'
+  | 'checked'
+  | 'id';
   innerAttribute?: string;
   onlyRootText?: boolean;
   defaultValue?: any;
 }
 
 export default abstract class AbstractParser {
+  protected http = new Http()
   abstract reseller: ResellerInfo;
   abstract config: ParserParams;
 
   abstract updateArticle(article: Article): Promise<any>;
   abstract searchArticle(keys: SearchArgs): Promise<SearchResponse>;
   abstract fromArticlePage(url: string): Promise<Article>;
+
+  constructor(httpService: HttpService) {
+    this.http = httpService
+  }
 
   getAllElements(parentNode: Element, selector: string): NodeListOf<Element> {
     return parentNode.querySelectorAll(selector);

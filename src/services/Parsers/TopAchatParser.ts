@@ -1,4 +1,3 @@
-import axios from 'axios';
 import Cart from '../../Models/Cart';
 import Article from '../../Models/Article';
 import AbstractParser from './AbstractParser';
@@ -17,11 +16,11 @@ export default class TopAchatParser extends AbstractParser {
   config: ParserParams = {
     searchUrlTemplate: ({ text, categories }: SearchArgs): string =>
       `https://www.topachat.com/pages/produits_cat_est_${categories[0]}${
-        categories[1] ? `_puis_rubrique_est_${categories[1]}` : ''
+      categories[1] ? `_puis_rubrique_est_${categories[1]}` : ''
       }${text ? `_puis_mc_est_${text}.html` : ''}`,
     searchUrlByCategoryTemplate: (categories: string[]): string =>
       `https://www.topachat.com/pages/produits_cat_est_${categories[0]}${
-        categories[1] ? `_puis_rubrique_est_${categories[1]}` : ''
+      categories[1] ? `_puis_rubrique_est_${categories[1]}` : ''
       }`,
     categoryList: [
       {
@@ -415,14 +414,11 @@ export default class TopAchatParser extends AbstractParser {
   };
 
   fromArticlePage = async (url: string): Promise<Article> => {
-    return axios
+    return this.http
       .get(url)
-      .then(({ data }) => {
+      .then((doc: Document) => {
         let article = Article.create();
         article.reseller = this.reseller;
-
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(data, 'text/html');
 
         const price = this.getElementAttribute(doc.body, {
           selector: '#panier .priceFinal',
@@ -462,9 +458,7 @@ export default class TopAchatParser extends AbstractParser {
   };
 
   updateArticle = async (article: Article): Promise<Article> => {
-    return axios.get(article.url).then(({ data }) => {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(data, 'text/html');
+    return this.http.get(article.url).then((doc: Document) => {
 
       const price = this.getElementAttribute(doc.body, {
         selector: '#panier .priceFinal',
@@ -547,11 +541,9 @@ export default class TopAchatParser extends AbstractParser {
 
     const url = this.config.searchUrlTemplate(keys);
 
-    return axios
+    return this.http
       .get(url)
-      .then(({ data }) => {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(data, 'text/html');
+      .then((doc: Document) => {
 
         const itemsCountString = this.getElementAttribute(doc.body, {
           selector: 'nav.ariane.top > ul > li.current',
@@ -690,11 +682,9 @@ export default class TopAchatParser extends AbstractParser {
   ): Promise<SearchResponse> => {
     const url = this.getSearchWithFilterUrl(args);
 
-    return axios
+    return this.http
       .get(url)
-      .then(({ data }) => {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(data, 'text/html');
+      .then((doc: Document) => {
 
         const pagesEl = this.getAllElements(doc.body, '.pagination > *');
 

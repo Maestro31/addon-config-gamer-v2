@@ -1,7 +1,7 @@
 {
   "update_url": "https://clients2.google.com/service/update2/crx",
   "name": "Config-Gamer",
-  "version": "2.1.6",
+  "version": "2.1.8",
   "manifest_version": 2,
   "description": "Outils config-gamer",
   "content_scripts": [
@@ -10,18 +10,18 @@
         "http://www.config-gamer.fr/forum/*",
         "https://www.config-gamer.fr/forum/*"
       ],
-      "js": ["static/js/ConfigGamer.js"]
+      "js": [
+        "static/js/ConfigGamer.js"
+      ]
     },
     {
       "matches": [
         "https://www.topachat.com/pages/configomatic.php*",
         "https://www.topachat.com/pages/mon_panier.php",
-
         "https://secure.materiel.net/Cart",
         "https://www.materiel.net/configurateur-pc-sur-mesure/",
         "https://secure.materiel.net/Account/SavedCartsSection",
         "https://secure.materiel.net/Cart/SharedCart/*",
-
         "https://secure2.ldlc.com/es-es/Cart",
         "https://secure2.ldlc.com/fr-lu/Cart",
         "https://secure2.ldlc.com/fr-be/Cart",
@@ -35,21 +35,22 @@
         "https://www.ldlc.com/es-es/configurateur-pc/*",
         "https://www.ldlc.com/es-es/configurador-pc/*",
         "https://www.ldlc.com/fr-ch/configurateur-pc/*",
-
         "https://www.ldlc.com/Sales/BasketPage.aspx",
         "https://www.ldlc.com/configurateur-pc/*",
-
         "https://infomaxparis.com/index.php*",
         "https://infomaxparis.com/achat-pc-gamer-configuration-fixes/*",
-
         "https://www.amazon.fr/gp/cart/view.html*",
         "https://www.amazon.fr/hz/wishlist/*"
       ],
-      "js": ["static/js/mainScript.js"]
+      "js": [
+        "static/js/mainScript.js"
+      ]
     }
   ],
   "background": {
-    "scripts": ["static/js/background.js"]
+    "scripts": [
+      "static/js/background.js"
+    ]
   },
   "options_page": "options.html",
   "options_ui": {
@@ -73,7 +74,11 @@
     "http://*/*",
     "https://*/*"
   ],
-  "web_accessible_resources": ["*.png", "*.css", "*.jpg"],
+  "web_accessible_resources": [
+    "*.png",
+    "*.css",
+    "*.jpg"
+  ],
   "icons": {
     "16": "img/icon16.png",
     "48": "img/icon48.png",

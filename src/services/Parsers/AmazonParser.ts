@@ -1,14 +1,14 @@
-import axios from 'axios';
 import Article from '../../Models/Article';
 import Cart from '../../Models/Cart';
 import AbstractParser from './AbstractParser';
+import HttpService from '../../services/Http/HttpService';
 
 export default class AmazonParser extends AbstractParser {
   reseller: ResellerInfo;
   config: ParserParams;
 
-  constructor(resellerInfo: ResellerInfo, config: ParserParams) {
-    super();
+  constructor(resellerInfo: ResellerInfo, config: ParserParams, httpService: HttpService) {
+    super(httpService);
     this.reseller = resellerInfo;
     this.config = config;
   }
@@ -162,14 +162,11 @@ export default class AmazonParser extends AbstractParser {
   };
 
   fromArticlePage = async (url: string): Promise<Article> => {
-    return axios
+    return this.http
       .get(url)
-      .then(({ data }) => {
+      .then((doc: Document) => {
         let article = Article.create();
         article.reseller = this.reseller;
-
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(data, 'text/html');
 
         const price = this.getElementAttribute(doc.body, {
           selector: '#price_inside_buybox',

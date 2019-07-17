@@ -1,6 +1,9 @@
 {
   "compilerOptions": {
-    "rootDirs": ["src", "stories"],
+    "rootDirs": [
+      "src",
+      "stories"
+    ],
     "target": "es2017",
     "module": "commonjs",
     "moduleResolution": "node",
@@ -12,6 +15,13 @@
     "jsx": "react",
     "baseUrl": "src"
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "build", "scripts"]
+  "include": [
+    "src/**/*",
+    "wallaby.js"
+  ],
+  "exclude": [
+    "node_modules",
+    "build",
+    "scripts"
+  ]
 }

@@ -2,7 +2,7 @@ import * as React from 'react';
 import emotion from 'react-emotion';
 import * as DOM from 'react-dom';
 import Menu from '../components/Menu';
-import ParserService from '../services/Parsers/Parser';
+import ParserService from '../services/Parsers';
 import SaveCartDialog from '../components/SaveCartDialog';
 import { saveCartMessage, sendMessage } from '../services/Messages';
 import Cart from '../Models/Cart';
