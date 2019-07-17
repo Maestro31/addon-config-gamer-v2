@@ -1,9 +1,9 @@
 import Article from '../../Models/Article';
 import { default as Cart, default as Config } from '../../Models/Cart';
-import AbstractParser from './AbstractParser';
+import AbstractScrapper from './AbstractScrapper';
 
-export default class InfomaxParser extends AbstractParser {
-  config: ParserParams;
+export default class InfomaxScrapper extends AbstractScrapper {
+  config: ScrapperParams;
 
   reseller: ResellerInfo = {
     name: 'Infomax',

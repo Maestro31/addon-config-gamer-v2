@@ -1,13 +1,13 @@
 import Article from '../../Models/Article';
 import Cart from '../../Models/Cart';
-import AbstractParser from './AbstractParser';
-import HttpService from '../../services/Http/HttpService';
+import AbstractScrapper from './AbstractScrapper';
+import HttpService from '../Http/HttpService';
 
-export default class AmazonParser extends AbstractParser {
+export default class AmazonScrapper extends AbstractScrapper {
   reseller: ResellerInfo;
-  config: ParserParams;
+  config: ScrapperParams;
 
-  constructor(resellerInfo: ResellerInfo, config: ParserParams, httpService: HttpService) {
+  constructor(resellerInfo: ResellerInfo, config: ScrapperParams, httpService: HttpService) {
     super(httpService);
     this.reseller = resellerInfo;
     this.config = config;

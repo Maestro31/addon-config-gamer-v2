@@ -1,8 +1,8 @@
 import Cart from '../../Models/Cart';
 import Article from '../../Models/Article';
-import AbstractParser from './AbstractParser';
+import AbstractScrapper from './AbstractScrapper';
 
-export default class MaterielNetParser extends AbstractParser {
+export default class MaterielNetScrapper extends AbstractScrapper {
   reseller: ResellerInfo = {
     name: 'Materiel.net',
     url: 'https://www.materiel.net',
@@ -10,7 +10,7 @@ export default class MaterielNetParser extends AbstractParser {
     tag: '#a_aid=aff764'
   };
 
-  config: ParserParams = {
+  config: ScrapperParams = {
     searchUrlTemplate: ({ text, index, categories }: SearchArgs): string =>
       `https://www.materiel.net/search/product/${text}/ftxt-/${index}?department=${
       categories[0]

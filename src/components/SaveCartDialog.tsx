@@ -13,7 +13,7 @@ import emotion from 'react-emotion';
 import * as NumericInput from 'react-numeric-input';
 import EditableArticlesList from './EditableArticlesList';
 import GroupCard from './Configurateur/GroupCard';
-import ParserService from '../services/Parsers';
+import ScrapperService from '../services/Scrappers';
 
 interface Props {
   open: boolean;
@@ -135,7 +135,7 @@ export default class CartDialog extends React.Component<Props, State> {
 
   onAddArticle = async (url: string) => {
     this.setState({ isFetchingArticle: true });
-    const article = await ParserService.parseArticle(url);
+    const article = await ScrapperService.retrieveArticle(url);
     if (article) {
       this.setState({ isFetchingArticle: false });
       let cart = this.state.cart;

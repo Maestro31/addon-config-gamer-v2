@@ -19,7 +19,7 @@ interface ResellerInfo {
   tag?: string;
 }
 
-interface ParserParams {
+interface ScrapperParams {
   searchUrlTemplate?: (args: SearchArgs) => string;
   searchUrlByCategoryTemplate?: Function;
   categoryList?: ResellerCategory[];

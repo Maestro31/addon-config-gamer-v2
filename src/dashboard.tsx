@@ -4,7 +4,7 @@ import CartTable from './components/CartTable';
 import CartDialog from './components/PostCartDialog';
 import { getCarts, setCarts } from './services/Storage';
 import { copyCartMessage } from './services/Messages';
-import ParserService from './services/Parsers';
+import ScrapperService from './services/Scrappers';
 import Cart from './Models/Cart';
 
 interface State {
@@ -45,7 +45,7 @@ export default class Dashboard extends React.Component<{}, State> {
   };
 
   onPressUpdateItem = async config => {
-    const updatedConfig = await ParserService.updateCart(config);
+    const updatedConfig = await ScrapperService.updateCart(config);
     const configs = this.state.configs.map(config =>
       config.id === updatedConfig.id ? updatedConfig : config
     );

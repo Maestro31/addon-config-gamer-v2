@@ -1,8 +1,8 @@
 import Article from '../../Models/Article';
 import Cart from '../../Models/Cart';
-import AbstractParser from './AbstractParser';
+import AbstractScrapper from './AbstractScrapper';
 
-export default class LdlcParserV1 extends AbstractParser {
+export default class LdlcScrapperV1 extends AbstractScrapper {
   reseller: ResellerInfo = {
     name: 'LDLC France',
     url: 'https://www.ldlc.com',
@@ -10,7 +10,7 @@ export default class LdlcParserV1 extends AbstractParser {
     tag: '#aff764'
   };
 
-  config: ParserParams = {
+  config: ScrapperParams = {
     searchUrlTemplate: ({ index, text }: SearchArgs): string =>
       `https://www.ldlc.com/navigation-p${index}e48t5o1a1/${text}/`
   };

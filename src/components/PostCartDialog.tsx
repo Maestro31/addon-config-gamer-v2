@@ -4,7 +4,7 @@ import { RowReverseLayout } from './SharedComponents';
 import Cart from '../Models/Cart';
 import Article from '../Models/Article';
 import emotion from 'react-emotion';
-import ParserService from '../services/Parsers';
+import ScrapperService from '../services/Scrappers/index';
 import AddArticleButton from './AddArticleButton';
 import CartList from './CartList';
 
@@ -79,7 +79,7 @@ export default class CartDialog extends React.Component<Props, State> {
 
   onAddArticle = async (url: string) => {
     this.setState({ isFetchingArticle: true });
-    const article = await ParserService.parseArticle(url);
+    const article = await ScrapperService.retrieveArticle(url);
     let carts = this.state.carts;
     if (article) {
       this.setState({ isFetchingArticle: false });

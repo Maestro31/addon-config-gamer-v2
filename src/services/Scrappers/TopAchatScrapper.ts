@@ -1,8 +1,8 @@
 import Cart from '../../Models/Cart';
 import Article from '../../Models/Article';
-import AbstractParser from './AbstractParser';
+import AbstractScrapper from './AbstractScrapper';
 
-export default class TopAchatParser extends AbstractParser {
+export default class TopAchatScrapper extends AbstractScrapper {
   priceInfo =
     '*Panier éligible à 5% de réduction sur demande en MP sur FB ou Twitter à Top Achat';
 
@@ -13,7 +13,7 @@ export default class TopAchatParser extends AbstractParser {
     tag: '#ae51'
   };
 
-  config: ParserParams = {
+  config: ScrapperParams = {
     searchUrlTemplate: ({ text, categories }: SearchArgs): string =>
       `https://www.topachat.com/pages/produits_cat_est_${categories[0]}${
       categories[1] ? `_puis_rubrique_est_${categories[1]}` : ''

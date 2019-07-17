@@ -1,7 +1,7 @@
 import Cart from '../../Models/Cart';
 import Article from '../../Models/Article';
-import Http from '../../services/Adapters/Http'
-import HttpService from '../../services/Http/HttpService';
+import Http from '../Adapters/Http'
+import HttpService from '../Http/HttpService';
 
 interface GetAttributeOptions {
   selector: string;
@@ -19,10 +19,10 @@ interface GetAttributeOptions {
   defaultValue?: any;
 }
 
-export default abstract class AbstractParser {
+export default abstract class AbstractScrapper {
   protected http = new Http()
   abstract reseller: ResellerInfo;
-  abstract config: ParserParams;
+  abstract config: ScrapperParams;
 
   abstract updateArticle(article: Article): Promise<any>;
   abstract searchArticle(keys: SearchArgs): Promise<SearchResponse>;
