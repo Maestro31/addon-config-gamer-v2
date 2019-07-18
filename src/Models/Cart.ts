@@ -10,7 +10,7 @@ interface Cart {
   modificationDate?: Date;
   refund?: number;
   refundPercent?: number;
-  reseller?: ResellerInfo;
+  reseller?: Reseller;
   tags?: string[];
   url?: string;
   priceInfo?: string;

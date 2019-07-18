@@ -1,17 +1,13 @@
 import Article from '../../Models/Article';
 import Cart from '../../Models/Cart';
 import AbstractScrapper from './AbstractScrapper';
-import HttpService from '../Http/HttpService';
 
 export default class AmazonScrapper extends AbstractScrapper {
-  reseller: ResellerInfo;
-  config: ScrapperParams;
-
-  constructor(resellerInfo: ResellerInfo, config: ScrapperParams, httpService: HttpService) {
-    super(httpService);
-    this.reseller = resellerInfo;
-    this.config = config;
-  }
+  reseller: Reseller = {
+    name: 'Amazon France',
+    url: 'https://www.amazon.fr',
+    currency: 'EUR'
+  };
 
   addResellerTag(url: any): string {
     const regex = /https:\/\/www\.amazon\.fr\/(.+\/)?[a-z]+\/(product\/)?([A-Z0-9]+)\/?/;
@@ -53,7 +49,7 @@ export default class AmazonScrapper extends AbstractScrapper {
 
       article.quantity = parseInt(
         this.getElementAttribute(parentNode, {
-          selector: 'span.a-dropdown-prompt',
+          selector: '.a-dropdown-prompt',
           defaultValue: '1',
           attribute: 'innerText'
         })
@@ -168,38 +164,16 @@ export default class AmazonScrapper extends AbstractScrapper {
         let article = Article.create();
         article.reseller = this.reseller;
 
-        const price = this.getElementAttribute(doc.body, {
-          selector: '#price_inside_buybox',
-          attribute: 'innerText',
-          defaultValue: '0'
-        })
-          .replace(',', '.')
-          .replace(/\s|€/g, '')
-          .trim();
-
-        console.log(price)
-
+        let price = doc.querySelector("#price_inside_buybox").textContent
+        price = price.replace(',', '.').replace(/[\s|€]/g, '').trim()
         article.price = parseFloat(price);
 
         article.available =
-          this.getElementAttribute(doc.body, {
-            selector: '#availability > span',
-            attribute: 'innerText',
-            defaultValue: false
-          }).trim() === 'En stock.';
+          doc.querySelector("#availability > span").textContent.trim() === 'En stock.';
 
-        article.imageUrl = this.getElementAttribute(doc.body, {
-          selector: '#landingImage',
-          attribute: 'src',
-          defaultValue: '#'
-        });
+        article.imageUrl = doc.querySelector("#landingImage").attributes.getNamedItem('src').textContent.trim()
 
-        article.name = this.getElementAttribute(doc.body, {
-          selector: '#productTitle',
-          attribute: 'innerText',
-          defaultValue: ''
-        }).trim();
-
+        article.name = doc.querySelector("#productTitle").textContent.trim()
         article.url = this.addResellerTag(url);
 
         return article;
@@ -209,4 +183,24 @@ export default class AmazonScrapper extends AbstractScrapper {
         return null;
       });
   };
+
+  copyArticle = (document, url): Article => {
+
+    let article = Article.create();
+    article.reseller = this.reseller;
+
+    let price = document.querySelector("#price_inside_buybox").textContent
+    price = price.replace(',', '.').replace(/[\s|€]/g, '').trim()
+    article.price = parseFloat(price);
+
+    article.available =
+      document.querySelector("#availability > span").textContent.trim() === 'En stock.';
+
+    article.imageUrl = document.querySelector("#landingImage").attributes.getNamedItem('src').textContent.trim()
+
+    article.name = document.querySelector("#productTitle").textContent.trim()
+    article.url = this.addResellerTag(url);
+
+    return article;
+  }
 }

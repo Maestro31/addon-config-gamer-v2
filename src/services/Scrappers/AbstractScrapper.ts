@@ -21,15 +21,18 @@ interface GetAttributeOptions {
 
 export default abstract class AbstractScrapper {
   protected http = new Http()
-  abstract reseller: ResellerInfo;
-  abstract config: ScrapperParams;
+  abstract reseller: Reseller;
 
   abstract updateArticle(article: Article): Promise<any>;
   abstract searchArticle(keys: SearchArgs): Promise<SearchResponse>;
   abstract fromArticlePage(url: string): Promise<Article>;
 
-  constructor(httpService: HttpService) {
+  constructor(httpService: HttpService = new Http()) {
     this.http = httpService
+  }
+
+  setReseller(reseller: Reseller) {
+    this.reseller = reseller
   }
 
   getAllElements(parentNode: Element, selector: string): NodeListOf<Element> {

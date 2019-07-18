@@ -13,6 +13,8 @@
 
 yarn.lock
 
+/sites-test/MaterielNet/credentials.js
+
 # misc
 .DS_Store
 .env.local

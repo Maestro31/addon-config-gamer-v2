@@ -1,14 +1,13 @@
 import Article from '../../Models/Article';
 import Cart from '../../Models/Cart';
 import AbstractScrapper from './AbstractScrapper';
-import HttpService from '../Http/HttpService';
 
-export default class LdlcScrapperV2 extends AbstractScrapper {
-  reseller: ResellerInfo;
+export default class LdlcScrapper extends AbstractScrapper {
+  reseller: Reseller;
   config: ScrapperParams;
 
-  constructor(resellerInfo: ResellerInfo, config: ScrapperParams, httpService: HttpService) {
-    super(httpService);
+  constructor(resellerInfo: Reseller, config: ScrapperParams) {
+    super()
     this.reseller = resellerInfo;
     this.config = config;
     this.reseller.tag = '#aff764';

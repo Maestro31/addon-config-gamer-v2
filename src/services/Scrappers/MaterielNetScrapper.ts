@@ -3,7 +3,7 @@ import Article from '../../Models/Article';
 import AbstractScrapper from './AbstractScrapper';
 
 export default class MaterielNetScrapper extends AbstractScrapper {
-  reseller: ResellerInfo = {
+  reseller: Reseller = {
     name: 'Materiel.net',
     url: 'https://www.materiel.net',
     currency: 'EUR',
@@ -1383,7 +1383,7 @@ export default class MaterielNetScrapper extends AbstractScrapper {
 
       article.quantity = parseInt(
         this.getElementAttribute(parentNode, {
-          selector: 'order-cell--quantity',
+          selector: '.order-cell--quantity',
           defaultValue: '1',
           attribute: 'innerHTML'
         }).replace('x', '')

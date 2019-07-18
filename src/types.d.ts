@@ -12,7 +12,7 @@ interface ResellerCategory {
   options?: ResellerCategory[];
 }
 
-interface ResellerInfo {
+interface Reseller {
   name: string;
   url: string;
   currency: string;

@@ -12,7 +12,7 @@ interface Article {
   url?: string;
   available?: boolean;
   comment?: string;
-  reseller?: ResellerInfo;
+  reseller?: Reseller;
 }
 
 namespace Article {

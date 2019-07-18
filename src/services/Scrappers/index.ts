@@ -1,16 +1,13 @@
 import Scrapper from './Scrapper'
 import AmazonScrapper from './AmazonScrapper';
-import InfomaxScrapper from './InfomaxScrapper';
-import LdlcScrapperV2 from './LdlcScrapperV2';
+import LdlcScrapper from './LdlcScrapper';
 import MaterielNetScrapper from './MaterielNetScrapper';
 import TopAchatScrapper from './TopAchatScrapper';
-import Http from '../Adapters/Http'
 
-const materielNetScrapper = new MaterielNetScrapper(new Http());
-const topAchatScrapper = new TopAchatScrapper(new Http());
-const infomaxScrapper = new InfomaxScrapper(new Http());
+const materielNet = new MaterielNetScrapper();
+const topAchat = new TopAchatScrapper();
 
-const ldlcScrapperV2FR = new LdlcScrapperV2(
+const ldlcFR = new LdlcScrapper(
   {
     name: 'LDLC France',
     url: 'https://www.ldlc.com',
@@ -21,11 +18,10 @@ const ldlcScrapperV2FR = new LdlcScrapperV2(
       `https://www.ldlc.com/search/product/${text}/ftxt-/${index}?department=${
       categories[0]
       }`
-  },
-  new Http()
+  }
 );
 
-const ldlcScrapperV2ES = new LdlcScrapperV2(
+const ldlcES = new LdlcScrapper(
   {
     name: 'LDLC Espagne',
     url: 'https://www.ldlc.com/es-es',
@@ -36,10 +32,9 @@ const ldlcScrapperV2ES = new LdlcScrapperV2(
       `https://www.ldlc.com/v4/es-es/search/product/${text}/ftxt-/${index}?department=${
       categories[0]
       }`
-  },
-  new Http()
+  }
 );
-const ldlcScrapperV2CH = new LdlcScrapperV2(
+const ldlcCH = new LdlcScrapper(
   {
     name: 'LDLC Suisse',
     url: 'https://www.ldlc.ch',
@@ -50,11 +45,10 @@ const ldlcScrapperV2CH = new LdlcScrapperV2(
       `https://www.ldlc.com/v4/fr-ch/search/product/${text}/ftxt-/${index}?department=${
       categories[0]
       }`
-  },
-  new Http()
+  }
 );
 
-const ldlcScrapperV2LU = new LdlcScrapperV2(
+const ldlcLU = new LdlcScrapper(
   {
     name: 'LDLC Luxembourg',
     url: 'https://www.ldlc.com/fr-lu',
@@ -65,11 +59,10 @@ const ldlcScrapperV2LU = new LdlcScrapperV2(
       `https://www.ldlc.com/v4/fr-lu/search/product/${text}/ftxt-/${index}?department=${
       categories[0]
       }`
-  },
-  new Http()
+  }
 );
 
-const ldlcScrapperV2BE = new LdlcScrapperV2(
+const ldlcBE = new LdlcScrapper(
   {
     name: 'LDLC Belgique',
     url: 'https://www.ldlc.com/fr-be',
@@ -80,179 +73,152 @@ const ldlcScrapperV2BE = new LdlcScrapperV2(
       `https://www.ldlc.com/v4/fr-be/search/product/${text}/ftxt-/${index}?department=${
       categories[0]
       }`
-  },
-  new Http()
+  }
 );
 
-const amazonScrapperFR = new AmazonScrapper(
-  {
-    name: 'Amazon France',
-    url: 'https://www.amazon.fr',
-    currency: 'EUR'
-  },
-  {
-    searchUrlTemplate: () => ''
-  },
-  new Http()
-);
+const amazon = new AmazonScrapper();
 
 const scrapper = new Scrapper()
 
 scrapper.scrappers = [
-  materielNetScrapper,
-  topAchatScrapper,
-  infomaxScrapper,
-  ldlcScrapperV2FR,
-  ldlcScrapperV2BE,
-  ldlcScrapperV2CH,
-  ldlcScrapperV2ES,
-  ldlcScrapperV2LU,
-  amazonScrapperFR
+  materielNet,
+  topAchat,
+  ldlcFR,
+  ldlcBE,
+  ldlcCH,
+  ldlcES,
+  ldlcLU,
+  amazon
 ];
 
 scrapper.productMatches = [
   {
     regex: /https:\/\/www\.amazon\.fr\/(.+\/)?[a-z]+\/(product\/)?[A-Z0-9]+/,
-    scrapper: amazonScrapperFR
+    scrapper: amazon
   },
   {
     regex: /https:\/\/www\.materiel\.net\/produit\/[0-9]+\.html/,
-    scrapper: materielNetScrapper
+    scrapper: materielNet
   },
   {
     regex: /https:\/\/www\.topachat\.com\/pages\/detail2_cat_est_.+_puis_.+_puis_ref_est_.+\.html/,
-    scrapper: topAchatScrapper
+    scrapper: topAchat
   },
   {
     regex: /https:\/\/www\.ldlc\.com\/fiche\/[A-Z0-9]+\.html/,
-    scrapper: ldlcScrapperV2FR
+    scrapper: ldlcFR
   },
   {
     regex: /https:\/\/www\.ldlc\.com\/fr-ch\/fiche\/[A-Z0-9]+\.html/,
-    method: ldlcScrapperV2CH.fromArticlePage,
-    scrapper: ldlcScrapperV2CH
+    method: ldlcCH.fromArticlePage,
+    scrapper: ldlcCH
   },
   {
     regex: /https:\/\/www\.ldlc\.com\/fr-be\/fiche\/[A-Z0-9]+\.html/,
-    scrapper: ldlcScrapperV2BE
+    scrapper: ldlcBE
   },
   {
     regex: /https:\/\/www\.ldlc\.com\/fr-lu\/fiche\/[A-Z0-9]+\.html/,
-    scrapper: ldlcScrapperV2LU
+    scrapper: ldlcLU
   },
   {
     regex: /https:\/\/www\.ldlc\.com\/es-es\/fiche\/[A-Z0-9]+\.html/,
-    scrapper: ldlcScrapperV2ES
-  },
-  {
-    regex: /https:\/\/infomaxparis.com/,
-    scrapper: infomaxScrapper
+    scrapper: ldlcES
   }
 ];
 
 scrapper.matches = [
   {
     regex: /https:\/\/www\.amazon\.fr\/gp\/cart\/view\.html/,
-    method: amazonScrapperFR.fromCart,
-    scrapper: amazonScrapperFR
+    method: amazon.fromCart,
+    scrapper: amazon
   },
   {
     regex: /https:\/\/www\.amazon\.fr\/hz\/wishlist\//,
-    method: amazonScrapperFR.fromSharedList,
-    scrapper: amazonScrapperFR
+    method: amazon.fromSharedList,
+    scrapper: amazon
   },
   {
     regex: /https:\/\/secure\.materiel\.net\/Cart/,
-    method: materielNetScrapper.fromCart,
-    scrapper: materielNetScrapper
+    method: materielNet.fromCart,
+    scrapper: materielNet
   },
   {
     regex: /https:\/\/www\.materiel\.net\/configurateur-pc-sur-mesure/,
-    method: materielNetScrapper.fromConfigurateur,
-    scrapper: materielNetScrapper
+    method: materielNet.fromConfigurateur,
+    scrapper: materielNet
   },
   {
     regex: /https:\/\/secure\.materiel\.net\/Account\/SavedCartsSection/,
-    method: materielNetScrapper.fromSavedCart,
-    scrapper: materielNetScrapper
+    method: materielNet.fromSavedCart,
+    scrapper: materielNet
   },
   {
     regex: /https:\/\/secure\.materiel\.net\/Cart\/SharedCart/,
-    method: materielNetScrapper.fromCart,
-    scrapper: materielNetScrapper
+    method: materielNet.fromCart,
+    scrapper: materielNet
   },
   {
     regex: /https:\/\/www\.topachat\.com\/pages\/mon_panier\.php/,
-    method: topAchatScrapper.fromCart,
-    scrapper: topAchatScrapper
+    method: topAchat.fromCart,
+    scrapper: topAchat
   },
   {
     regex: /https:\/\/www\.topachat\.com\/pages\/configomatic\.php/,
-    method: topAchatScrapper.fromConfigurateur,
-    scrapper: topAchatScrapper
-  },
-
-  {
-    regex: /https:\/\/infomaxparis\.com\/commande/,
-    method: infomaxScrapper.fromCart,
-    scrapper: infomaxScrapper
-  },
-  {
-    regex: /https:\/\/infomaxparis\.com\/achat-pc-gamer-configuration-fixes/,
-    method: infomaxScrapper.fromConfigurateur,
-    scrapper: infomaxScrapper
+    method: topAchat.fromConfigurateur,
+    scrapper: topAchat
   },
   {
     regex: /https:\/\/www\.ldlc\.com\/Sales\/BasketPage\.aspx/,
-    method: ldlcScrapperV2FR.fromCart,
-    scrapper: ldlcScrapperV2FR
+    method: ldlcFR.fromCart,
+    scrapper: ldlcFR
   },
   {
     regex: /https:\/\/www\.ldlc\.com\/configurateur-pc/,
-    method: ldlcScrapperV2FR.fromConfigurateur,
-    scrapper: ldlcScrapperV2FR
+    method: ldlcFR.fromConfigurateur,
+    scrapper: ldlcFR
   },
 
   {
     regex: /https:\/\/secure2\.ldlc\.com\/fr-ch\/Cart/,
-    method: ldlcScrapperV2CH.fromCart,
-    scrapper: ldlcScrapperV2CH
+    method: ldlcCH.fromCart,
+    scrapper: ldlcCH
   },
   {
     regex: /https:\/\/www\.ldlc\.com\/fr-ch\/configurateur-pc/,
-    method: ldlcScrapperV2CH.fromConfigurateur,
-    scrapper: ldlcScrapperV2CH
+    method: ldlcCH.fromConfigurateur,
+    scrapper: ldlcCH
   },
   {
     regex: /https:\/\/secure2\.ldlc\.com\/es-es\/Cart/,
-    method: ldlcScrapperV2ES.fromCart,
-    scrapper: ldlcScrapperV2ES
+    method: ldlcES.fromCart,
+    scrapper: ldlcES
   },
   {
     regex: /https:\/\/www\.ldlc\.com\/es-es\/(configurateur-pc|configurador-pc)/,
-    method: ldlcScrapperV2ES.fromConfigurateur,
-    scrapper: ldlcScrapperV2ES
+    method: ldlcES.fromConfigurateur,
+    scrapper: ldlcES
   },
 
   {
     regex: /https:\/\/secure2\.ldlc\.com\/fr-lu\/Cart/,
-    method: ldlcScrapperV2LU.fromCart,
-    scrapper: ldlcScrapperV2LU
+    method: ldlcLU.fromCart,
+    scrapper: ldlcLU
   },
   {
     regex: /https:\/\/www\.ldlc\.com\/fr-lu\/configurateur-pc/,
-    method: ldlcScrapperV2LU.fromConfigurateur,
-    scrapper: ldlcScrapperV2LU
+    method: ldlcLU.fromConfigurateur,
+    scrapper: ldlcLU
   },
   {
     regex: /https:\/\/secure2\.ldlc\.com\/fr-be\/Cart/,
-    method: ldlcScrapperV2BE.fromCart,
-    scrapper: ldlcScrapperV2BE
+    method: ldlcBE.fromCart,
+    scrapper: ldlcBE
   },
   {
     regex: /https:\/\/www\.ldlc\.com\/fr-be\/configurateur-pc/,
-    method: ldlcScrapperV2BE.fromConfigurateur,
-    scrapper: ldlcScrapperV2BE
+    method: ldlcBE.fromConfigurateur,
+    scrapper: ldlcBE
   }
 ];
 

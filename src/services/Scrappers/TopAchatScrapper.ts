@@ -6,7 +6,7 @@ export default class TopAchatScrapper extends AbstractScrapper {
   priceInfo =
     '*Panier éligible à 5% de réduction sur demande en MP sur FB ou Twitter à Top Achat';
 
-  reseller: ResellerInfo = {
+  reseller: Reseller = {
     name: 'Top Achat',
     url: 'https://www.topachat.com',
     currency: 'EUR',

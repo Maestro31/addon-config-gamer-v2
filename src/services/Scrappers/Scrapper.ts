@@ -1,16 +1,14 @@
 import Article from '../../Models/Article';
 import Cart from '../../Models/Cart';
 import AmazonScrapper from './AmazonScrapper';
-import InfomaxScrapper from './InfomaxScrapper';
-import LdlcScrapperV2 from './LdlcScrapperV2';
+import LdlcScrapper from './LdlcScrapper';
 import MaterielNetScrapper from './MaterielNetScrapper';
 import TopAchatScrapper from './TopAchatScrapper';
 
 type Scrapper =
   | MaterielNetScrapper
   | TopAchatScrapper
-  | InfomaxScrapper
-  | LdlcScrapperV2
+  | LdlcScrapper
   | AmazonScrapper;
 
 interface ParserMatch {

@@ -65,21 +65,21 @@ export default class SearchDlg extends React.Component<Props, State> {
       value: p.reseller.name.toLowerCase().replace(/\W/g, '')
     }));
 
-    const categories = ScrapperService.getScrapperByName(
-      this.resellerOptions[0].label
-    ).config.categoryList;
+    // const categories = ScrapperService.getScrapperByName(
+    //   this.resellerOptions[0].label
+    // ).config.categoryList;
 
-    this.state = {
-      ...initialState,
-      selectedReseller: this.resellerOptions[0],
-      categories,
-      selectedCategory:
-        categories.length > 0
-          ? categories[0].options
-            ? categories[0].options[0]
-            : categories[0]
-          : null
-    };
+    // this.state = {
+    //   ...initialState,
+    //   selectedReseller: this.resellerOptions[0],
+    //   categories,
+    //   selectedCategory:
+    //     categories.length > 0
+    //       ? categories[0].options
+    //         ? categories[0].options[0]
+    //         : categories[0]
+    //       : null
+    // };
   }
 
   search = (name: string, keys: SearchArgs) => {
@@ -147,7 +147,7 @@ export default class SearchDlg extends React.Component<Props, State> {
 
   onResellerChange = (option: SelectOption): void => {
     const parser = ScrapperService.getScrapperByName(option.label);
-    const categories = parser.config.categoryList || [];
+    const categories = /* parser.config.categoryList || */[];
 
     const selectedCategory =
       categories.length > 0
