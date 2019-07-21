@@ -1,59 +1,115 @@
-import Article from '../../Models/Article';
-import Cart from '../../Models/Cart';
-import AmazonScrapper from './AmazonScrapper';
-import LdlcScrapper from './LdlcScrapper';
-import MaterielNetScrapper from './MaterielNetScrapper';
-import TopAchatScrapper from './TopAchatScrapper';
+import Cart from '../../Models/Cart'
+import Article from '../../Models/Article'
+import Http from '../Adapters/Http'
+import HttpService from '../Http/HttpService'
+import ItemScrapper from './ItemScrapper'
+import ListScrapper from './ListScrapper'
 
-type Scrapper =
-  | MaterielNetScrapper
-  | TopAchatScrapper
-  | LdlcScrapper
-  | AmazonScrapper;
-
-interface ParserMatch {
-  regex: RegExp;
-  scrapper: Scrapper;
-  method?: Function;
+export interface UrlPattern {
+  regex: RegExp
+  method: Function
 }
 
-export default class ScrapperService {
-  public scrappers: Scrapper[];
-  public matches: ParserMatch[];
-  public productMatches: ParserMatch[];
+export default abstract class Scrapper {
+  protected http = new Http()
 
-  getScrapperByName(name: string): Scrapper {
-    return this.scrappers.find(scrapper => scrapper.reseller.name === name);
+  protected itemScrapper: ItemScrapper
+
+  protected cartScrapper: ListScrapper
+  protected configuratorScrapper: ListScrapper
+  protected sharedListScrapper: ListScrapper
+
+  public productUrl: RegExp
+  public reseller: Reseller
+
+  public matches: UrlPattern[]
+
+  constructor(httpService: HttpService = new Http()) {
+    this.http = httpService
   }
 
-  retrieveCart = (): Cart => {
-    const url = window.location.href;
-    const matchScrapper = this.matches.find(
-      match => !!url.match(match.regex)
-    );
-    return matchScrapper.method();
-  };
+  public canGetCartFromUrl(url: string): boolean {
+    return !!this.matches.find(matchUrl => matchUrl.regex.test(url))
+  }
 
-  retrieveArticle = (url: string): Promise<Article> => {
-    const matchScrapper = this.productMatches.find(
-      match => !!url.match(match.regex)
-    );
+  public getCartFromUrl(url: string, doc: Document): Cart {
+    const match = this.matches.find(matchUrl => matchUrl.regex.test(url))
 
-    return matchScrapper ? matchScrapper.scrapper.fromArticlePage(url) : null;
-  };
+    if (!match)
+      throw new Error('Url non valide ou revendeur non pris en charge')
 
-  updateCart = (cart: Cart): Promise<Cart> => {
-    for (let scrapper of this.scrappers) {
-      if (cart.reseller.name === scrapper.reseller.name && scrapper.updateCart) {
-        return scrapper.updateCart(cart);
-      }
-    }
-  };
+    return match.method(doc)
+  }
 
-  searchArticle = (
-    resellerName: string,
-    keys: SearchArgs
-  ): Promise<SearchResponse> => {
-    return this.getScrapperByName(resellerName).searchArticle(keys);
-  };
+  protected getItemFrom(item: ItemScrapper) {
+    let article = Article.create()
+    article.reseller = this.reseller
+    article.name = item.getName()
+    article.price = item.getPrice()
+    article.url = item.getUrl()
+    article.imageUrl = item.getImageUrl()
+
+    if (article.url != '' && !article.url.includes(this.reseller.url))
+      article.url = this.reseller.url + article.url
+
+    if (/^\/\//.test(article.imageUrl))
+      article.imageUrl = 'https:' + article.imageUrl
+
+    if (
+      !article.imageUrl.includes('https://') &&
+      !article.imageUrl.includes('data:image')
+    )
+      article.imageUrl = this.reseller.url + article.imageUrl
+
+    article.url = this.addResellerTag(article.url)
+    article.available = item.isAvailable()
+    article.quantity = item.getQuantity()
+    return article
+  }
+
+  protected getCartFrom(listScrapper: ListScrapper) {
+    let cart = Cart.create()
+    cart.reseller = this.reseller
+
+    listScrapper.eachItem(itemScrapper => {
+      let article = this.getItemFrom(itemScrapper)
+      cart.articles.push(article)
+    })
+
+    return cart
+  }
+
+  protected addResellerTag(url: string) {
+    return url + this.reseller.tag
+  }
+
+  public fromCart = (doc: Document): Cart => {
+    this.cartScrapper.setRootNode(doc)
+    return this.getCartFrom(this.cartScrapper)
+  }
+
+  public fromSharedList = (doc: Document): Cart => {
+    this.sharedListScrapper.setRootNode(doc)
+    return this.getCartFrom(this.sharedListScrapper)
+  }
+
+  public fromArticlePage = async (url: string): Promise<Article> => {
+    return this.http
+      .get(url)
+      .then((doc: Document) => {
+        this.itemScrapper.setRootNode(doc)
+        let article = this.getItemFrom(this.itemScrapper)
+        article.url = this.addResellerTag(url)
+        return article
+      })
+      .catch(error => {
+        console.error(error.message)
+        return null
+      })
+  }
+
+  public fromConfigurateur = (doc: Document): Cart => {
+    this.configuratorScrapper.setRootNode(doc)
+    return this.getCartFrom(this.configuratorScrapper)
+  }
 }

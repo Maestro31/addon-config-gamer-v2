@@ -1,10 +1,10 @@
-import * as React from 'react';
-import Table, { CellData, Column } from './Table/Table';
-import Article from '../Models/Article';
-import { DispoView } from './SharedComponents';
+import * as React from 'react'
+import Table, { CellData, Column } from './Table'
+import Article from '../Models/Article'
+import { DispoView } from './SharedComponents'
 
 interface Props {
-  articles: Article[];
+  articles: Article[]
 }
 
 export default class ArticlesListView extends React.Component<Props> {
@@ -17,7 +17,7 @@ export default class ArticlesListView extends React.Component<Props> {
         alignHeader: 'center',
         width: 80,
         cell: ({ original }: CellData): JSX.Element => (
-          <img src={original.imageUrl} alt={original.name} width="40px" />
+          <img src={original.imageUrl} alt={original.name} width='40px' />
         )
       },
       {
@@ -50,8 +50,8 @@ export default class ArticlesListView extends React.Component<Props> {
         alignContent: 'center',
         cell: ({ value }) => <DispoView isDispo={value} />
       }
-    ];
+    ]
 
-    return <Table data={this.props.articles} columns={columns} />;
+    return <Table data={this.props.articles} columns={columns} />
   }
 }

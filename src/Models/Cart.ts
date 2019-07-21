@@ -1,19 +1,19 @@
-import Article from './Article';
-import * as uuid from 'uuid/v4';
+import Article from './Article'
+import * as uuid from 'uuid/v4'
 
 interface Cart {
-  readonly id: string;
-  readonly creationDate: Date;
-  owner?: string;
-  subjectId?: string;
-  articles?: Article[];
-  modificationDate?: Date;
-  refund?: number;
-  refundPercent?: number;
-  reseller?: Reseller;
-  tags?: string[];
-  url?: string;
-  priceInfo?: string;
+  readonly id: string
+  readonly creationDate: Date
+  owner?: string
+  subjectId?: string
+  articles?: Article[]
+  modificationDate?: Date
+  refund?: number
+  refundPercent?: number
+  reseller?: Reseller
+  tags?: string[]
+  url?: string
+  priceInfo?: string
 }
 
 namespace Cart {
@@ -24,79 +24,47 @@ namespace Cart {
       refund: 0,
       refundPercent: 0,
       articles: []
-    };
+    }
   }
 
-  // export function applyRefundPercentByResellerName(
-  //   cart: Cart,
-  //   resellerName: string,
-  //   refundPercent: number
-  // ) {
-  //   cart.articles = cart.articles.map(article => {
-  //     if (article.reseller.name === resellerName)
-  //       article.refundPercent = refundPercent;
-  //     return article;
-  //   });
-  // }
-
-  // export function applyRefund(cart: Cart) {
-  //   const topAchatTotalPrice = getArticlesByResellerName(
-  //     cart,
-  //     'Top Achat'
-  //   ).reduce((acc, article) => acc + article.price, 0);
-
-  //   if (topAchatTotalPrice > 1000) {
-  //     Cart.applyRefundPercentByResellerName(cart, 'Top Achat', 5);
-  //   } else {
-  //     Cart.applyRefundPercentByResellerName(cart, 'Top Achat', 0);
-  //   }
-
-  //   return cart;
-  // }
-
-  // export function getArticlesByResellerName(cart: Cart, resellerName: string) {
-  //   return cart.articles.filter(
-  //     article => article.reseller.name === resellerName
-  //   );
-  // }
-
   export function getTotalRefund(carts: Cart[]) {
-    return getTotalPriceWithoutRefund(carts) - getTotalPriceWithRefund(carts);
+    return getTotalPriceWithoutRefund(carts) - getTotalPriceWithRefund(carts)
   }
 
   export function getTotalPriceWithRefund(carts: Cart[]) {
-    return carts.reduce((acc, cart) => acc + getCartPriceWithRefund(cart), 0);
+    return carts.reduce((acc, cart) => acc + getCartPriceWithRefund(cart), 0)
   }
 
   export function getTotalPriceWithoutRefund(carts: Cart[]) {
-    return carts.reduce(
-      (acc, cart) => acc + getCartPriceWithoutRefund(cart),
-      0
-    );
+    return carts.reduce((acc, cart) => acc + getCartPriceWithoutRefund(cart), 0)
   }
 
   export function getCartPriceWithRefund(cart: Cart) {
     const price = cart.articles.reduce(
       (acc, c) => acc + Article.getPriceWithRefund(c),
       0
-    );
+    )
 
-    return price - (price * cart.refundPercent) / 100 - cart.refund;
+    const total = price - (price * cart.refundPercent) / 100 - cart.refund
+
+    return Number(total.toFixed(2))
   }
 
   export function getCartPriceWithoutRefund(cart: Cart) {
-    return cart.articles.reduce(
+    const total = cart.articles.reduce(
       (acc, c) => acc + Article.getPriceWithoutRefund(c),
       0
-    );
+    )
+
+    return Number(total.toFixed(2))
   }
 
   export function getCartTotalRefund(cart: Cart) {
-    return getCartPriceWithoutRefund(cart) - getCartPriceWithRefund(cart);
+    return getCartPriceWithoutRefund(cart) - getCartPriceWithRefund(cart)
   }
 
   export function isAvailable(cart: Cart) {
-    return cart.articles.every(c => c.available);
+    return cart.articles.every(c => c.available)
   }
 
   export function getCreationDate(cart) {
@@ -104,8 +72,8 @@ namespace Cart {
       hour: 'numeric',
       minute: 'numeric',
       second: 'numeric'
-    });
+    })
   }
 }
 
-export default Cart;
+export default Cart

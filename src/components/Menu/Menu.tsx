@@ -1,112 +1,64 @@
-import * as React from 'react';
-import emotion from 'react-emotion';
-import { Keyframes, animated } from 'react-spring';
-import { faDownload, faCog } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import delay from 'delay';
-import chrome from '../../services/Browser';
+import * as React from 'react'
+import { Keyframes } from 'react-spring'
+import { faDownload, faCog } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import delay from 'delay'
+import chrome from '../../services/Browser'
+import * as S from './styles'
 
 const MenuBar: any = Keyframes.Spring({
   open: { x: 150 },
   close: async call => {
-    await delay(400);
-    await call({ x: 50 });
+    await delay(400)
+    await call({ x: 50 })
   }
-});
+})
 
 interface Props {
-  onSaveCart: () => void;
-  onSettingsClick: () => void;
+  onSaveCart: () => void
+  onSettingsClick: () => void
 }
 
 interface State {
-  open: boolean;
+  open: boolean
 }
 
 export default class Menu extends React.Component<Props, State> {
   state = {
     open: false
-  };
+  }
 
   openMenu = (e: React.MouseEvent): void => {
-    this.setState({ open: true });
-  };
+    this.setState({ open: true })
+  }
 
   closeMenu = (e: React.MouseEvent): void => {
-    this.setState({ open: false });
-  };
+    this.setState({ open: false })
+  }
 
   render() {
-    const state = this.state.open ? 'open' : 'close';
+    const state = this.state.open ? 'open' : 'close'
     return (
-      <Container onMouseOver={this.openMenu} onMouseLeave={this.closeMenu}>
+      <S.Container onMouseOver={this.openMenu} onMouseLeave={this.closeMenu}>
         <MenuBar native state={state}>
           {({ x }) => (
-            <MenuContainer
+            <S.MenuContainer
               style={{
                 width: x.interpolate(x => `${x}px`)
               }}>
-              <ContentMenu>
-                <MenuIcon src={chrome.runtime.getURL('/img/icon48.png')} />
-                <Button onClick={this.props.onSaveCart}>
+              <S.ContentMenu>
+                <S.MenuIcon src={chrome.runtime.getURL('/img/icon48.png')} />
+                <S.Button onClick={this.props.onSaveCart}>
                   <FontAwesomeIcon icon={faDownload} />
-                </Button>
-                <Button onClick={this.props.onSettingsClick}>
+                </S.Button>
+                <S.Button onClick={this.props.onSettingsClick}>
                   <FontAwesomeIcon icon={faCog} />
-                </Button>
-              </ContentMenu>
-            </MenuContainer>
+                </S.Button>
+              </S.ContentMenu>
+            </S.MenuContainer>
           )}
         </MenuBar>
-      </Container>
-    );
+      </S.Container>
+    )
   }
 }
-
-const Container = emotion('div')({
-  position: 'fixed',
-  left: '15px',
-  top: '15px',
-  zIndex: 10000
-});
-
-const MenuIcon = emotion('img')({
-  width: '35px',
-  height: '35px',
-  margin: '0 7px'
-});
-
-const Button = emotion('div')({
-  boxSizing: 'border-box',
-  position: 'relative',
-  overflow: 'hidden',
-  cursor: 'pointer',
-  marginLeft: '10px',
-  fontSize: '30px',
-  opacity: 0.9,
-  color: '#FFF',
-  '&:hover': {
-    opacity: 1
-  }
-});
-
-const ContentMenu = emotion('div')({
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'center',
-  position: 'absolute',
-  height: '100%',
-  top: 0,
-  left: 0
-});
-
-const MenuContainer = emotion(animated.div)({
-  height: '50px',
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  boxSizing: 'border-box',
-  background: '#3b3a3a',
-  overflow: 'hidden',
-  borderRadius: '35px'
-});

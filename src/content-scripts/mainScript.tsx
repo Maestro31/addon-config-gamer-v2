@@ -1,21 +1,21 @@
-import * as React from 'react';
-import emotion from 'react-emotion';
-import * as DOM from 'react-dom';
-import Menu from '../components/Menu';
-import ScrapperService from '../services/Scrappers';
-import SaveCartDialog from '../components/SaveCartDialog';
-import { saveCartMessage, sendMessage } from '../services/Messages';
-import Cart from '../Models/Cart';
-import { copyCartMessage } from '../services/Messages';
-import { Button } from '../components/SharedComponents';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck } from '@fortawesome/free-solid-svg-icons';
-import chrome from '../services/Browser';
+import * as React from 'react'
+import emotion from 'react-emotion'
+import * as DOM from 'react-dom'
+import Menu from '../components/Menu'
+import ScrapperService from '../services/Scrappers'
+import SaveCartDialog from '../components/SaveCartDialog'
+import { saveCartMessage, sendMessage } from '../services/Messages'
+import Cart from '../Models/Cart'
+import { copyCartMessage } from '../services/Messages'
+import { Button } from '../components/SharedComponents'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCheck } from '@fortawesome/free-solid-svg-icons'
+import chrome from '../services/Browser'
 
 interface State {
-  openDialog: boolean;
-  cart: Cart;
-  copiedCart: boolean;
+  openDialog: boolean
+  cart: Cart
+  copiedCart: boolean
 }
 
 export default class Main extends React.Component<{}, State> {
@@ -23,39 +23,45 @@ export default class Main extends React.Component<{}, State> {
     openDialog: false,
     cart: null,
     copiedCart: false
-  };
+  }
 
   componentWillMount = () => {
     chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       if (msg && msg.command === 'copy_cart') {
-        const cart = ScrapperService.retrieveCart();
-        sendResponse(cart);
+        const cart = ScrapperService.getCartFromCurrentPage(
+          window.location.href,
+          document
+        )
+        sendResponse(cart)
       }
-    });
-  };
+    })
+  }
 
   onSaveCart = () => {
-    const cart = ScrapperService.retrieveCart();
-    this.setState({ cart, openDialog: true, copiedCart: false });
-  };
+    const cart = ScrapperService.getCartFromCurrentPage(
+      window.location.href,
+      document
+    )
+    this.setState({ cart, openDialog: true, copiedCart: false })
+  }
 
   onSettingsClick = () => {
-    sendMessage('open_options');
-  };
+    sendMessage('open_options')
+  }
 
   onCloseModal = () => {
-    this.setState({ openDialog: false, cart: null, copiedCart: false });
-  };
+    this.setState({ openDialog: false, cart: null, copiedCart: false })
+  }
 
   onConfirmModal = (cart: Cart) => {
-    this.onCloseModal();
-    saveCartMessage(cart);
-  };
+    this.onCloseModal()
+    saveCartMessage(cart)
+  }
 
   onCopyCart = () => {
-    this.setState({ copiedCart: true });
-    copyCartMessage(this.state.cart);
-  };
+    this.setState({ copiedCart: true })
+    copyCartMessage(this.state.cart)
+  }
 
   render() {
     return (
@@ -66,8 +72,8 @@ export default class Main extends React.Component<{}, State> {
         />
         {this.state.cart && (
           <SaveCartDialog
-            title="Nouveau panier"
-            submitButtonTitle="Sauvegarder"
+            title='Nouveau panier'
+            submitButtonTitle='Sauvegarder'
             cart={this.state.cart}
             onCartChange={cart => this.setState({ cart })}
             open={this.state.openDialog}
@@ -82,21 +88,21 @@ export default class Main extends React.Component<{}, State> {
           />
         )}
       </>
-    );
+    )
   }
 }
 
 const CopyButton = emotion(Button)({
   backgroundColor: '#1c7eb5',
   marginLeft: '10px'
-});
+})
 
 const CheckIcon = emotion(FontAwesomeIcon)({
   marginLeft: '5px'
-});
+})
 
-let root = document.createElement('div');
-root.setAttribute('id', 'root');
-document.body.appendChild(root);
+let root = document.createElement('div')
+root.setAttribute('id', 'root')
+document.body.appendChild(root)
 
-DOM.render(<Main />, document.getElementById('root'));
+DOM.render(<Main />, document.getElementById('root'))

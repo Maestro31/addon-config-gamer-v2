@@ -6,51 +6,48 @@
   "description": "Outils config-gamer",
   "content_scripts": [
     {
-      "matches": [
-        "http://www.config-gamer.fr/forum/*",
-        "https://www.config-gamer.fr/forum/*"
-      ],
-      "js": [
-        "static/js/ConfigGamer.js"
-      ]
+      "matches": ["https://www.config-gamer.fr/forum/*"],
+      "js": ["static/js/ConfigGamer.js"]
     },
     {
       "matches": [
         "https://www.topachat.com/pages/configomatic.php*",
         "https://www.topachat.com/pages/mon_panier.php",
+
         "https://secure.materiel.net/Cart",
         "https://www.materiel.net/configurateur-pc-sur-mesure/",
         "https://secure.materiel.net/Account/SavedCartsSection",
         "https://secure.materiel.net/Cart/SharedCart/*",
+
         "https://secure2.ldlc.com/es-es/Cart",
-        "https://secure2.ldlc.com/fr-lu/Cart",
-        "https://secure2.ldlc.com/fr-be/Cart",
-        "https://secure2.ldlc.com/fr-ch/Cart",
         "https://secure2.ldlc.com/es-es/Account/SavedCartsSection",
-        "https://secure2.ldlc.com/fr-lu/Account/SavedCartsSection",
-        "https://secure2.ldlc.com/fr-be/Account/SavedCartsSection",
-        "https://secure2.ldlc.com/fr-ch/Account/SavedCartsSection",
-        "https://www.ldlc.com/fr-be/configurateur-pc/*",
-        "https://www.ldlc.com/fr-lu/configurateur-pc/*",
         "https://www.ldlc.com/es-es/configurateur-pc/*",
         "https://www.ldlc.com/es-es/configurador-pc/*",
-        "https://www.ldlc.com/fr-ch/configurateur-pc/*",
-        "https://www.ldlc.com/Sales/BasketPage.aspx",
+
+        "https://secure2.ldlc.com/fr-fr/Cart",
         "https://www.ldlc.com/configurateur-pc/*",
-        "https://infomaxparis.com/index.php*",
-        "https://infomaxparis.com/achat-pc-gamer-configuration-fixes/*",
+        "https://secure2.ldlc.com/fr-fr/Account/SavedCartsSection",
+
+        "https://secure2.ldlc.com/fr-be/Cart",
+        "https://secure2.ldlc.com/fr-be/Account/SavedCartsSection",
+        "https://www.ldlc.com/fr-be/configurateur-pc/*",
+
+        "https://secure2.ldlc.com/fr-lu/Cart",
+        "https://secure2.ldlc.com/fr-lu/Account/SavedCartsSection",
+        "https://www.ldlc.com/fr-lu/configurateur-pc/*",
+
+        "https://secure2.ldlc.com/fr-ch/Account/SavedCartsSection",
+        "https://secure2.ldlc.com/fr-ch/Cart",
+        "https://www.ldlc.com/fr-ch/configurateur-pc/*",
+
         "https://www.amazon.fr/gp/cart/view.html*",
         "https://www.amazon.fr/hz/wishlist/*"
       ],
-      "js": [
-        "static/js/mainScript.js"
-      ]
+      "js": ["static/js/mainScript.js"]
     }
   ],
   "background": {
-    "scripts": [
-      "static/js/background.js"
-    ]
+    "scripts": ["static/js/background.js"]
   },
   "options_page": "options.html",
   "options_ui": {
@@ -74,11 +71,7 @@
     "http://*/*",
     "https://*/*"
   ],
-  "web_accessible_resources": [
-    "*.png",
-    "*.css",
-    "*.jpg"
-  ],
+  "web_accessible_resources": ["*.png", "*.css", "*.jpg"],
   "icons": {
     "16": "img/icon16.png",
     "48": "img/icon48.png",
