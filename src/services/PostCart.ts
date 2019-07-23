@@ -1,37 +1,37 @@
-import Cart from '../Models/Cart';
+import Cart from '../Models/Cart'
 
 interface Tag {
-  name: string;
-  value: string;
+  name: string
+  value: string
 }
 
 export const surroundWithTag = (text: string, tag: string | Tag): string => {
-  if (!text || text === '') return `[${tag}][/${tag}]`;
+  if (!text || text === '') return `[${tag}][/${tag}]`
 
-  if (typeof tag === 'string') return `[${tag}]${text}[/${tag}]`;
+  if (typeof tag === 'string') return `[${tag}]${text}[/${tag}]`
 
   if (typeof tag === 'object') {
-    const { name, value } = tag;
+    const { name, value } = tag
 
-    if (!value || value === '') return text;
+    if (!value || value === '') return text
 
-    return `[${name}${value ? '=' + value : ''}]${text}[/${name}]`;
+    return `[${name}${value ? '=' + value : ''}]${text}[/${name}]`
   }
-};
+}
 
 export const surroundWithTags = (
   text: string,
   [tag, ...tags]: Array<Tag | string>
 ): string => {
-  if (!tag) return text;
-  else return surroundWithTags(surroundWithTag(text, tag), tags);
-};
+  if (!tag) return text
+  else return surroundWithTags(surroundWithTag(text, tag), tags)
+}
 
 export const createTable = (table: {
-  headers: Array<string>;
-  rows: Array<Array<string>>;
+  headers: Array<string>
+  rows: Array<Array<string>>
 }): string => {
-  let tableContent: string = '';
+  let tableContent: string = ''
 
   tableContent += surroundWithTag(
     table.headers.reduce(
@@ -39,7 +39,7 @@ export const createTable = (table: {
       ''
     ),
     'tr'
-  );
+  )
 
   tableContent += table.rows.reduce(
     (acc, row) =>
@@ -48,21 +48,21 @@ export const createTable = (table: {
         'tr'
       )),
     ''
-  );
+  )
 
-  return surroundWithTag(tableContent, 'table');
-};
+  return surroundWithTag(tableContent, 'table')
+}
 
 export const postCarts = (
   carts: Cart[],
   messageIntro: string,
   message: string
 ) => {
-  let text = `${messageIntro ? messageIntro + '\n\n\n' : ''}`;
+  let text = `${messageIntro ? messageIntro + '\n\n\n' : ''}`
 
   carts.forEach(cart => {
-    text += postCart(cart);
-  });
+    text += postCart(cart)
+  })
 
   if (carts.length > 1) {
     text +=
@@ -74,7 +74,7 @@ export const postCarts = (
         }).format(Cart.getTotalPriceWithRefund(carts))}`,
         ['b', { name: 'size', value: '6' }, 'right']
       ) +
-      '\n';
+      '\n'
 
     text +=
       surroundWithTags(
@@ -83,19 +83,19 @@ export const postCarts = (
           currency: carts[0].reseller.currency
         }).format(Cart.getTotalRefund(carts))}`,
         ['b', { name: 'size', value: '5' }, 'right']
-      ) + '\n\n';
+      ) + '\n\n'
   }
 
-  text += `${message ? message : ''}`;
+  text += `${message ? message : ''}`
 
   const messageElement = <HTMLTextAreaElement>(
     document.forms['postform']['message']
-  );
+  )
 
-  console.log(carts);
+  console.log(carts)
 
-  messageElement.value = text;
-};
+  messageElement.value = text
+}
 
 export const postCart = (cart: Cart): string => {
   let table = createTable({
@@ -106,7 +106,7 @@ export const postCart = (cart: Cart): string => {
       surroundWithTags('Quantité', ['b', 'center']),
       surroundWithTags('Prix', ['b', 'right'])
     ],
-    rows: cart.articles.map(c => [
+    rows: cart.items.map(c => [
       surroundWithTags('O', [
         'b',
         { name: 'color', value: c.available ? '#44bb00' : '#880000' },
@@ -126,9 +126,9 @@ export const postCart = (cart: Cart): string => {
         'right'
       )
     ])
-  });
+  })
 
-  let responseText = '';
+  let responseText = ''
 
   let cartPrice = surroundWithTags(
     `Total: ${new Intl.NumberFormat('fr-FR', {
@@ -136,9 +136,9 @@ export const postCart = (cart: Cart): string => {
       currency: cart.reseller.currency
     }).format(Cart.getCartPriceWithRefund(cart))}`,
     ['b', 'right']
-  );
+  )
 
-  const totalRefund = Cart.getCartTotalRefund(cart);
+  const totalRefund = Cart.getCartTotalRefund(cart)
   if (totalRefund > 0) {
     const cartRefund = surroundWithTag(
       `Dont remise: ${new Intl.NumberFormat('fr-FR', {
@@ -146,8 +146,8 @@ export const postCart = (cart: Cart): string => {
         currency: cart.reseller.currency
       }).format(totalRefund)}`,
       'right'
-    );
-    cartPrice += `${cartRefund}\n\n`;
+    )
+    cartPrice += `${cartRefund}\n\n`
   }
 
   // TODO: Partie à revoir, pas assez générique
@@ -157,31 +157,31 @@ export const postCart = (cart: Cart): string => {
     cart.priceInfo &&
     Cart.getCartPriceWithoutRefund(cart) > 1000
   ) {
-    cartPrice += surroundWithTags(cart.priceInfo, ['i', 'right']);
+    cartPrice += surroundWithTags(cart.priceInfo, ['i', 'right'])
   }
-  const mounting = cart.articles.some(
+  const mounting = cart.items.some(
     article => !!article.name.match(/(M|m)ontage/)
-  );
+  )
   const deliveryInfo =
     surroundWithTags(
       'Attention, les frais de livraison sont plus élevés lorsque les configs sont montées par le revendeur (+/- 35€)',
-      [{name: 'color', value: '#BB0000'}, 'i', 'right']
-    ) + '\n\n';
+      [{ name: 'color', value: '#BB0000' }, 'i', 'right']
+    ) + '\n\n'
 
   const cartResellerName = cart.reseller.name
-    ? surroundWithTags(
-        `Panier ${cart.reseller.name}`,
-        ['b', { name: 'size', value: '5' }]
-      ) + '\n\n'
-    : '';
+    ? surroundWithTags(`Panier ${cart.reseller.name}`, [
+        'b',
+        { name: 'size', value: '5' }
+      ]) + '\n\n'
+    : ''
 
   const cartUrl = cart.url
     ? `Lien vers le panier: ${cart.url +
         (cart.reseller.tag ? cart.reseller.tag + '\n\n\n' : '')}`
-    : '';
+    : ''
 
   responseText = `${cartResellerName}${cartUrl ||
-    '\n'}${table}\n\n\n${cartPrice}\n\n${mounting ? deliveryInfo : ''}`;
+    '\n'}${table}\n\n\n${cartPrice}\n\n${mounting ? deliveryInfo : ''}`
 
-  return responseText;
-};
+  return responseText
+}

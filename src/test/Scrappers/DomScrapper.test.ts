@@ -3,7 +3,7 @@ import fs = require('fs')
 import path = require('path')
 
 describe('DomScrapper', () => {
-  let domScrapper
+  let domScrapper: DomScrapper
   beforeAll(() => {
     const content = fs.readFileSync(
       path.join(__dirname, './Amazon/pages/article.html'),
@@ -15,11 +15,11 @@ describe('DomScrapper', () => {
   })
   describe('textFrom', () => {
     it('should return empty string if selector not found', () => {
-      expect(domScrapper.textFrom('#test-de-id')).toBe('')
+      expect(domScrapper.queryText('#test-de-id')).toBe('')
     })
 
     it('should return the correct text for the selector', () => {
-      expect(domScrapper.textFrom('#productTitle')).toBe(
+      expect(domScrapper.queryText('#productTitle')).toBe(
         'Gigabyte GV-N208TGAMING OC-11GC Carte Graphique Nvidia GeForce RTX 2080 1545 MHz PCI Express'
       )
     })
@@ -27,19 +27,19 @@ describe('DomScrapper', () => {
 
   describe('attributeFrom', () => {
     it('should return empty string if selector is not found', () => {
-      expect(domScrapper.attributeFrom('#test-de-id', 'src')).toBe('')
+      expect(domScrapper.queryAttribute('#test-de-id', 'src')).toBe('')
     })
 
     it('should return empty string if selector exist but attribute not found', () => {
-      expect(domScrapper.attributeFrom('#landingImage', 'data-test')).toBe('')
+      expect(domScrapper.queryAttribute('#landingImage', 'data-test')).toBe('')
     })
 
     it('should return correct text', () => {
-      expect(domScrapper.attributeFrom('#landingImage', 'src')).toBe(
+      expect(domScrapper.queryAttribute('#landingImage', 'src')).toBe(
         'https://images-na.ssl-images-amazon.com/images/I/613Vo1AivQL._SX679_.jpg'
       )
 
-      expect(domScrapper.attributeFrom('.p13n-sc-truncated', 'title')).toBe(
+      expect(domScrapper.queryAttribute('.p13n-sc-truncated', 'title')).toBe(
         'Intel Core i9-9900K processeur 3,6 GHz Boîte 16 Mo Smart Cache - Processeurs (Intel Core i9-9xxx, 3,6 GHz, LGA 1151, PC, 14 nm, i9-9900K)'
       )
     })
@@ -56,11 +56,11 @@ describe('DomScrapper', () => {
       domScrapper = new DomScrapper(doc)
     })
     it('should return an empty array if selector not found', () => {
-      expect(domScrapper.nodesFrom('#selector-not-valid')).toStrictEqual([])
+      expect(domScrapper.queryNodes('#selector-not-valid')).toStrictEqual([])
     })
 
     it('should return correct number of nodes', () => {
-      expect(domScrapper.nodesFrom('.sbloc li').length).toBe(5)
+      expect(domScrapper.queryNodes('.sbloc li').length).toBe(5)
     })
   })
 })

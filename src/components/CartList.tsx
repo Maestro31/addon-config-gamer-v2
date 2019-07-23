@@ -2,7 +2,7 @@ import * as React from 'react'
 import Cart from '../Models/Cart'
 import Card from './Card'
 import EditableArticlesList from './EditableArticlesList'
-import Article from 'Models/Article'
+import Item from 'Models/Item'
 import { RowReverseLayout, HorizontalLayout } from './SharedComponents'
 import emotion from 'react-emotion'
 import * as NumericInput from 'react-numeric-input'
@@ -11,7 +11,7 @@ import TextInput from './TextInput'
 interface Props {
   carts: Cart[]
   onDeleteArticle: (index: number) => (id: string) => void
-  onArticleChange: (index: number) => (article: Article) => void
+  onArticleChange: (index: number) => (article: Item) => void
   onCartChange: (index: number) => (cart: Cart) => void
 }
 
@@ -33,7 +33,7 @@ export default class CartList extends React.Component<Props> {
           </HorizontalLayout>
           <EditableArticlesList
             activeComment={true}
-            articles={cart.articles}
+            articles={cart.items}
             onDeleteArticle={this.props.onDeleteArticle(i)}
             onArticleChange={this.props.onArticleChange(i)}
           />

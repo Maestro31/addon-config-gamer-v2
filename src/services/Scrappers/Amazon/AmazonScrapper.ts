@@ -1,25 +1,24 @@
 import Scrapper from '../Scrapper'
 import ItemScrapper from '../ItemScrapper'
 import ListScrapper from '../ListScrapper'
-import Article from '../../../Models/Article'
 
 export default class AmazonScrapper extends Scrapper {
-  reseller: Reseller = {
+  protected reseller: Reseller = {
     name: 'Amazon France',
     url: 'https://www.amazon.fr',
     currency: 'EUR'
   }
 
-  productUrl = /https:\/\/www\.amazon\.fr\/(.+\/)?[a-z]+\/(product\/)?[A-Z0-9]+/
+  protected productUrl = /https:\/\/www\.amazon\.fr\/(.+\/)?[a-z]+\/(product\/)?[A-Z0-9]+/
 
-  matches = [
+  protected matches = [
     {
       regex: /https:\/\/www\.amazon\.fr\/gp\/cart\/view\.html/,
-      method: doc => this.fromCart(doc)
+      method: doc => this.getCartFromCartPage(doc)
     },
     {
       regex: /https:\/\/www\.amazon\.fr\/hz\/wishlist\//,
-      method: doc => this.fromSharedList(doc)
+      method: doc => this.getCartFromSharedList(doc)
     }
   ]
 

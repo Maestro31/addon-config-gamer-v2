@@ -4,26 +4,24 @@ import MaterielNetScrapper from '../services/Scrappers/MaterielNet/MaterielNetSc
 import TopAchatScrapper from '../services/Scrappers/TopAchat/TopAchatScrapper'
 import { readDocumentFromFile } from './helpers'
 import path = require('path')
-import ScrapperService from '../services/Scrappers/ScrapperService'
 import LdlcBEScrapper from '../services/Scrappers/LDLC/LdlcBEScrapper'
 import LdlcESScrapper from '../services/Scrappers/LDLC/LdlcESScrapper'
 import LdlcLUScrapper from '../services/Scrappers/LDLC/LdlcLUScrapper'
 import LdlcCHScrapper from '../services/Scrappers/LDLC/LdlcCHScrapper'
 import InMemoryHttpAdapter from './Adapters/InMemoryHttpAdapter'
+import Scrapper from '../services/Scrappers/Scrapper'
 
 describe('ScrapperService getCartFromCurrentPage', () => {
-  let scrapper: ScrapperService
+  let scrapper: Scrapper
   beforeAll(() => {
-    scrapper = new ScrapperService([
-      new AmazonScrapper(),
-      new MaterielNetScrapper(),
-      new TopAchatScrapper(),
-      new LdlcScrapper(),
-      new LdlcBEScrapper(),
-      new LdlcESScrapper(),
-      new LdlcLUScrapper(),
-      new LdlcCHScrapper()
-    ])
+    scrapper = new AmazonScrapper()
+    scrapper.setNextScrapper(new MaterielNetScrapper())
+    scrapper.setNextScrapper(new TopAchatScrapper())
+    scrapper.setNextScrapper(new LdlcScrapper())
+    scrapper.setNextScrapper(new LdlcBEScrapper())
+    scrapper.setNextScrapper(new LdlcESScrapper())
+    scrapper.setNextScrapper(new LdlcLUScrapper())
+    scrapper.setNextScrapper(new LdlcCHScrapper())
   })
 
   describe('Amazon', () => {
@@ -39,30 +37,30 @@ describe('ScrapperService getCartFromCurrentPage', () => {
     })
 
     it('should use correct Scrapper and retrieve a cart from cart page', () => {
-      const cart = scrapper.getCartFromCurrentPage(
+      const cart = scrapper.getCartFromUrl(
         'https://www.amazon.fr/gp/cart/view.html?ref_=nav_cart',
         cartDocument
       )
       expect(cart.reseller.name).toBe('Amazon France')
-      expect(cart.articles.length).toBe(4)
+      expect(cart.items.length).toBe(4)
     })
 
     it('should correct Scrapper and retrieve a cart from shared list page', () => {
-      const cart = scrapper.getCartFromCurrentPage(
+      const cart = scrapper.getCartFromUrl(
         'https://www.amazon.fr/hz/wishlist/ls/9AZGL2YT7IBT/ref=nav_wishlist_lists_2?_encoding=UTF8&type=wishlist',
         sharedCartDocument
       )
       expect(cart.reseller.name).toBe('Amazon France')
-      expect(cart.articles.length).toBe(10)
+      expect(cart.items.length).toBe(10)
     })
 
     it('should retrieve the correct item url', () => {
-      const cart = scrapper.getCartFromCurrentPage(
+      const cart = scrapper.getCartFromUrl(
         'https://www.amazon.fr/gp/cart/view.html?ref_=nav_cart',
         cartDocument
       )
 
-      expect(cart.articles[0].url).toBe(
+      expect(cart.items[0].url).toBe(
         'https://www.amazon.fr/dp/B00RN3SJW8/ref=nosim?tag=confgame-21'
       )
     })
@@ -86,30 +84,30 @@ describe('ScrapperService getCartFromCurrentPage', () => {
     })
 
     it('should correct Scrapper and retrieve a cart from cart page', () => {
-      const cart = scrapper.getCartFromCurrentPage(
+      const cart = scrapper.getCartFromUrl(
         'https://secure.materiel.net/Cart',
         cartDocument
       )
       expect(cart.reseller.name).toBe('Materiel.net')
-      expect(cart.articles.length).toBe(5)
+      expect(cart.items.length).toBe(5)
     })
 
     it('should correct Scrapper and retrieve a cart from saved cart page', () => {
-      const cart = scrapper.getCartFromCurrentPage(
+      const cart = scrapper.getCartFromUrl(
         'https://secure.materiel.net/Account/SavedCartsSection',
         savedCartDocument
       )
       expect(cart.reseller.name).toBe('Materiel.net')
-      expect(cart.articles.length).toBe(5)
+      expect(cart.items.length).toBe(5)
     })
 
     it('should correct Scrapper and retrieve a cart from configurator page', () => {
-      const cart = scrapper.getCartFromCurrentPage(
+      const cart = scrapper.getCartFromUrl(
         'https://www.materiel.net/configurateur-pc-sur-mesure/',
         configuratorDocument
       )
       expect(cart.reseller.name).toBe('Materiel.net')
-      expect(cart.articles.length).toBe(5)
+      expect(cart.items.length).toBe(5)
     })
   })
 
@@ -127,21 +125,21 @@ describe('ScrapperService getCartFromCurrentPage', () => {
     })
 
     it('should correct Scrapper and retrieve a cart from cart page', () => {
-      const cart = scrapper.getCartFromCurrentPage(
+      const cart = scrapper.getCartFromUrl(
         'https://www.topachat.com/pages/mon_panier.php',
         cartDocument
       )
       expect(cart.reseller.name).toBe('Top Achat')
-      expect(cart.articles.length).toBe(7)
+      expect(cart.items.length).toBe(7)
     })
 
     it('should correct Scrapper and retrieve a cart from configurator page', () => {
-      const cart = scrapper.getCartFromCurrentPage(
+      const cart = scrapper.getCartFromUrl(
         'https://www.topachat.com/pages/configomatic.php?c=%2FLQ%2BPGCbehoFe7VdGC6%2BkhfhN%2BFedFI%2BE3K8qt7ITcI%3D',
         configuratorDocument
       )
       expect(cart.reseller.name).toBe('Top Achat')
-      expect(cart.articles.length).toBe(6)
+      expect(cart.items.length).toBe(6)
     })
   })
 
@@ -159,113 +157,112 @@ describe('ScrapperService getCartFromCurrentPage', () => {
     })
 
     it('should use LDLC FR and retrieve a cart from cart page', () => {
-      const cart = scrapper.getCartFromCurrentPage(
+      const cart = scrapper.getCartFromUrl(
         'https://secure2.ldlc.com/fr-fr/Cart',
         cartDocument
       )
       expect(cart.reseller.name).toBe('LDLC France')
-      expect(cart.articles.length).toBe(3)
+      expect(cart.items.length).toBe(3)
     })
 
     it('should use LDLC FR and retrieve a cart from configurator page', () => {
-      const cart = scrapper.getCartFromCurrentPage(
+      const cart = scrapper.getCartFromUrl(
         'https://www.ldlc.com/configurateur-pc/',
         configuratorDocument
       )
       expect(cart.reseller.name).toBe('LDLC France')
-      expect(cart.articles.length).toBe(5)
+      expect(cart.items.length).toBe(5)
     })
 
     it('should use LDLC BE and retrieve a cart from cart page', () => {
-      const cart = scrapper.getCartFromCurrentPage(
+      const cart = scrapper.getCartFromUrl(
         'https://secure2.ldlc.com/fr-be/Cart',
         cartDocument
       )
       expect(cart.reseller.name).toBe('LDLC Belgique')
-      expect(cart.articles.length).toBe(3)
+      expect(cart.items.length).toBe(3)
     })
 
     it('should use LDLC BE and retrieve a cart from configurator page', () => {
-      const cart = scrapper.getCartFromCurrentPage(
+      const cart = scrapper.getCartFromUrl(
         'https://www.ldlc.com/fr-be/configurateur-pc/',
         configuratorDocument
       )
       expect(cart.reseller.name).toBe('LDLC Belgique')
-      expect(cart.articles.length).toBe(5)
+      expect(cart.items.length).toBe(5)
     })
 
     it('should use LDLC ES and retrieve a cart from cart page', () => {
-      const cart = scrapper.getCartFromCurrentPage(
+      const cart = scrapper.getCartFromUrl(
         'https://secure2.ldlc.com/es-es/Cart',
         cartDocument
       )
       expect(cart.reseller.name).toBe('LDLC Espagne')
-      expect(cart.articles.length).toBe(3)
+      expect(cart.items.length).toBe(3)
     })
 
     it('should use LDLC ES and retrieve a cart from configurator page', () => {
-      const cart = scrapper.getCartFromCurrentPage(
+      const cart = scrapper.getCartFromUrl(
         'https://www.ldlc.com/es-es/configurateur-pc/',
         configuratorDocument
       )
       expect(cart.reseller.name).toBe('LDLC Espagne')
-      expect(cart.articles.length).toBe(5)
+      expect(cart.items.length).toBe(5)
     })
 
     it('should use LDLC ES and retrieve a cart from configurator page', () => {
-      const cart = scrapper.getCartFromCurrentPage(
+      const cart = scrapper.getCartFromUrl(
         'https://www.ldlc.com/es-es/configurador-pc/',
         configuratorDocument
       )
       expect(cart.reseller.name).toBe('LDLC Espagne')
-      expect(cart.articles.length).toBe(5)
+      expect(cart.items.length).toBe(5)
     })
 
     it('should use LDLC LU and retrieve a cart from cart page', () => {
-      const cart = scrapper.getCartFromCurrentPage(
+      const cart = scrapper.getCartFromUrl(
         'https://secure2.ldlc.com/fr-lu/Cart',
         cartDocument
       )
       expect(cart.reseller.name).toBe('LDLC Luxembourg')
-      expect(cart.articles.length).toBe(3)
+      expect(cart.items.length).toBe(3)
     })
 
     it('should use LDLC LU and retrieve a cart from configurator page', () => {
-      const cart = scrapper.getCartFromCurrentPage(
+      const cart = scrapper.getCartFromUrl(
         'https://www.ldlc.com/fr-lu/configurateur-pc/',
         configuratorDocument
       )
       expect(cart.reseller.name).toBe('LDLC Luxembourg')
-      expect(cart.articles.length).toBe(5)
+      expect(cart.items.length).toBe(5)
     })
 
     it('should use LDLC CH and retrieve a cart from cart page', () => {
-      const cart = scrapper.getCartFromCurrentPage(
+      const cart = scrapper.getCartFromUrl(
         'https://secure2.ldlc.com/fr-ch/Cart',
         cartDocument
       )
       expect(cart.reseller.name).toBe('LDLC Suisse')
-      expect(cart.articles.length).toBe(3)
+      expect(cart.items.length).toBe(3)
     })
 
     it('should use LDLC CH and retrieve a cart from configurator page', () => {
-      const cart = scrapper.getCartFromCurrentPage(
+      const cart = scrapper.getCartFromUrl(
         'https://www.ldlc.com/fr-ch/configurateur-pc/',
         configuratorDocument
       )
       expect(cart.reseller.name).toBe('LDLC Suisse')
-      expect(cart.articles.length).toBe(5)
+      expect(cart.items.length).toBe(5)
     })
   })
 })
 
 describe('ScrapperService getItemFromUrl', () => {
-  let scrapper: ScrapperService
   let amazonDoc: Document
   let topachatDoc: Document
   let materielNetDoc: Document
   let ldcDoc: Document
-
+  let scrapper: Scrapper
   beforeAll(() => {
     amazonDoc = readDocumentFromFile(
       path.join(__dirname, './Scrappers/Amazon/pages/article.html')
@@ -283,16 +280,26 @@ describe('ScrapperService getItemFromUrl', () => {
       path.join(__dirname, './Scrappers/LDLC/pages/article.html')
     )
 
-    scrapper = new ScrapperService([
-      new AmazonScrapper(new InMemoryHttpAdapter(amazonDoc)),
-      new MaterielNetScrapper(new InMemoryHttpAdapter(materielNetDoc)),
-      new TopAchatScrapper(new InMemoryHttpAdapter(topachatDoc)),
-      new LdlcScrapper(new InMemoryHttpAdapter(ldcDoc)),
-      new LdlcBEScrapper(new InMemoryHttpAdapter(ldcDoc)),
-      new LdlcESScrapper(new InMemoryHttpAdapter(ldcDoc)),
-      new LdlcLUScrapper(new InMemoryHttpAdapter(ldcDoc)),
+    scrapper = new AmazonScrapper(new InMemoryHttpAdapter(amazonDoc))
+    scrapper.setNextScrapper(
+      new MaterielNetScrapper(new InMemoryHttpAdapter(materielNetDoc))
+    )
+    scrapper.setNextScrapper(
+      new TopAchatScrapper(new InMemoryHttpAdapter(topachatDoc))
+    )
+    scrapper.setNextScrapper(new LdlcScrapper(new InMemoryHttpAdapter(ldcDoc)))
+    scrapper.setNextScrapper(
+      new LdlcBEScrapper(new InMemoryHttpAdapter(ldcDoc))
+    )
+    scrapper.setNextScrapper(
+      new LdlcESScrapper(new InMemoryHttpAdapter(ldcDoc))
+    )
+    scrapper.setNextScrapper(
+      new LdlcLUScrapper(new InMemoryHttpAdapter(ldcDoc))
+    )
+    scrapper.setNextScrapper(
       new LdlcCHScrapper(new InMemoryHttpAdapter(ldcDoc))
-    ])
+    )
   })
 
   it('should use Amazon', async () => {

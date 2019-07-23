@@ -1,10 +1,10 @@
 import * as React from 'react'
 import Table, { CellData, Column } from './Table'
-import Article from '../Models/Article'
+import Item from '../Models/Item'
 import { DispoView } from './SharedComponents'
 
 interface Props {
-  articles: Article[]
+  articles: Item[]
 }
 
 export default class ArticlesListView extends React.Component<Props> {

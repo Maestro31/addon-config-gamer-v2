@@ -5,7 +5,7 @@ export default class DomScrapper {
     this.document = document
   }
 
-  public textFrom(selector: string) {
+  public queryText(selector: string) {
     const element = this.getElement(selector)
 
     if (!this.elementExist(element)) return ''
@@ -13,7 +13,7 @@ export default class DomScrapper {
     return element.textContent.trim()
   }
 
-  public attributeFrom(selector: string, attributeName: string) {
+  public queryAttribute(selector: string, attributeName: string) {
     const element = this.getElement(selector)
 
     if (!this.elementExist(element)) return ''
@@ -25,7 +25,7 @@ export default class DomScrapper {
     return attribute.textContent.trim()
   }
 
-  public nodesFrom(selector: string) {
+  public queryNodes(selector: string) {
     return Array.from(this.document.querySelectorAll(selector))
   }
 

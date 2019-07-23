@@ -19,11 +19,11 @@ export default class TopAchatScrapper extends Scrapper {
   matches = [
     {
       regex: /https:\/\/www\.topachat\.com\/pages\/mon_panier\.php/,
-      method: doc => this.fromCart(doc)
+      method: doc => this.getCartFromCartPage(doc)
     },
     {
       regex: /https:\/\/www\.topachat\.com\/pages\/configomatic\.php/,
-      method: doc => this.fromConfigurateur(doc)
+      method: doc => this.getCartFromConfigurator(doc)
     }
   ]
 
@@ -59,8 +59,8 @@ export default class TopAchatScrapper extends Scrapper {
     })
   })
 
-  protected getCartFrom(listScrapper: ListScrapper) {
-    let cart = super.getCartFrom(listScrapper)
+  protected getCart(listScrapper: ListScrapper) {
+    let cart = super.getCart(listScrapper)
     return this.applyPriceWithRefoundIfGreatherThan1000(cart)
   }
 

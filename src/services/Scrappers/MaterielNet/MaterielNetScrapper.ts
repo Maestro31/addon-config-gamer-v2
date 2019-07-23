@@ -16,19 +16,19 @@ export default class MaterielNetScrapper extends Scrapper {
   matches = [
     {
       regex: /https:\/\/secure\.materiel\.net\/Cart/,
-      method: doc => this.fromCart(doc)
+      method: doc => this.getCartFromCartPage(doc)
     },
     {
       regex: /https:\/\/www\.materiel\.net\/configurateur-pc-sur-mesure/,
-      method: doc => this.fromConfigurateur(doc)
+      method: doc => this.getCartFromConfigurator(doc)
     },
     {
       regex: /https:\/\/secure\.materiel\.net\/Account\/SavedCartsSection/,
-      method: doc => this.fromSharedList(doc)
+      method: doc => this.getCartFromSharedList(doc)
     },
     {
       regex: /https:\/\/secure\.materiel\.net\/Cart\/SharedCart/,
-      method: doc => this.fromCart(doc)
+      method: doc => this.getCartFromCartPage(doc)
     }
   ]
 

@@ -1,5 +1,5 @@
 import MaterielNetScrapper from '../../../services/Scrappers/MaterielNet/MaterielNetScrapper'
-import Article from '../../../Models/Article'
+import Item from '../../../Models/Item'
 import FileHttpAdapter from '../../Adapters/FileHttpAdapter'
 import path = require('path')
 import { readDocumentFromFile } from '../../helpers'
@@ -7,10 +7,10 @@ import Cart from '../../../Models/Cart'
 
 describe('Materiel.net Scrapper', () => {
   describe('Article Page', () => {
-    let article: Article
+    let article: Item
     beforeAll(async () => {
       const materielnetScrapper = new MaterielNetScrapper(new FileHttpAdapter())
-      article = await materielnetScrapper.fromArticlePage(
+      article = await materielnetScrapper.getItemFromItemPage(
         path.join(__dirname, './pages/article.html')
       )
     })
@@ -45,40 +45,40 @@ describe('Materiel.net Scrapper', () => {
       const doc = readDocumentFromFile(
         path.join(__dirname, './pages/cart.html')
       )
-      cart = materielnetScrapper.fromCart(doc)
+      cart = materielnetScrapper.getCartFromCartPage(doc)
     })
 
     it('should retrieve the correct item count', () => {
-      expect(cart.articles.length).toBe(5)
+      expect(cart.items.length).toBe(5)
     })
 
     it('should retrieve the correct item name', () => {
-      expect(cart.articles[0].name).toBe('AMD Ryzen 7 3700X')
+      expect(cart.items[0].name).toBe('AMD Ryzen 7 3700X')
     })
 
     it('should retrieve the correct item quantity', () => {
-      expect(cart.articles[0].quantity).toBe(1)
-      expect(cart.articles[4].quantity).toBe(2)
+      expect(cart.items[0].quantity).toBe(1)
+      expect(cart.items[4].quantity).toBe(2)
     })
 
     it('should retrieve the correct item price', () => {
-      expect(cart.articles[0].price).toBe(399.95)
-      expect(cart.articles[4].price).toBe(799.94)
+      expect(cart.items[0].price).toBe(399.95)
+      expect(cart.items[4].price).toBe(799.94)
     })
 
     it('should retrieve the correct item availability', () => {
-      expect(cart.articles[0].available).toBeTruthy()
-      expect(cart.articles[3].available).toBeFalsy()
+      expect(cart.items[0].available).toBeTruthy()
+      expect(cart.items[3].available).toBeFalsy()
     })
 
     it('should retrieve the correct item url', () => {
-      expect(cart.articles[0].url).toBe(
+      expect(cart.items[0].url).toBe(
         'https://www.materiel.net/produit/201905310036.html#a_aid=aff764'
       )
     })
 
     it('should retrieve the correct item image url', () => {
-      expect(cart.articles[0].imageUrl).toBe(
+      expect(cart.items[0].imageUrl).toBe(
         'https://media.materiel.net/r80/products/MN0005368670_1.jpg'
       )
     })
@@ -95,40 +95,40 @@ describe('Materiel.net Scrapper', () => {
       const doc = readDocumentFromFile(
         path.join(__dirname, './pages/saved-cart.html')
       )
-      cart = materielnetScrapper.fromSharedList(doc)
+      cart = materielnetScrapper.getCartFromSharedList(doc)
     })
 
     it('should retrieve the correct item count', () => {
-      expect(cart.articles.length).toBe(5)
+      expect(cart.items.length).toBe(5)
     })
 
     it('should retrieve the correct item name', () => {
-      expect(cart.articles[0].name).toBe('Be Quiet DARK ROCK 4')
+      expect(cart.items[0].name).toBe('Be Quiet DARK ROCK 4')
     })
 
     it('should retrieve the correct item quantity', () => {
-      expect(cart.articles[0].quantity).toBe(1)
-      expect(cart.articles[1].quantity).toBe(2)
+      expect(cart.items[0].quantity).toBe(1)
+      expect(cart.items[1].quantity).toBe(2)
     })
 
     it('should retrieve the correct item price', () => {
-      expect(cart.articles[0].price).toBe(72.95)
-      expect(cart.articles[1].price).toBe(799.94)
+      expect(cart.items[0].price).toBe(72.95)
+      expect(cart.items[1].price).toBe(799.94)
     })
 
     it('should retrieve the correct item availability', () => {
-      expect(cart.articles[0].available).toBeTruthy()
-      expect(cart.articles[3].available).toBeFalsy()
+      expect(cart.items[0].available).toBeTruthy()
+      expect(cart.items[3].available).toBeFalsy()
     })
 
     it('should retrieve the correct item url', () => {
-      expect(cart.articles[0].url).toBe(
+      expect(cart.items[0].url).toBe(
         'https://www.materiel.net/produit/201803300073.html#a_aid=aff764'
       )
     })
 
     it('should retrieve the correct item image url', () => {
-      expect(cart.articles[0].imageUrl).toBe(
+      expect(cart.items[0].imageUrl).toBe(
         'https://media.materiel.net/r80/oproducts/AR201803300073_g1.jpg'
       )
     })
@@ -145,40 +145,40 @@ describe('Materiel.net Scrapper', () => {
       const doc = readDocumentFromFile(
         path.join(__dirname, './pages/configurator.html')
       )
-      cart = materielnetScrapper.fromConfigurateur(doc)
+      cart = materielnetScrapper.getCartFromConfigurator(doc)
     })
 
     it('should retrieve the correct item count', () => {
-      expect(cart.articles.length).toBe(5)
+      expect(cart.items.length).toBe(5)
     })
 
     it('should retrieve the correct item name', () => {
-      expect(cart.articles[0].name).toBe('Be Quiet DARK ROCK 4')
+      expect(cart.items[0].name).toBe('Be Quiet DARK ROCK 4')
     })
 
     it('should retrieve the correct item quantity', () => {
-      expect(cart.articles[0].quantity).toBe(1)
-      expect(cart.articles[2].quantity).toBe(2)
+      expect(cart.items[0].quantity).toBe(1)
+      expect(cart.items[2].quantity).toBe(2)
     })
 
     it('should retrieve the correct item price', () => {
-      expect(cart.articles[0].price).toBe(72.95)
-      expect(cart.articles[2].price).toBe(799.94)
+      expect(cart.items[0].price).toBe(72.95)
+      expect(cart.items[2].price).toBe(799.94)
     })
 
     it('should retrieve the correct item availability', () => {
-      expect(cart.articles[0].available).toBeTruthy()
-      expect(cart.articles[4].available).toBeFalsy()
+      expect(cart.items[0].available).toBeTruthy()
+      expect(cart.items[4].available).toBeFalsy()
     })
 
     it('should retrieve the correct item url', () => {
-      expect(cart.articles[0].url).toBe(
+      expect(cart.items[0].url).toBe(
         'https://www.materiel.net/produit/201803300073.html#a_aid=aff764'
       )
     })
 
     it('should retrieve the correct item image url', () => {
-      expect(cart.articles[0].imageUrl).toBe(
+      expect(cart.items[0].imageUrl).toBe(
         'https://media.materiel.net/r150/oproducts/AR201803300073_g1.jpg'
       )
     })

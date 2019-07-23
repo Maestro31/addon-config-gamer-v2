@@ -1,5 +1,5 @@
 import Cart from '../../Models/Cart'
-import Article from '../../Models/Article'
+import Item from '../../Models/Item'
 import Http from '../Adapters/Http'
 import HttpService from '../Http/HttpService'
 import ItemScrapper from './ItemScrapper'
@@ -12,95 +12,110 @@ export interface UrlPattern {
 
 export default abstract class Scrapper {
   protected http = new Http()
-
+  protected nextScrapper: Scrapper
   protected itemScrapper: ItemScrapper
-
   protected cartScrapper: ListScrapper
   protected configuratorScrapper: ListScrapper
   protected sharedListScrapper: ListScrapper
-
-  public productUrl: RegExp
-  public reseller: Reseller
-
-  public matches: UrlPattern[]
+  protected productUrl: RegExp
+  protected matches: UrlPattern[]
+  protected reseller: Reseller
 
   constructor(httpService: HttpService = new Http()) {
     this.http = httpService
   }
 
-  public canGetCartFromUrl(url: string): boolean {
-    return !!this.matches.find(matchUrl => matchUrl.regex.test(url))
+  public setNextScrapper(scrapper: Scrapper) {
+    if (!this.nextScrapper) {
+      this.nextScrapper = scrapper
+      return
+    }
+
+    this.nextScrapper.setNextScrapper(scrapper)
   }
 
   public getCartFromUrl(url: string, doc: Document): Cart {
-    const match = this.matches.find(matchUrl => matchUrl.regex.test(url))
+    if (this.canGetCartFromUrl(url)) {
+      return this.matches.find(matchUrl => matchUrl.regex.test(url)).method(doc)
+    }
 
-    if (!match)
-      throw new Error('Url non valide ou revendeur non pris en charge')
+    if (this.nextScrapper) return this.nextScrapper.getCartFromUrl(url, doc)
 
-    return match.method(doc)
+    this.throwErrorNotValidUrl()
   }
 
-  protected getItemFrom(item: ItemScrapper) {
-    let article = Article.create()
-    article.reseller = this.reseller
-    article.name = item.getName()
-    article.price = item.getPrice()
-    article.url = item.getUrl()
-    article.imageUrl = item.getImageUrl()
+  public getItemFromUrl(url: string): Promise<Item> {
+    if (this.productUrl.test(url)) return this.getItemFromItemPage(url)
 
-    if (article.url != '' && !article.url.includes(this.reseller.url))
-      article.url = this.reseller.url + article.url
+    if (this.nextScrapper) return this.nextScrapper.getItemFromUrl(url)
 
-    if (/^\/\//.test(article.imageUrl))
-      article.imageUrl = 'https:' + article.imageUrl
-
-    if (
-      !article.imageUrl.includes('https://') &&
-      !article.imageUrl.includes('data:image')
-    )
-      article.imageUrl = this.reseller.url + article.imageUrl
-
-    article.url = this.addResellerTag(article.url)
-    article.available = item.isAvailable()
-    article.quantity = item.getQuantity()
-    return article
+    this.throwErrorNotValidUrl()
   }
 
-  protected getCartFrom(listScrapper: ListScrapper) {
+  protected getItem(scrapper: ItemScrapper) {
+    let item = Item.create()
+    item.reseller = this.reseller
+    item.name = scrapper.getName()
+    item.price = scrapper.getPrice()
+    item.imageUrl = this.reformatUrl(scrapper.getImageUrl())
+    const url = this.addResellerUrl(scrapper.getUrl())
+    item.url = this.addResellerTag(url)
+    item.available = scrapper.isAvailable()
+    item.quantity = scrapper.getQuantity()
+    return item
+  }
+
+  protected getCart(listScrapper: ListScrapper) {
     let cart = Cart.create()
     cart.reseller = this.reseller
 
     listScrapper.eachItem(itemScrapper => {
-      let article = this.getItemFrom(itemScrapper)
-      cart.articles.push(article)
+      let article = this.getItem(itemScrapper)
+      cart.items.push(article)
     })
 
     return cart
+  }
+
+  protected reformatUrl(url: string) {
+    if (this.isNotRelativeUrl(url) && this.isNotDataUrl(url))
+      return this.addResellerUrl(url)
+
+    return url.replace(/^\/\//, 'https://')
+  }
+
+  private isNotDataUrl(url: string) {
+    return !url.includes('data:image')
+  }
+
+  private isNotRelativeUrl(url: string) {
+    return /^\/[^\/]/.test(url)
+  }
+
+  protected addResellerUrl(url: string) {
+    return url.includes(this.reseller.url) ? url : this.reseller.url + url
   }
 
   protected addResellerTag(url: string) {
     return url + this.reseller.tag
   }
 
-  public fromCart = (doc: Document): Cart => {
+  public getCartFromCartPage = (doc: Document): Cart => {
     this.cartScrapper.setRootNode(doc)
-    return this.getCartFrom(this.cartScrapper)
+    return this.getCart(this.cartScrapper)
   }
 
-  public fromSharedList = (doc: Document): Cart => {
+  public getCartFromSharedList = (doc: Document): Cart => {
     this.sharedListScrapper.setRootNode(doc)
-    return this.getCartFrom(this.sharedListScrapper)
+    return this.getCart(this.sharedListScrapper)
   }
 
-  public fromArticlePage = async (url: string): Promise<Article> => {
+  public getItemFromItemPage = async (url: string): Promise<Item> => {
     return this.http
       .get(url)
       .then((doc: Document) => {
         this.itemScrapper.setRootNode(doc)
-        let article = this.getItemFrom(this.itemScrapper)
-        article.url = this.addResellerTag(url)
-        return article
+        return this.getItem(this.itemScrapper)
       })
       .catch(error => {
         console.error(error.message)
@@ -108,8 +123,16 @@ export default abstract class Scrapper {
       })
   }
 
-  public fromConfigurateur = (doc: Document): Cart => {
+  public getCartFromConfigurator = (doc: Document): Cart => {
     this.configuratorScrapper.setRootNode(doc)
-    return this.getCartFrom(this.configuratorScrapper)
+    return this.getCart(this.configuratorScrapper)
+  }
+
+  private canGetCartFromUrl(url: string): boolean {
+    return !!this.matches.find(matchUrl => matchUrl.regex.test(url))
+  }
+
+  private throwErrorNotValidUrl() {
+    throw new Error('Url non valide ou revendeur non pris en charge')
   }
 }

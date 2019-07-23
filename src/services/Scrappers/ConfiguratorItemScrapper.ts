@@ -27,8 +27,8 @@ export default class ConfiguratorItemScrapper extends ItemScrapper {
     let url = ''
 
     this.forEachItemNodesFrom(this.selectors.rootListSelector, scrapper => {
-      if (name === scrapper.textFrom(this.selectors.searchByNameSelector))
-        url = scrapper.attributeFrom(selector, attribute)
+      if (name === scrapper.queryText(this.selectors.searchByNameSelector))
+        url = scrapper.queryAttribute(selector, attribute)
     })
 
     return url

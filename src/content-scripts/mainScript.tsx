@@ -2,7 +2,7 @@ import * as React from 'react'
 import emotion from 'react-emotion'
 import * as DOM from 'react-dom'
 import Menu from '../components/Menu'
-import ScrapperService from '../services/Scrappers'
+import Scrapper from '../services/Scrappers'
 import SaveCartDialog from '../components/SaveCartDialog'
 import { saveCartMessage, sendMessage } from '../services/Messages'
 import Cart from '../Models/Cart'
@@ -28,20 +28,14 @@ export default class Main extends React.Component<{}, State> {
   componentWillMount = () => {
     chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       if (msg && msg.command === 'copy_cart') {
-        const cart = ScrapperService.getCartFromCurrentPage(
-          window.location.href,
-          document
-        )
+        const cart = Scrapper.getCartFromUrl(window.location.href, document)
         sendResponse(cart)
       }
     })
   }
 
   onSaveCart = () => {
-    const cart = ScrapperService.getCartFromCurrentPage(
-      window.location.href,
-      document
-    )
+    const cart = Scrapper.getCartFromUrl(window.location.href, document)
     this.setState({ cart, openDialog: true, copiedCart: false })
   }
 

@@ -2,9 +2,9 @@ import * as React from 'react'
 import Modal from './Modal'
 import { RowReverseLayout } from './SharedComponents'
 import Cart from '../Models/Cart'
-import Article from '../Models/Article'
+import Item from '../Models/Item'
 import emotion from 'react-emotion'
-import ScrapperService from '../services/Scrappers/index'
+import Scrapper from '../services/Scrappers/'
 import AddArticleButton from './AddArticleButton'
 import CartList from './CartList'
 
@@ -35,11 +35,11 @@ export default class CartDialog extends React.Component<Props, State> {
   }
 
   onDeleteArticle = (index: number) => (id: string): void => {
-    this.state.carts[index].articles = this.state.carts[index].articles.filter(
+    this.state.carts[index].items = this.state.carts[index].items.filter(
       article => article.id !== id
     )
 
-    if (this.state.carts[index].articles.length === 0)
+    if (this.state.carts[index].items.length === 0)
       delete this.state.carts[index]
 
     this.setState({
@@ -51,9 +51,9 @@ export default class CartDialog extends React.Component<Props, State> {
     this.props.onConfirmCarts(this.state.carts)
   }
 
-  onArticleChange = (index: number) => (newArticle: Article): void => {
+  onArticleChange = (index: number) => (newArticle: Item): void => {
     let carts = this.state.carts
-    carts[index].articles = carts[index].articles.map(article => {
+    carts[index].items = carts[index].items.map(article => {
       if (article.name === name) {
         return newArticle
       }
@@ -79,7 +79,7 @@ export default class CartDialog extends React.Component<Props, State> {
 
   onAddArticle = async (url: string) => {
     this.setState({ isFetchingArticle: true })
-    const article = await ScrapperService.getItemFromUrl(url)
+    const article = await Scrapper.getItemFromUrl(url)
     let carts = this.state.carts
     if (article) {
       this.setState({ isFetchingArticle: false })
@@ -91,10 +91,10 @@ export default class CartDialog extends React.Component<Props, State> {
       if (index == -1) {
         let cart = Cart.create()
         cart.reseller = article.reseller
-        cart.articles.push(article)
+        cart.items.push(article)
         carts.push(cart)
       } else {
-        carts[index].articles.push(article)
+        carts[index].items.push(article)
       }
 
       this.setState({ carts })

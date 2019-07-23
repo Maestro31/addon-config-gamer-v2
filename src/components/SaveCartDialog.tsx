@@ -5,12 +5,12 @@ import TextInput from './TextInput'
 import TagInput from './TagInput'
 import { getTags } from '../services/Storage'
 import Cart from '../Models/Cart'
-import Article from '../Models/Article'
+import Item from '../Models/Item'
 import emotion from 'react-emotion'
 import * as NumericInput from 'react-numeric-input'
 import EditableArticlesList from './EditableArticlesList'
 import Card from './Card'
-import ScrapperService from '../services/Scrappers'
+import Scrapper from '../services/Scrappers'
 
 interface Props {
   open: boolean
@@ -98,11 +98,9 @@ export default class CartDialog extends React.Component<Props, State> {
   }
 
   onDeleteArticle = (id: string): void => {
-    const articles = this.state.cart.articles.filter(
-      article => article.id !== id
-    )
+    const articles = this.state.cart.items.filter(article => article.id !== id)
     this.setState({
-      cart: { ...this.state.cart, articles },
+      cart: { ...this.state.cart, items: articles },
       copiedCart: false
     })
   }
@@ -112,8 +110,8 @@ export default class CartDialog extends React.Component<Props, State> {
     this.setState({ copiedCart: false })
   }
 
-  onArticleChange = (newArticle: Article): void => {
-    const articles = this.state.cart.articles.map(article => {
+  onArticleChange = (newArticle: Item): void => {
+    const articles = this.state.cart.items.map(article => {
       if (article.name === name) {
         return newArticle
       }
@@ -121,7 +119,7 @@ export default class CartDialog extends React.Component<Props, State> {
     })
 
     this.setState({
-      cart: { ...this.state.cart, articles },
+      cart: { ...this.state.cart, items: articles },
       copiedCart: false
     })
   }
@@ -132,11 +130,11 @@ export default class CartDialog extends React.Component<Props, State> {
 
   onAddArticle = async (url: string) => {
     this.setState({ isFetchingArticle: true })
-    const article = await ScrapperService.getItemFromUrl(url)
+    const article = await Scrapper.getItemFromUrl(url)
     if (article) {
       this.setState({ isFetchingArticle: false })
       let cart = this.state.cart
-      cart.articles.push(article)
+      cart.items.push(article)
       this.setState({ cart })
 
       this.onCartChange(cart)
@@ -179,7 +177,7 @@ export default class CartDialog extends React.Component<Props, State> {
         </Card>
         <Card title='Les articles'>
           <EditableArticlesList
-            articles={cart.articles}
+            articles={cart.items}
             activeComment={false}
             onDeleteArticle={this.onDeleteArticle}
             onArticleChange={this.onArticleChange}

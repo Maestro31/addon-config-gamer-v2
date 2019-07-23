@@ -1,4 +1,4 @@
-import Article from './Article'
+import Item from './Item'
 import * as uuid from 'uuid/v4'
 
 interface Cart {
@@ -6,7 +6,7 @@ interface Cart {
   readonly creationDate: Date
   owner?: string
   subjectId?: string
-  articles?: Article[]
+  items?: Item[]
   modificationDate?: Date
   refund?: number
   refundPercent?: number
@@ -23,7 +23,7 @@ namespace Cart {
       creationDate: new Date(),
       refund: 0,
       refundPercent: 0,
-      articles: []
+      items: []
     }
   }
 
@@ -40,8 +40,8 @@ namespace Cart {
   }
 
   export function getCartPriceWithRefund(cart: Cart) {
-    const price = cart.articles.reduce(
-      (acc, c) => acc + Article.getPriceWithRefund(c),
+    const price = cart.items.reduce(
+      (acc, c) => acc + Item.getPriceWithRefund(c),
       0
     )
 
@@ -51,8 +51,8 @@ namespace Cart {
   }
 
   export function getCartPriceWithoutRefund(cart: Cart) {
-    const total = cart.articles.reduce(
-      (acc, c) => acc + Article.getPriceWithoutRefund(c),
+    const total = cart.items.reduce(
+      (acc, c) => acc + Item.getPriceWithoutRefund(c),
       0
     )
 
@@ -64,7 +64,7 @@ namespace Cart {
   }
 
   export function isAvailable(cart: Cart) {
-    return cart.articles.every(c => c.available)
+    return cart.items.every(c => c.available)
   }
 
   export function getCreationDate(cart) {

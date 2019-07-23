@@ -4,27 +4,27 @@ import ItemScrapper from '../ItemScrapper'
 import ConfiguratorItemScrapper from '../ConfiguratorItemScrapper'
 
 export default class LdlcScrapper extends Scrapper {
-  reseller = {
+  protected reseller = {
     name: 'LDLC France',
     url: 'https://www.ldlc.com',
     currency: 'EUR',
     tag: '#aff764'
   }
 
-  productUrl = /https:\/\/www\.ldlc\.com\/fiche\/[A-Z0-9]+\.html/
+  protected productUrl = /https:\/\/www\.ldlc\.com\/fiche\/[A-Z0-9]+\.html/
 
-  matches = [
+  protected matches = [
     {
       regex: /https:\/\/secure2\.ldlc\.com\/fr-fr\/Cart/,
-      method: doc => this.fromCart(doc)
+      method: doc => this.getCartFromCartPage(doc)
     },
     {
       regex: /https:\/\/www\.ldlc\.com\/configurateur-pc/,
-      method: doc => this.fromConfigurateur(doc)
+      method: doc => this.getCartFromConfigurator(doc)
     }
   ]
 
-  itemScrapper = new ItemScrapper({
+  protected itemScrapper = new ItemScrapper({
     name: '.title-1',
     imageUrl: '.photodefault > img',
     availability: '.stock',
@@ -32,7 +32,7 @@ export default class LdlcScrapper extends Scrapper {
     price: '.price > .price'
   })
 
-  cartScrapper = new ListScrapper({
+  protected cartScrapper = new ListScrapper({
     rootSelector: '.cart-product-list .item',
     scrapper: new ItemScrapper({
       name: '.title > a',
@@ -41,11 +41,11 @@ export default class LdlcScrapper extends Scrapper {
       availabilityRegex: /en stock/i,
       url: '.title > a',
       quantity: '.quantity .multiSel',
-      price: '.cell-subtotal .price'
+      price: '.cell-subtotal'
     })
   })
 
-  configuratorScrapper = new ListScrapper({
+  protected configuratorScrapper = new ListScrapper({
     rootSelector: '.sbloc li',
     scrapper: new ConfiguratorItemScrapper({
       name: '.name',

@@ -1,6 +1,6 @@
 import * as React from 'react'
 import emotion from 'react-emotion'
-import Article from '../Models/Article'
+import Item from '../Models/Item'
 import Table, { Column, CellData } from './Table'
 import { DispoView, VerticalLayout, Link } from './SharedComponents'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -11,8 +11,8 @@ import { getComments, addComment } from '../services/Storage'
 import CommentInput from './CommentInput'
 
 interface Props {
-  articles: Article[]
-  onArticleChange?(article: Article): void
+  articles: Item[]
+  onArticleChange?(article: Item): void
   onDeleteArticle?(id: string): void
   activeComment?: boolean
 }
@@ -39,11 +39,11 @@ export default class EditableArticlesList extends React.Component<
     this.props.onDeleteArticle && this.props.onDeleteArticle(id)
   }
 
-  onArticleChange = (article: Article): void => {
+  onArticleChange = (article: Item): void => {
     this.props.onArticleChange && this.props.onArticleChange(article)
   }
 
-  onCreateComment = (article: Article, value: string) => {
+  onCreateComment = (article: Item, value: string) => {
     this.setState({ comments: [...this.state.comments, value] })
     addComment(value)
     article.comment = value
@@ -174,7 +174,7 @@ export default class EditableArticlesList extends React.Component<
           new Intl.NumberFormat('fr-FR', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
-          }).format(Article.getPriceWithRefund(o)),
+          }).format(Item.getPriceWithRefund(o)),
         alignContent: 'right'
       },
       {
