@@ -1,6 +1,5 @@
 import HttpService from '../../services/Http/HttpService'
 const fs = require('fs')
-const path = require('path')
 
 export default class FileHttpAdapter implements HttpService {
   get = async (url: string) => {

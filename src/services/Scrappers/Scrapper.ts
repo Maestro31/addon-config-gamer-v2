@@ -111,16 +111,14 @@ export default abstract class Scrapper {
   }
 
   public getItemFromItemPage = async (url: string): Promise<Item> => {
-    return this.http
-      .get(url)
-      .then((doc: Document) => {
-        this.itemScrapper.setRootNode(doc)
-        return this.getItem(this.itemScrapper)
-      })
-      .catch(error => {
-        console.error(error.message)
-        return null
-      })
+    try {
+      const doc = await this.http.get(url)
+      this.itemScrapper.setRootNode(doc)
+      return this.getItem(this.itemScrapper)
+    } catch (error) {
+      console.error(error.message)
+      return null
+    }
   }
 
   public getCartFromConfigurator = (doc: Document): Cart => {
